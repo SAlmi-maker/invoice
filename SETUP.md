@@ -4,19 +4,20 @@
 
 ```
 joska/
-├── index.html          ← Smart entry point (redirect)
-├── login.html          ← Authentication page
-├── dashboard.html      ← Main dashboard
-├── settings.html       ← Company settings
+├── index.html            ← Smart entry point (redirect)
+├── login.html            ← Authentication page
+├── dashboard.html        ← Main dashboard
+├── settings.html         ← Company settings
+├── reset-password.html   ← ✨ Branded password reset page (NEW)
 ├── css/
-│   ├── style.css       ← Global styles, variables, components
-│   └── dashboard.css   ← App shell, sidebar, stats, tables
+│   ├── style.css         ← Global styles, variables, components
+│   └── dashboard.css     ← App shell, sidebar, stats, tables
 └── js/
-    ├── firebase.js     ← Firebase init (⚠️ edit this first)
-    ├── i18n.js         ← Translations: EN / FR / AR + RTL
-    ├── auth.js         ← Login, logout, route protection
-    ├── dashboard.js    ← Revenue stats, invoice feed
-    └── settings.js     ← Company profile, logo/seal upload
+    ├── firebase.js       ← Firebase init (⚠️ edit this first)
+    ├── i18n.js           ← Translations: EN / FR / AR + RTL
+    ├── auth.js           ← Login, logout, route protection, reset flow
+    ├── dashboard.js      ← Revenue stats, invoice feed
+    └── settings.js       ← Company profile, logo/seal upload
 ```
 
 ---
@@ -132,11 +133,50 @@ Then enable GitHub Pages in repository Settings as above.
 
 ---
 
-## Step 8 — Add Authorized Domain for Firebase Auth
+## Step 8 — Add Authorized Domains for Firebase Auth
+
+> ⚠️ **Required for the branded password reset page to work.**
 
 1. Firebase Console → **Authentication** → **Settings** → **Authorized domains**
 2. Click **Add domain**
-3. Add: `yourusername.github.io`
+3. Add your GitHub Pages domain: `yourusername.github.io`
+4. If using a custom domain, add that too (e.g. `app.yourcompany.com`)
+
+Firebase will only redirect to domains listed here. Without this step, the
+reset email link will be blocked and the user will land on the default Firebase
+error page instead of `reset-password.html`.
+
+---
+
+## Password Reset Flow (Branded)
+
+The full end-to-end flow after setup:
+
+```
+User clicks "Forgot password?" on login.html
+        ↓
+Enters email → auth.js calls sendPasswordReset()
+with actionCodeSettings pointing to reset-password.html
+        ↓
+Firebase sends email with link:
+  https://your-domain/reset-password.html?mode=resetPassword&oobCode=XXXX
+        ↓
+User clicks link → reset-password.html loads
+        ↓
+Page reads oobCode from URL, calls verifyPasswordResetCode()
+  ✅ Valid   → shows "Set New Password" form
+  ❌ Expired → shows branded "Link Expired" error panel
+        ↓
+User enters + confirms new password
+  • 8-character minimum enforced client-side
+  • Password strength indicator (Weak / Fair / Good / Strong)
+  • Show/hide toggle on both fields
+  • Passwords-must-match validation
+        ↓
+confirmPasswordReset(oobCode, newPassword) called
+  ✅ Success → branded success screen → auto-redirect to login.html (5s)
+  ❌ Error   → inline error message (expired / invalid / weak password)
+```
 
 ---
 
@@ -176,6 +216,8 @@ users/
 | Arabic   | `ar` | **RTL**   |
 
 Language preference is saved in `localStorage` and persists across sessions.
+The reset-password page is fully translated in all three languages, including
+password strength labels, error messages, and the countdown redirect text.
 
 ---
 
@@ -195,6 +237,7 @@ Since public registration is disabled, all users must be created manually:
 
 Dark mode is toggled via the moon/sun button in the topbar and login page.
 Preference is saved in `localStorage` under `joska_theme`.
+The reset-password page respects the same dark mode preference.
 
 ---
 

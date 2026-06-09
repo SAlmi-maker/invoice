@@ -1,7 +1,6 @@
 // ============================================================
 // JOSKA - Internationalization (i18n) Module
 // Supports: English (en), French (fr), Arabic (ar / RTL)
-// Updated: Invoice module keys added
 // ============================================================
 
 const JOSKA_I18N = (() => {
@@ -34,6 +33,34 @@ const JOSKA_I18N = (() => {
       'auth.tooManyRequests': 'Too many attempts. Please try again later.',
       'auth.userDisabled':    'This account has been disabled.',
       'auth.genericError':    'Authentication failed. Please try again.',
+
+      // Reset Password Page
+      'auth.newPasswordTitle':    'Set New Password',
+      'auth.newPasswordSubtitle': 'Choose a strong password for your account',
+      'auth.newPassword':         'New Password',
+      'auth.confirmPassword':     'Confirm Password',
+      'auth.setPasswordBtn':      'Set New Password',
+      'auth.passwordUpdated':     'Password Updated!',
+      'auth.passwordUpdatedDesc': 'Your password has been changed successfully. You can now sign in with your new password.',
+      'auth.redirectingIn':       'Redirecting to sign in in {n} seconds…',
+      'auth.resetLinkInvalid':    'Link Expired or Invalid',
+      'auth.resetLinkInvalidDesc':'This password reset link has expired or already been used. Please request a new one.',
+      'auth.passwordMismatch':    'Passwords do not match.',
+      'auth.passwordTooShort':    'Password must be at least 8 characters.',
+      'auth.weakPassword':        'Please choose a stronger password.',
+      'auth.resetExpired':        'This reset link has expired. Please request a new one.',
+      'auth.resetInvalid':        'This reset link is invalid. Please request a new one.',
+
+      // Password strength labels
+      'auth.strengthWeak':   'Weak',
+      'auth.strengthFair':   'Fair',
+      'auth.strengthGood':   'Good',
+      'auth.strengthStrong': 'Strong',
+
+      // Reset page left-panel features
+      'auth.resetFeature1': 'Your account is protected',
+      'auth.resetFeature2': 'Secure password reset',
+      'auth.resetFeature3': 'Back to managing revenue',
 
       // Navigation
       'nav.dashboard':  'Dashboard',
@@ -94,52 +121,6 @@ const JOSKA_I18N = (() => {
       'common.edit':     'Edit',
       'common.search':   'Search...',
       'common.currency': 'MAD',
-
-      // Invoices
-      'inv.pageSubtitle':        'Create, manage, and export car rental invoices.',
-      'inv.newInvoice':          'New Invoice',
-      'inv.newInvoiceDesc':      'Car rental agreement & invoice',
-      'inv.saveDraft':           'Save Draft',
-      'inv.downloadPDF':         'Download PDF',
-      'inv.pdfReady':            'PDF downloaded successfully!',
-      'inv.export':              'Export',
-      'inv.filterAll':           'All',
-      'inv.noInvoices':          'No invoices yet',
-      'inv.noInvoicesDesc':      'Create your first invoice using the button above.',
-      'inv.deleted':             'Invoice deleted.',
-      'inv.deleteTitle':         'Delete Invoice',
-      'inv.deleteConfirm':       'Are you sure you want to permanently delete this invoice? This action cannot be undone.',
-      'inv.days':                'days',
-      'inv.isRequired':          'is required.',
-      'inv.dailyPriceRequired':  'Daily price must be greater than 0.',
-      'inv.dateRangeError':      'End date cannot be before start date.',
-      'inv.section.customer':    'Customer',
-      'inv.section.vehicle':     'Vehicle',
-      'inv.section.period':      'Rental Period',
-      'inv.section.pricing':     'Pricing',
-      'inv.section.status':      'Status & Notes',
-      'inv.field.clientName':    'Customer Name',
-      'inv.field.cin':           'CIN / Passport',
-      'inv.field.phone':         'Phone',
-      'inv.field.vehicleBrand':  'Brand',
-      'inv.field.vehicleModel':  'Model',
-      'inv.field.plate':         'Registration Plate',
-      'inv.field.startDate':     'Start Date',
-      'inv.field.endDate':       'End Date',
-      'inv.field.dailyPrice':    'Daily Price',
-      'inv.field.rentalSubtotal':'Rental Subtotal',
-      'inv.field.insurance':     'Insurance',
-      'inv.field.fuel':          'Fuel',
-      'inv.field.extraDriver':   'Extra Driver',
-      'inv.field.other':         'Other Charges',
-      'inv.field.total':         'Total',
-      'inv.field.status':        'Invoice Status',
-      'inv.field.notes':         'Notes',
-      'inv.col.client':          'Client',
-      'inv.col.vehicle':         'Vehicle',
-      'inv.col.period':          'Period',
-      'inv.col.total':           'Total',
-      'inv.col.status':          'Status',
     },
 
     fr: {
@@ -164,6 +145,32 @@ const JOSKA_I18N = (() => {
       'auth.tooManyRequests': 'Trop de tentatives. Réessayez plus tard.',
       'auth.userDisabled':    'Ce compte a été désactivé.',
       'auth.genericError':    'Échec de l\'authentification. Veuillez réessayer.',
+
+      // Reset Password Page
+      'auth.newPasswordTitle':    'Définir un Nouveau Mot de Passe',
+      'auth.newPasswordSubtitle': 'Choisissez un mot de passe fort pour votre compte',
+      'auth.newPassword':         'Nouveau Mot de Passe',
+      'auth.confirmPassword':     'Confirmer le Mot de Passe',
+      'auth.setPasswordBtn':      'Définir le Nouveau Mot de Passe',
+      'auth.passwordUpdated':     'Mot de Passe Mis à Jour !',
+      'auth.passwordUpdatedDesc': 'Votre mot de passe a été modifié avec succès. Vous pouvez maintenant vous connecter.',
+      'auth.redirectingIn':       'Redirection vers la connexion dans {n} secondes…',
+      'auth.resetLinkInvalid':    'Lien Expiré ou Invalide',
+      'auth.resetLinkInvalidDesc':'Ce lien de réinitialisation a expiré ou a déjà été utilisé. Veuillez en demander un nouveau.',
+      'auth.passwordMismatch':    'Les mots de passe ne correspondent pas.',
+      'auth.passwordTooShort':    'Le mot de passe doit comporter au moins 8 caractères.',
+      'auth.weakPassword':        'Veuillez choisir un mot de passe plus fort.',
+      'auth.resetExpired':        'Ce lien a expiré. Veuillez en demander un nouveau.',
+      'auth.resetInvalid':        'Ce lien est invalide. Veuillez en demander un nouveau.',
+
+      'auth.strengthWeak':   'Faible',
+      'auth.strengthFair':   'Passable',
+      'auth.strengthGood':   'Bon',
+      'auth.strengthStrong': 'Fort',
+
+      'auth.resetFeature1': 'Votre compte est protégé',
+      'auth.resetFeature2': 'Réinitialisation sécurisée',
+      'auth.resetFeature3': 'Retour à la gestion des revenus',
 
       'nav.dashboard':  'Tableau de Bord',
       'nav.invoices':   'Factures',
@@ -220,51 +227,6 @@ const JOSKA_I18N = (() => {
       'common.edit':     'Modifier',
       'common.search':   'Rechercher...',
       'common.currency': 'MAD',
-
-      'inv.pageSubtitle':        'Créez, gérez et exportez vos factures de location.',
-      'inv.newInvoice':          'Nouvelle Facture',
-      'inv.newInvoiceDesc':      'Contrat de location et facture',
-      'inv.saveDraft':           'Enregistrer Brouillon',
-      'inv.downloadPDF':         'Télécharger PDF',
-      'inv.pdfReady':            'PDF téléchargé avec succès !',
-      'inv.export':              'Exporter',
-      'inv.filterAll':           'Tout',
-      'inv.noInvoices':          'Aucune facture',
-      'inv.noInvoicesDesc':      'Créez votre première facture avec le bouton ci-dessus.',
-      'inv.deleted':             'Facture supprimée.',
-      'inv.deleteTitle':         'Supprimer la Facture',
-      'inv.deleteConfirm':       'Voulez-vous vraiment supprimer définitivement cette facture ? Cette action est irréversible.',
-      'inv.days':                'jours',
-      'inv.isRequired':          'est requis.',
-      'inv.dailyPriceRequired':  'Le prix journalier doit être supérieur à 0.',
-      'inv.dateRangeError':      'La date de fin ne peut pas être antérieure à la date de début.',
-      'inv.section.customer':    'Client',
-      'inv.section.vehicle':     'Véhicule',
-      'inv.section.period':      'Période de Location',
-      'inv.section.pricing':     'Tarification',
-      'inv.section.status':      'Statut & Notes',
-      'inv.field.clientName':    'Nom du Client',
-      'inv.field.cin':           'CIN / Passeport',
-      'inv.field.phone':         'Téléphone',
-      'inv.field.vehicleBrand':  'Marque',
-      'inv.field.vehicleModel':  'Modèle',
-      'inv.field.plate':         'Immatriculation',
-      'inv.field.startDate':     'Date de Début',
-      'inv.field.endDate':       'Date de Fin',
-      'inv.field.dailyPrice':    'Prix Journalier',
-      'inv.field.rentalSubtotal':'Sous-total Location',
-      'inv.field.insurance':     'Assurance',
-      'inv.field.fuel':          'Carburant',
-      'inv.field.extraDriver':   'Conducteur Supplémentaire',
-      'inv.field.other':         'Autres Frais',
-      'inv.field.total':         'Total',
-      'inv.field.status':        'Statut de la Facture',
-      'inv.field.notes':         'Notes',
-      'inv.col.client':          'Client',
-      'inv.col.vehicle':         'Véhicule',
-      'inv.col.period':          'Période',
-      'inv.col.total':           'Total',
-      'inv.col.status':          'Statut',
     },
 
     ar: {
@@ -289,6 +251,32 @@ const JOSKA_I18N = (() => {
       'auth.tooManyRequests': 'محاولات كثيرة جداً. حاول لاحقاً.',
       'auth.userDisabled':    'تم تعطيل هذا الحساب.',
       'auth.genericError':    'فشل المصادقة. يرجى المحاولة مرة أخرى.',
+
+      // Reset Password Page
+      'auth.newPasswordTitle':    'تعيين كلمة مرور جديدة',
+      'auth.newPasswordSubtitle': 'اختر كلمة مرور قوية لحسابك',
+      'auth.newPassword':         'كلمة المرور الجديدة',
+      'auth.confirmPassword':     'تأكيد كلمة المرور',
+      'auth.setPasswordBtn':      'تعيين كلمة المرور الجديدة',
+      'auth.passwordUpdated':     'تم تحديث كلمة المرور!',
+      'auth.passwordUpdatedDesc': 'تم تغيير كلمة مرورك بنجاح. يمكنك الآن تسجيل الدخول بكلمة المرور الجديدة.',
+      'auth.redirectingIn':       'سيتم التحويل إلى تسجيل الدخول خلال {n} ثوانٍ…',
+      'auth.resetLinkInvalid':    'الرابط منتهي الصلاحية أو غير صالح',
+      'auth.resetLinkInvalidDesc':'انتهت صلاحية رابط إعادة التعيين أو تم استخدامه بالفعل. يرجى طلب رابط جديد.',
+      'auth.passwordMismatch':    'كلمتا المرور غير متطابقتين.',
+      'auth.passwordTooShort':    'يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.',
+      'auth.weakPassword':        'يرجى اختيار كلمة مرور أقوى.',
+      'auth.resetExpired':        'انتهت صلاحية هذا الرابط. يرجى طلب رابط جديد.',
+      'auth.resetInvalid':        'هذا الرابط غير صالح. يرجى طلب رابط جديد.',
+
+      'auth.strengthWeak':   'ضعيفة',
+      'auth.strengthFair':   'مقبولة',
+      'auth.strengthGood':   'جيدة',
+      'auth.strengthStrong': 'قوية',
+
+      'auth.resetFeature1': 'حسابك محمي',
+      'auth.resetFeature2': 'إعادة تعيين آمنة',
+      'auth.resetFeature3': 'العودة إلى إدارة الإيرادات',
 
       'nav.dashboard':  'لوحة التحكم',
       'nav.invoices':   'الفواتير',
@@ -345,51 +333,6 @@ const JOSKA_I18N = (() => {
       'common.edit':     'تعديل',
       'common.search':   'بحث...',
       'common.currency': 'درهم',
-
-      'inv.pageSubtitle':        'أنشئ وأدر وصدّر فواتير تأجير السيارات.',
-      'inv.newInvoice':          'فاتورة جديدة',
-      'inv.newInvoiceDesc':      'عقد إيجار وفاتورة',
-      'inv.saveDraft':           'حفظ كمسودة',
-      'inv.downloadPDF':         'تنزيل PDF',
-      'inv.pdfReady':            'تم تنزيل PDF بنجاح!',
-      'inv.export':              'تصدير',
-      'inv.filterAll':           'الكل',
-      'inv.noInvoices':          'لا توجد فواتير بعد',
-      'inv.noInvoicesDesc':      'أنشئ فاتورتك الأولى باستخدام الزر أعلاه.',
-      'inv.deleted':             'تم حذف الفاتورة.',
-      'inv.deleteTitle':         'حذف الفاتورة',
-      'inv.deleteConfirm':       'هل أنت متأكد من حذف هذه الفاتورة نهائياً؟ لا يمكن التراجع عن هذا الإجراء.',
-      'inv.days':                'أيام',
-      'inv.isRequired':          'مطلوب.',
-      'inv.dailyPriceRequired':  'يجب أن يكون السعر اليومي أكبر من 0.',
-      'inv.dateRangeError':      'لا يمكن أن تكون تاريخ الانتهاء قبل تاريخ البدء.',
-      'inv.section.customer':    'العميل',
-      'inv.section.vehicle':     'المركبة',
-      'inv.section.period':      'فترة الإيجار',
-      'inv.section.pricing':     'التسعير',
-      'inv.section.status':      'الحالة والملاحظات',
-      'inv.field.clientName':    'اسم العميل',
-      'inv.field.cin':           'رقم الهوية / الجواز',
-      'inv.field.phone':         'الهاتف',
-      'inv.field.vehicleBrand':  'الماركة',
-      'inv.field.vehicleModel':  'الموديل',
-      'inv.field.plate':         'لوحة التسجيل',
-      'inv.field.startDate':     'تاريخ البدء',
-      'inv.field.endDate':       'تاريخ الانتهاء',
-      'inv.field.dailyPrice':    'السعر اليومي',
-      'inv.field.rentalSubtotal':'المجموع الفرعي للإيجار',
-      'inv.field.insurance':     'التأمين',
-      'inv.field.fuel':          'الوقود',
-      'inv.field.extraDriver':   'سائق إضافي',
-      'inv.field.other':         'رسوم أخرى',
-      'inv.field.total':         'الإجمالي',
-      'inv.field.status':        'حالة الفاتورة',
-      'inv.field.notes':         'ملاحظات',
-      'inv.col.client':          'العميل',
-      'inv.col.vehicle':         'المركبة',
-      'inv.col.period':          'الفترة',
-      'inv.col.total':           'الإجمالي',
-      'inv.col.status':          'الحالة',
     }
   };
 
@@ -423,7 +366,7 @@ const JOSKA_I18N = (() => {
 
   function applyToDOM() {
     document.querySelectorAll('[data-i18n]').forEach(el => {
-      const key  = el.getAttribute('data-i18n');
+      const key = el.getAttribute('data-i18n');
       const attr = el.getAttribute('data-i18n-attr');
       if (attr) {
         el.setAttribute(attr, t(key));
@@ -440,11 +383,13 @@ const JOSKA_I18N = (() => {
     applyDirection();
     applyToDOM();
 
+    // Wire language switcher buttons
     document.querySelectorAll('[data-lang]').forEach(btn => {
       btn.addEventListener('click', () => setLang(btn.getAttribute('data-lang')));
       btn.classList.toggle('active', btn.getAttribute('data-lang') === currentLang);
     });
 
+    // Update active state on lang change
     document.addEventListener('joska:langChanged', ({ detail }) => {
       document.querySelectorAll('[data-lang]').forEach(btn => {
         btn.classList.toggle('active', btn.getAttribute('data-lang') === detail.lang);
