@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JOSKA — Invoices</title>
+  <meta name="description" content="JOSKA Invoice & Revenue Management — Invoices" />
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232563EB'/%3E%3Ctext x='16' y='22' text-anchor='middle' fill='white' font-family='Inter,sans-serif' font-weight='800' font-size='14'%3EJ%3C/text%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/dashboard.css" />
+  <style>
+    /* ── Invoice Page Styles ── */
+    .invoice-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+    .invoice-toolbar .search-box {
+      position: relative;
+      flex: 1;
+      min-width: 200px;
+      max-width: 360px;
+    }
+    .invoice-toolbar .search-box svg {
+      position: absolute;
+      inset-inline-start: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px; height: 16px;
+      color: var(--text-tertiary);
+      pointer-events: none;
+    }
+    .invoice-toolbar .search-input {
+      width: 100%;
+      padding: 9px 14px 9px 38px;
+      background: var(--bg-surface);
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-md);
+      font-size: 0.875rem;
+      color: var(--text-primary);
+      outline: none;
+      transition: border-color var(--t-fast), box-shadow var(--t-fast);
+    }
+    [dir="rtl"] .invoice-toolbar .search-input { padding: 9px 38px 9px 14px; }
+    .invoice-toolbar .search-input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+    .filter-select {
+      padding: 9px 14px;
+      background: var(--bg-surface);
+      border: 1.5px solid var(--border-color);
+      border-radius: var(--radius-md);
+      font-size: 0.875rem;
+      color: var(--text-primary);
+      outline: none;
+      cursor: pointer;
+      transition: border-color var(--t-fast);
+    }
+    .filter-select:focus { border-color: var(--primary); }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45);
+      backdrop-filter: blur(4px);
+      z-index: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--t-base);
+    }
+    .modal-overlay.show { opacity: 1; pointer-events: all; }
+
+    .modal {
+      background: var(--bg-surface);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow-xl);
+      width: 100%;
+      max-width: 760px;
+      max-height: 92vh;
+      overflow-y: auto;
+      transform: scale(0.96) translateY(16px);
+      transition: transform var(--t-base);
+      border: 1px solid var(--border-color);
+    }
+    .modal-overlay.show .modal { transform: scale(1) translateY(0); }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 28px 20px;
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      background: var(--bg-surface);
+      z-index: 1;
+    }
+    .modal-header h3 { font-size: 1.15rem; font-weight: 700; }
+    .modal-close {
+      background: none; border: none;
+      color: var(--text-tertiary);
+      cursor: pointer;
+      padding: 6px;
+      border-radius: var(--radius-sm);
+      display: flex; align-items: center; justify-content: center;
+      transition: all var(--t-fast);
+    }
+    .modal-close:hover { background: var(--bg-subtle); color: var(--text-primary); }
+    .modal-close svg { width: 20px; height: 20px; }
+    .modal-body { padding: 24px 28px; }
+    .modal-footer {
+      padding: 16px 28px 24px;
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+      border-top: 1px solid var(--border-color);
+    }
+
+    /* ── Invoice Form ── */
+    .form-section-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--primary);
+      margin: 0 0 14px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .form-grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 600px) {
+      .form-grid-2, .form-grid-3 { grid-template-columns: 1fr; }
+    }
+    .form-section { margin-bottom: 24px; }
+
+    /* ── Totals Box ── */
+    .totals-box {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      margin-top: 8px;
+    }
+    .totals-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+    .totals-row.total-final {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      border-top: 1.5px solid var(--border-color);
+      margin-top: 8px;
+      padding-top: 14px;
+    }
+    .totals-row .amount-val { font-weight: 600; color: var(--text-primary); }
+    .totals-row.total-final .amount-val { color: var(--primary); font-size: 1.15rem; }
+
+    /* ── Invoice View Card ── */
+    .invoice-view-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+    .invoice-view-company { font-size: 0.85rem; color: var(--text-secondary); line-height: 1.6; }
+    .invoice-view-company strong { display: block; font-size: 1rem; color: var(--text-primary); margin-bottom: 4px; }
+    .invoice-view-meta { text-align: end; }
+    .invoice-view-number { font-size: 1.5rem; font-weight: 800; color: var(--primary); }
+    .invoice-view-date { font-size: 0.85rem; color: var(--text-secondary); margin-top: 4px; }
+
+    .invoice-detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 540px) { .invoice-detail-grid { grid-template-columns: 1fr; } }
+    .invoice-detail-card {
+      background: var(--bg-subtle);
+      border-radius: var(--radius-md);
+      padding: 14px;
+    }
+    .invoice-detail-card .label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-tertiary);
+      margin-bottom: 8px;
+    }
+    .invoice-detail-card .value {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      line-height: 1.5;
+    }
+
+    /* ── Status change select in view ── */
+    .status-select-inline {
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      border: 1.5px solid var(--border-color);
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      outline: none;
+      background: var(--bg-surface);
+      color: var(--text-primary);
+    }
+
+    .days-count {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      background: var(--primary-light);
+      color: var(--primary);
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+      font-weight: 600;
+    }
+    .invoice-num { font-weight: 700; font-family: monospace; color: var(--primary); }
+    .amount { font-weight: 600; }
+
+    /* ── Rentals table inside view ── */
+    .charges-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    .charges-table th, .charges-table td {
+      text-align: start;
+      padding: 10px 12px;
+      font-size: 0.875rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .charges-table th {
+      font-weight: 600;
+      color: var(--text-secondary);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: var(--bg-subtle);
+    }
+    .charges-table tr:last-child td { border-bottom: none; }
+    .charges-table td:last-child { text-align: end; font-weight: 600; }
+    .charges-table th:last-child { text-align: end; }
+  </style>
+</head>
+<body>
+<div class="app-layout">
+
+  <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+  <!-- ══════════════════════════════════════════════════════
+       SIDEBAR
+  ══════════════════════════════════════════════════════ -->
+  <aside class="sidebar" id="sidebar" role="navigation">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/>
+          <line x1="16" y1="17" x2="8" y2="17"/>
+        </svg>
+      </div>
+      <div class="sidebar-brand">
+        <div class="sidebar-brand-name">JOSKA</div>
+        <div class="sidebar-brand-sub company-name">Car Rental</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a href="dashboard.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span data-i18n="nav.dashboard">Dashboard</span>
+      </a>
+      <a href="invoices.html" class="nav-item active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        <span data-i18n="nav.invoices">Invoices</span>
+        <span class="nav-badge" id="navInvoiceCount">—</span>
+      </a>
+      <a href="#" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        <span data-i18n="nav.clients">Clients</span>
+      </a>
+      <div class="nav-section-label">Analytics</div>
+      <a href="reports.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span data-i18n="nav.reports">Reports</span>
+      </a>
+      <div class="nav-section-label">System</div>
+      <a href="templates.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+        <span data-i18n="nav.templates">Templates</span>
+      </a>
+      <a href="settings.html" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span data-i18n="nav.settings">Settings</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="lang-switcher" style="margin-bottom:10px; justify-content:center;">
+        <button class="lang-btn" data-lang="en">EN</button>
+        <button class="lang-btn" data-lang="fr">FR</button>
+        <button class="lang-btn" data-lang="ar">ع</button>
+      </div>
+      <div class="user-card">
+        <div class="user-avatar">
+          <img class="company-logo-img" src="" alt="" style="display:none;" />
+          <span class="user-avatar-text">JK</span>
+        </div>
+        <div class="user-info">
+          <div class="user-name">User</div>
+          <div class="user-email">user@joska.app</div>
+        </div>
+        <button class="logout-btn" data-action="logout" title="Sign out">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ══════════════════════════════════════════════════════
+       MAIN CONTENT
+  ══════════════════════════════════════════════════════ -->
+  <main class="main-content">
+    <header class="topbar">
+      <button class="topbar-hamburger" id="hamburger" aria-label="Toggle sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="3" y1="6"  x2="21" y2="6"/>
+          <line x1="3" y1="12" x2="21" y2="12"/>
+          <line x1="3" y1="18" x2="21" y2="18"/>
+        </svg>
+      </button>
+      <h2 class="topbar-title" data-i18n="nav.invoices">Invoices</h2>
+      <div class="topbar-actions">
+        <button class="theme-toggle-btn" id="themeToggle" title="Toggle dark mode">
+          <svg class="theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg class="theme-icon-sun hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        </button>
+        <button class="btn btn-primary btn-sm" id="newInvoiceBtn" style="gap:6px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="15" height="15"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span data-i18n="dash.newInvoice" class="hide-xs">New Invoice</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="page-body">
+      <div class="page-header fade-in-up">
+        <h1 data-i18n="nav.invoices">Invoices</h1>
+        <p id="invoiceCountLabel">Loading invoices...</p>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="invoice-toolbar fade-in-up">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" class="search-input" id="invoiceSearch" data-i18n-placeholder="common.search" placeholder="Search...">
+        </div>
+        <select class="filter-select" id="statusFilter">
+          <option value="all">All Status</option>
+          <option value="paid">Paid</option>
+          <option value="pending">Pending</option>
+          <option value="overdue">Overdue</option>
+          <option value="draft">Draft</option>
+        </select>
+        <button class="btn btn-secondary btn-sm" id="newInvoiceBtnToolbar" style="gap:6px; margin-inline-start:auto;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span data-i18n="dash.newInvoice">New Invoice</span>
+        </button>
+      </div>
+
+      <!-- Invoices Table -->
+      <div class="section-card glass-card" style="padding:0; overflow:hidden;">
+        <div class="table-wrapper" style="padding:0;">
+          <table id="invoicesTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Client</th>
+                <th>Vehicle</th>
+                <th>Period</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="invoicesTableBody"></tbody>
+          </table>
+          <div class="empty-state" id="invoicesEmpty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            <h4 data-i18n="dash.noData">No invoices yet.</h4>
+            <p>Create your first invoice using the button above.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="invoiceToast"></div>
+
+<!-- ══ New / Edit Invoice Modal ══════════════════════════ -->
+<div class="modal-overlay" id="invoiceModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="modalTitle">New Invoice</h3>
+      <button class="modal-close" id="modalClose">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <form id="invoiceForm" autocomplete="off">
+
+        <!-- Client Section -->
+        <div class="form-section">
+          <p class="form-section-title">Client Information</p>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="f_clientName">Customer Name *</label>
+              <input type="text" class="form-input" id="f_clientName" required placeholder="Full name">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="f_cin">CIN / Passport *</label>
+              <input type="text" class="form-input" id="f_cin" required placeholder="ID number">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="f_phone">Phone</label>
+              <input type="tel" class="form-input" id="f_phone" placeholder="+212 6XX XXX XXX">
+            </div>
+          </div>
+        </div>
+
+        <!-- Vehicle Section -->
+        <div class="form-section">
+          <p class="form-section-title">Vehicle Details</p>
+          <div class="form-grid-3">
+            <div class="form-group">
+              <label class="form-label" for="f_vehicleBrand">Brand *</label>
+              <input type="text" class="form-input" id="f_vehicleBrand" required placeholder="e.g. Dacia">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="f_vehicleModel">Model *</label>
+              <input type="text" class="form-input" id="f_vehicleModel" required placeholder="e.g. Duster">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="f_plate">Registration Plate</label>
+              <input type="text" class="form-input" id="f_plate" placeholder="e.g. 12345-A-1">
+            </div>
+          </div>
+        </div>
+
+        <!-- Rental Period Section -->
+        <div class="form-section">
+          <p class="form-section-title">Rental Period</p>
+          <div class="form-grid-3">
+            <div class="form-group">
+              <label class="form-label" for="f_startDate">Start Date *</label>
+              <input type="date" class="form-input" id="f_startDate" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="f_endDate">End Date *</label>
+              <input type="date" class="form-input" id="f_endDate" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="f_dailyPrice">Daily Price (MAD) *</label>
+              <input type="number" class="form-input" id="f_dailyPrice" required min="0" step="0.01" placeholder="0.00">
+            </div>
+          </div>
+          <div id="daysCountBadge" style="margin-top: -6px; margin-bottom: 8px;"></div>
+        </div>
+
+        <!-- Charges Section -->
+        <div class="form-section">
+          <p class="form-section-title">Additional Charges</p>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="f_insurance">Insurance (MAD)</label>
+              <input type="number" class="form-input" id="f_insurance" min="0" step="0.01" placeholder="0.00" value="0">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="f_fuel">Fuel Charge (MAD)</label>
+              <input type="number" class="form-input" id="f_fuel" min="0" step="0.01" placeholder="0.00" value="0">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="f_extraDriver">Extra Driver (MAD)</label>
+              <input type="number" class="form-input" id="f_extraDriver" min="0" step="0.01" placeholder="0.00" value="0">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="f_otherCharges">Other Charges (MAD)</label>
+              <input type="number" class="form-input" id="f_otherCharges" min="0" step="0.01" placeholder="0.00" value="0">
+            </div>
+          </div>
+        </div>
+
+        <!-- Status -->
+        <div class="form-section">
+          <p class="form-section-title">Invoice Status</p>
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label" for="f_status">Status</label>
+              <select class="form-input" id="f_status">
+                <option value="draft">Draft</option>
+                <option value="pending" selected>Pending</option>
+                <option value="paid">Paid</option>
+                <option value="overdue">Overdue</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="f_notes">Notes</label>
+              <input type="text" class="form-input" id="f_notes" placeholder="Optional notes...">
+            </div>
+          </div>
+        </div>
+
+        <!-- Totals -->
+        <div class="totals-box">
+          <div class="totals-row">
+            <span>Rental (<span id="t_days">0</span> days × <span id="t_daily">0</span> MAD)</span>
+            <span class="amount-val" id="t_rental">0.00 MAD</span>
+          </div>
+          <div class="totals-row">
+            <span>Insurance</span>
+            <span class="amount-val" id="t_insurance">0.00 MAD</span>
+          </div>
+          <div class="totals-row">
+            <span>Fuel</span>
+            <span class="amount-val" id="t_fuel">0.00 MAD</span>
+          </div>
+          <div class="totals-row">
+            <span>Extra Driver</span>
+            <span class="amount-val" id="t_extraDriver">0.00 MAD</span>
+          </div>
+          <div class="totals-row">
+            <span>Other</span>
+            <span class="amount-val" id="t_other">0.00 MAD</span>
+          </div>
+          <div class="totals-row total-final">
+            <span>Total</span>
+            <span class="amount-val" id="t_total">0.00 MAD</span>
+          </div>
+        </div>
+
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" id="modalCancelBtn" type="button">Cancel</button>
+      <button class="btn btn-secondary" id="modalSaveDraftBtn" type="button">Save as Draft</button>
+      <button class="btn btn-primary" id="modalSaveBtn" type="button">
+        <span>Save Invoice</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ View Invoice Modal ════════════════════════════════ -->
+<div class="modal-overlay" id="viewModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Invoice Details</h3>
+      <button class="modal-close" id="viewModalClose">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body" id="viewModalBody"></div>
+    <div class="modal-footer" id="viewModalFooter"></div>
+  </div>
+</div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+<!-- jsPDF -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<!-- JOSKA Scripts -->
+<script src="js/firebase.js"></script>
+<script src="js/i18n.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/invoice.js"></script>
+</body>
+</html>
