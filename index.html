@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>JOSKA — Loading</title>
-  <meta http-equiv="refresh" content="0; url=login.html" />
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -15,10 +14,7 @@
       background: #0f172a;
       font-family: Inter, sans-serif;
     }
-    .splash {
-      text-align: center;
-      animation: fadeIn 0.5s ease both;
-    }
+    .splash { text-align: center; animation: fadeIn 0.5s ease both; }
     .splash-logo {
       width: 64px; height: 64px;
       background: #2563EB;
@@ -29,14 +25,8 @@
       margin: 0 auto 16px;
     }
     .splash-logo svg { width: 34px; height: 34px; color: #fff; }
-    .splash-name {
-      font-size: 2rem;
-      font-weight: 800;
-      color: #fff;
-      letter-spacing: 0.1em;
-      margin-bottom: 6px;
-    }
-    .splash-sub { font-size: 0.85rem; color: rgba(255,255,255,0.45); }
+    .splash-name { font-size: 2rem; font-weight: 800; color: #fff; letter-spacing: 0.1em; margin-bottom: 6px; }
+    .splash-sub  { font-size: 0.85rem; color: rgba(255,255,255,0.45); }
     .spinner {
       width: 28px; height: 28px;
       border: 3px solid rgba(255,255,255,0.1);
@@ -45,8 +35,8 @@
       animation: spin 0.8s linear infinite;
       margin: 24px auto 0;
     }
-    @keyframes spin    { to { transform: rotate(360deg); } }
-    @keyframes fadeIn  { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+    @keyframes spin   { to { transform: rotate(360deg); } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
   </style>
 </head>
 <body>
@@ -64,19 +54,24 @@
     <div class="spinner"></div>
   </div>
 
-  <!-- Firebase SDKs -->
+  <!-- Firebase SDKs (compat v9) -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
-  <script src="js/firebase.js"></script>
+  <!-- FIX: path was js/firebase.js — files are now in root -->
+  <script src="firebase.js"></script>
   <script>
     // Smart redirect: authenticated → dashboard, guest → login
-    firebase.auth().onAuthStateChanged(user => {
-      window.location.href = user ? 'dashboard.html' : 'login.html';
+    // Fallback fires after 4s in case onAuthStateChanged is slow
+    var redirected = false;
+    function safeRedirect(path) {
+      if (!redirected) { redirected = true; window.location.href = path; }
+    }
+    firebase.auth().onAuthStateChanged(function(user) {
+      safeRedirect(user ? 'dashboard.html' : 'login.html');
     });
-    // Fallback if Firebase takes too long
-    setTimeout(() => { window.location.href = 'login.html'; }, 3000);
+    setTimeout(function() { safeRedirect('login.html'); }, 4000);
   </script>
 </body>
 </html>
