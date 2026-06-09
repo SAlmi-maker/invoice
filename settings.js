@@ -33,21 +33,33 @@ const JOSKA_SETTINGS = (() => {
   }
 
   function populateForm(data) {
-    const fields = ['companyName', 'address', 'phone', 'email', 'website'];
-    fields.forEach(f => {
-      const el = document.getElementById(`field_${f}`);
-      if (el && data[f]) el.value = data[f];
-    });
+  const fields = ['companyName', 'address', 'phone', 'email', 'website'];
 
-    if (data.logoUrl) {
-      const preview = document.getElementById('logoPreview');
-      if (preview) { preview.src = data.logoUrl; preview.style.display = 'block'; }
+  fields.forEach(f => {
+    const el = document.getElementById(`field_${f}`);
+    if (el && data[f]) {
+      el.value = data[f];
     }
-    if (data.sealUrl) {
-      const preview = document.getElementById('sealPreview');
-      if (preview) { preview.src = data.sealUrl; preview.style.display = 'block'; }
+  });
+
+  // Logo Preview
+  if (data.logoBase64) {
+    const preview = document.getElementById('logoPreview');
+    if (preview) {
+      preview.src = data.logoBase64;
+      preview.style.display = 'block';
     }
   }
+
+  // Seal Preview
+  if (data.sealBase64) {
+    const preview = document.getElementById('sealPreview');
+    if (preview) {
+      preview.src = data.sealBase64;
+      preview.style.display = 'block';
+    }
+  }
+}
 
   // ── Form Wiring ───────────────────────────────────────────
   function wireForm(uid) {
@@ -71,20 +83,20 @@ const JOSKA_SETTINGS = (() => {
           updatedAt:   firebase.firestore.FieldValue.serverTimestamp()
         };
 
-        // Upload logo if pending
+        // Save logo as Base64
         if (pendingLogoFile) {
-          updates.logoUrl = await uploadFile(uid, pendingLogoFile, 'logo');
+          updates.logoBase64 = await fileToBase64(pendingLogoFile);
           pendingLogoFile = null;
-        } else if (currentSettings.logoUrl) {
-          updates.logoUrl = currentSettings.logoUrl;
+        } else if (currentSettings.logoBase64) {
+          updates.logoBase64 = currentSettings.logoBase64;
         }
 
-        // Upload seal if pending
+        // Save seal as Base64
         if (pendingSealFile) {
-          updates.sealUrl = await uploadFile(uid, pendingSealFile, 'seal');
+          updates.sealBase64 = await fileToBase64(pendingSealFile);
           pendingSealFile = null;
-        } else if (currentSettings.sealUrl) {
-          updates.sealUrl = currentSettings.sealUrl;
+        } else if (currentSettings.sealBase64) {
+          updates.sealBase64 = currentSettings.sealBase64;
         }
 
         await db.collection('users').doc(uid)
@@ -139,13 +151,19 @@ const JOSKA_SETTINGS = (() => {
     reader.readAsDataURL(file);
   }
 
-  async function uploadFile(uid, file, type) {
-    const ext      = file.name.split('.').pop();
-    const path     = `users/${uid}/${type}.${ext}`;
-    const ref      = storage.ref(path);
-    const snapshot = await ref.put(file);
-    return snapshot.ref.getDownloadURL();
-  }
+  async function fileToBase64(file) {
+  return new Promise((resolve, reject) => {
+
+    const reader = new FileReader();
+
+    reader.onload = () => resolve(reader.result);
+
+    reader.onerror = reject;
+
+    reader.readAsDataURL(file);
+
+  });
+}
 
   // ── Helpers ───────────────────────────────────────────────
   function setLoading(btn, state) {
