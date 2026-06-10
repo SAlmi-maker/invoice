@@ -597,7 +597,7 @@
 .ip-invoice-table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 72px;
+  margin-bottom: 0;
 }
 .ip-invoice-table thead th {
   background: var(--ip-primary);
@@ -627,29 +627,33 @@
 .ip-summary {
   margin-left: auto;
   width: 60%;
+  margin-top: 250px;
   margin-bottom: 60px;
 }
 .ip-summary-row {
   display: flex;
   justify-content: space-between;
-  padding: 3px 0;
-  font-size: 8pt;
+  padding: 5px 0;
+  font-size: 10pt;
   color: var(--ip-text-secondary);
 }
 .ip-summary-total {
-  padding: 6px 10px;
+  padding: 14px 20px;
   background: var(--ip-primary);
   color: #FFFFFF;
-  font-weight: 700;
-  font-size: 10pt;
-  border-radius: 4px;
-  margin-top: 0;
+  font-weight: 800;
+  font-size: 18pt;
+  border-radius: 6px;
+  margin-top: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 .ip-summary-total span:first-child {
-  font-size: 7pt;
-  font-weight: 600;
+  font-size: 10pt;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
 }
 
 .ip-status-badge {
