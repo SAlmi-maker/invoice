@@ -1,7 +1,7 @@
 // ============================================================
 // JOSKA — Invoices Module
 // Handles: create/edit/delete invoices, Firestore CRUD,
-//          live totals, filtering, search, jsPDF export.
+//           live totals, filtering, search, InvoicePro export.
 // ============================================================
 
 const JOSKA_INVOICES = (() => {
@@ -478,31 +478,39 @@ const JOSKA_INVOICES = (() => {
     const data = readForm();
     if (!validateForm(data)) return;
 
+    // Calculate before any async work
+    const days   = calcDays(data.startDate, data.endDate);
+    const rental = days * data.dailyPrice;
+    const total  = rental + data.insurance + data.fuel + data.extraDriver + data.other;
+
+    // Print NOW — must be synchronous within the click handler (user gesture)
+    const invNumber = editingId
+      ? (allInvoices.find(i => i.id === editingId)?.invoiceNumber || editingId.slice(-6).toUpperCase())
+      : `INV-${new Date().getFullYear()}${String(new Date().getMonth()+1).padStart(2,'0')}-${String(allInvoices.length+1).padStart(4,'0')}`;
+    const tempInv = { id: editingId || 'new', invoiceNumber: invNumber, days, rentalSubtotal: rental, total, ...data };
+
+    // Populate preview and open print dialog
     const pdfBtn = document.getElementById('modalPDF');
+    populatePreview(tempInv);
+    const wrap = document.getElementById('invPreviewWrap');
+    if (wrap) wrap.classList.add('open');
+    const emptyEl = document.getElementById('invPreviewEmpty');
+    if (emptyEl) emptyEl.classList.add('hidden');
+    window.print();
+
+    // Save to Firestore (async — happens after print dialog closes)
     setLoading(pdfBtn, true);
-
     try {
-      const days   = calcDays(data.startDate, data.endDate);
-      const rental = days * data.dailyPrice;
-      const total  = rental + data.insurance + data.fuel + data.extraDriver + data.other;
-
-      const col     = db.collection('users').doc(currentUser.uid).collection('invoices');
-      let invNumber, docId;
-
+      const col = db.collection('users').doc(currentUser.uid).collection('invoices');
+      let docId;
       if (editingId) {
-        const inv = allInvoices.find(i => i.id === editingId);
-        invNumber = inv?.invoiceNumber || editingId.slice(-6).toUpperCase();
-        docId     = editingId;
+        docId = editingId;
         await col.doc(editingId).update({ ...data, days, rentalSubtotal: rental, total, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
       } else {
-        invNumber = await generateInvoiceNumber();
         const ref = await col.add({ ...data, days, rentalSubtotal: rental, total, invoiceNumber: invNumber, createdAt: firebase.firestore.FieldValue.serverTimestamp(), updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
         docId = ref.id;
         editingId = docId;
       }
-
-      const fullInv = { id: docId, invoiceNumber: invNumber, days, rentalSubtotal: rental, total, ...data };
-      printInvoice(fullInv);
       showToast('success', JOSKA_I18N.t('inv.pdfReady'));
     } catch (err) {
       console.error(err);
@@ -551,12 +559,30 @@ const JOSKA_INVOICES = (() => {
   }
 
   function printInvoice(inv) {
-    // Populate preview with invoice data then print
-    const wrap = document.getElementById('invPreviewWrap');
     const modal = document.getElementById('invoiceModal');
     const wasOpen = modal?.classList.contains('open');
 
-    // Helper to set preview element text
+    populatePreview(inv);
+
+    const wrap = document.getElementById('invPreviewWrap');
+    if (wrap) wrap.classList.add('open');
+    if (modal) modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    const emptyEl = document.getElementById('invPreviewEmpty');
+    if (emptyEl) emptyEl.classList.add('hidden');
+
+    // Call print directly — must be synchronous to preserve user gesture
+    window.print();
+
+    if (!wasOpen) {
+      if (wrap) wrap.classList.remove('open');
+      if (modal) modal.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // ── Populate InvoicePro preview elements ────────────────
+  function populatePreview(inv) {
     const s = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val ?? ''; };
 
     const t = tl;
@@ -653,23 +679,6 @@ const JOSKA_INVOICES = (() => {
     } else {
       notesWrap.style.display = 'none';
     }
-
-    // Show the preview panel and mark as print area
-    if (wrap) wrap.classList.add('open');
-    if (modal) modal.classList.add('open');
-    document.body.style.overflow = 'hidden';
-    const emptyEl = document.getElementById('invPreviewEmpty');
-    if (emptyEl) emptyEl.classList.add('hidden');
-
-    // Wait a tick for rendering, then print
-    setTimeout(() => {
-      window.print();
-      if (!wasOpen) {
-        wrap.classList.remove('open');
-        modal?.classList.remove('open');
-        document.body.style.overflow = '';
-      }
-    }, 200);
   }
 
   // ── InvoicePro-style Live Preview ────────────────────────
@@ -696,111 +705,8 @@ const JOSKA_INVOICES = (() => {
     if (emptyEl) emptyEl.classList.toggle('hidden', hasData);
     if (!hasData) return;
 
-    const t = tl;
-    const lang = getPDFLang();
-    const currency = JOSKA_I18N.t('common.currency');
-    const coName = companySettings.companyName || 'JOSKA';
-    const coAddr = companySettings.address || '';
-    const coEmail = companySettings.email || '';
-    const coPhone = companySettings.phone || '';
-    const fmt = (n) => formatCurrency(n, currency, lang);
-
-    const extras = [
-      { label: t('inv.field.insurance'), val: ins },
-      { label: t('inv.field.fuel'), val: fuel },
-      { label: t('inv.field.extraDriver'), val: ed },
-      { label: t('inv.field.other'), val: oth },
-    ].filter(e => e.val > 0);
-
-    const accentHex = invoiceColorMode === 'bw' ? '#1e293b' : (invoiceColor || '#2563EB');
-
-    // Set accent color CSS variable on the invoice element
-    const invoiceEl = document.getElementById('ip_invoicePreview');
-    if (invoiceEl) invoiceEl.style.setProperty('--ip-primary', accentHex);
-
-    // Helper to set text
-    const s = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-
-    // Company info
-    const logoEl = document.getElementById('preview_logo');
-    if (companySettings.logoBase64 && logoEl) {
-      logoEl.src = companySettings.logoBase64;
-      logoEl.style.display = 'block';
-    } else if (logoEl) {
-      logoEl.style.display = 'none';
-    }
-    s('preview_companyName', coName);
-    s('preview_companyAddr', coAddr);
-    s('preview_companyContact', [coPhone, coEmail].filter(Boolean).join(' · '));
-
-    // Invoice meta
-    s('preview_title', t('pdf.invoice'));
-    s('preview_invNumber', `#${invNum}`);
-    s('preview_issueLabel', t('pdf.issue'));
-    s('preview_issueDate', d.startDate || '—');
-    s('preview_dueLabel', t('pdf.due'));
-    s('preview_dueDate', d.endDate || '—');
-
-    // Addresses
-    s('preview_fromLabel', t('pdf.from'));
-    s('preview_fromCoName', coName);
-    s('preview_fromAddr', coAddr);
-    s('preview_billToLabel', t('pdf.billTo'));
-    s('preview_clientName', d.clientName || '—');
-    s('preview_clientCIN', d.cin ? `${t('pdf.cin')}: ${d.cin}` : '');
-    s('preview_clientPhone', d.phone ? `${t('pdf.tel')}: ${d.phone}` : '');
-    s('preview_clientVehicle', `${d.vehicleBrand || ''} ${d.vehicleModel || ''}`.trim() || '');
-    s('preview_clientPlate', d.plate ? `${t('pdf.plate')}: ${d.plate}` : '');
-
-    // Table header labels
-    s('preview_descLabel', t('pdf.description'));
-    s('preview_qtyLabel', t('pdf.qty'));
-    s('preview_unitLabel', t('pdf.unitPrice'));
-    s('preview_amtLabel', t('pdf.amount'));
-
-    // Build items table body
-    const tbody = document.getElementById('preview_itemsBody');
-    if (tbody) {
-      tbody.innerHTML = '';
-      const addRow = (desc, qty, unit, amt) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${escHtml(desc)}</td><td>${qty}</td><td>${fmt(unit)}</td><td>${fmt(amt)}</td>`;
-        tbody.appendChild(tr);
-      };
-      addRow(`${t('inv.field.rentalSubtotal')} (${d.vehicleBrand || ''} ${d.vehicleModel || ''})`, days, dp, rental);
-      extras.forEach(e => addRow(e.label, 1, e.val, e.val));
-    }
-
-    // Summary
-    s('preview_subtotalLabel', t('pdf.subtotal'));
-    s('preview_subtotal', fmt(rental));
-    const extrasRow = document.getElementById('preview_extrasRow');
-    if (extras.length) {
-      s('preview_extrasLabel', t('pdf.extras'));
-      s('preview_extras', fmt(extras.reduce((a, e) => a + e.val, 0)));
-      extrasRow.style.display = 'flex';
-    } else {
-      extrasRow.style.display = 'none';
-    }
-    s('preview_grandLabel', t('pdf.grandTotal'));
-    s('preview_grandTotal', fmt(total));
-
-    // Status badge
-    const badge = document.getElementById('preview_status');
-    if (badge) {
-      badge.textContent = t('dash.' + status);
-      badge.className = 'ip-status-badge ip-status-' + status;
-    }
-
-    // Footer notes
-    const notesWrap = document.getElementById('preview_notesWrap');
-    if (d.notes) {
-      s('preview_notesLabel', t('pdf.notes'));
-      s('preview_notes', d.notes);
-      notesWrap.style.display = 'block';
-    } else {
-      notesWrap.style.display = 'none';
-    }
+    const inv = { ...d, days, rentalSubtotal: rental, total, invoiceNumber: invNum, status };
+    populatePreview(inv);
   }
 
   function buildPDFPageClassic(doc, inv) {
