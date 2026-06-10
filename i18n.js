@@ -34,6 +34,16 @@ const JOSKA_I18N = (() => {
       'auth.userDisabled':    'This account has been disabled.',
       'auth.genericError':    'Authentication failed. Please try again.',
 
+      // Invoice Template
+      'template.title':         'Invoice Template',
+      'template.subtitle':      'Choose the layout style for your PDF invoices',
+      'template.classic':       'Classic',
+      'template.classicDesc':   'Blue header bar, clean table layout',
+      'template.modern':        'Modern',
+      'template.modernDesc':    'Clean sidebar accent, card-style rows',
+      'template.compact':       'Compact',
+      'template.compactDesc':   'Smaller fonts, tighter spacing',
+
       // Reset Password Page
       'auth.newPasswordTitle':    'Set New Password',
       'auth.newPasswordSubtitle': 'Choose a strong password for your account',
@@ -178,6 +188,15 @@ const JOSKA_I18N = (() => {
       'auth.userDisabled':    'Ce compte a été désactivé.',
       'auth.genericError':    'Échec de l\'authentification. Veuillez réessayer.',
 
+      'template.title':         'Modèle de Facture',
+      'template.subtitle':      'Choisissez le style de vos factures PDF',
+      'template.classic':       'Classique',
+      'template.classicDesc':   'Barre d\'en-tête bleue, tableau épuré',
+      'template.modern':        'Moderne',
+      'template.modernDesc':    'Accent latéral, lignes en cartes',
+      'template.compact':       'Compact',
+      'template.compactDesc':   'Polices plus petites, espacement réduit',
+
       // Reset Password Page
       'auth.newPasswordTitle':    'Définir un Nouveau Mot de Passe',
       'auth.newPasswordSubtitle': 'Choisissez un mot de passe fort pour votre compte',
@@ -315,6 +334,15 @@ const JOSKA_I18N = (() => {
       'auth.tooManyRequests': 'محاولات كثيرة جداً. حاول لاحقاً.',
       'auth.userDisabled':    'تم تعطيل هذا الحساب.',
       'auth.genericError':    'فشل المصادقة. يرجى المحاولة مرة أخرى.',
+
+      'template.title':         'قالب الفاتورة',
+      'template.subtitle':      'اختر نمط تخطيط فواتير PDF الخاصة بك',
+      'template.classic':       'كلاسيكي',
+      'template.classicDesc':   'شريط رأس أزرق، تخطيط جدول نظيف',
+      'template.modern':        'حديث',
+      'template.modernDesc':    'شريط جانبي، صفوف بطاقات',
+      'template.compact':       'مضغوط',
+      'template.compactDesc':   'خطوط أصغر، تباعد أقل',
 
       // Reset Password Page
       'auth.newPasswordTitle':    'تعيين كلمة مرور جديدة',
