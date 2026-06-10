@@ -1,50 +1,48 @@
-(function() {
-  const COLLECTION = 'clients';
-  let clients = [];
-  let unsubscribe = null;
+const JOSKA_CLIENTS = (() => {
+  let currentUser = null;
+  let allClients = [];
   let deleteTargetId = null;
+  let unsubscribe = null;
+  let searchQuery = '';
 
-  const $         = id => document.getElementById(id);
-  const toast     = $('clientToast');
-  const tbody     = $('clientTableBody');
-  const loading   = $('clientLoading');
-  const empty     = $('clientEmpty');
-  const search    = $('clientSearch');
+  const $ = id => document.getElementById(id);
+  const toast = $('clientToast');
+  const tbody = $('clientTableBody');
+  const loading = $('clientLoading');
+  const empty = $('clientEmpty');
+  const search = $('clientSearch');
   const countBadge = $('clientCount');
 
-  /* helpers */
-  function showToast(msg, type='success') {
+  function showToast(msg, type = 'success') {
     toast.textContent = msg;
-    toast.className = 'toast show ' + type;
+    toast.className = `toast toast-${type} show`;
     clearTimeout(toast._t);
-    toast._t = setTimeout(() => toast.className='toast', 2800);
+    toast._t = setTimeout(() => toast.classList.remove('show'), 3000);
   }
 
   function loadingDone() { loading.style.display = 'none'; }
-  function setEmpty(v)   { empty.style.display = v ? 'block' : 'none'; }
+  function setEmpty(v) { empty.style.display = v ? 'flex' : 'none'; }
 
-  function getId(doc) { return doc.id; }
   function makeClient(doc) {
     const d = doc.data();
     return {
-      id:       doc.id,
-      name:     d.name || '',
-      cin:      d.cin || '',
-      phone:    d.phone || '',
-      email:    d.email || '',
-      address:  d.address || '',
-      notes:    d.notes || '',
+      id: doc.id,
+      name: d.name || '',
+      cin: d.cin || '',
+      phone: d.phone || '',
+      email: d.email || '',
+      address: d.address || '',
+      notes: d.notes || '',
       createdAt: d.createdAt ? d.createdAt.toDate() : null
     };
   }
 
-  /* render */
-  function render(filterText='') {
-    const q = filterText.toLowerCase().trim();
-    let filtered = clients;
+  function render() {
+    const q = searchQuery.trim().toLowerCase();
+    let filtered = allClients;
     if (q) {
-      filtered = clients.filter(c =>
-        (c.name + c.cin + c.phone + c.email).toLowerCase().includes(q)
+      filtered = allClients.filter(c =>
+        (c.name + ' ' + c.cin + ' ' + c.phone + ' ' + c.email).toLowerCase().includes(q)
       );
     }
     countBadge.textContent = filtered.length;
@@ -56,193 +54,194 @@
     }
     setEmpty(false);
 
-    const rows = filtered.map(c => {
-      const invoiceCount = window.clientInvoiceCounts ? (window.clientInvoiceCounts[c.name] || 0) : '-';
+    tbody.innerHTML = filtered.map(c => {
+      const count = window.clientInvoiceCounts ? (window.clientInvoiceCounts[c.name] || 0) : '-';
       return `<tr>
-        <td><span class="client-name">${esc(c.name)}</span></td>
-        <td>${esc(c.cin)}</td>
-        <td>${esc(c.phone)}</td>
-        <td>${esc(c.email)}</td>
-        <td><span class="badge badge-outline">${invoiceCount}</span></td>
-        <td class="row-actions">
-          <button class="btn-icon edit-client" data-id="${c.id}" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
-          <button class="btn-icon delete-client" data-id="${c.id}" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+        <td><span style="font-weight:600;">${escHtml(c.name)}</span></td>
+        <td>${escHtml(c.cin)}</td>
+        <td>${escHtml(c.phone)}</td>
+        <td>${escHtml(c.email)}</td>
+        <td><span class="badge badge-outline" style="font-weight:600;">${count}</span></td>
+        <td>
+          <div class="row-actions">
+            <button class="inv-action-btn" onclick="JOSKA_CLIENTS.openEdit('${c.id}')" title="${JOSKA_I18N.t('common.edit')}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            </button>
+            <button class="inv-action-btn danger" onclick="JOSKA_CLIENTS.openDelete('${c.id}')" title="${JOSKA_I18N.t('common.delete')}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
+          </div>
         </td>
       </tr>`;
     }).join('');
-    tbody.innerHTML = rows;
-
-    /* bind edit buttons */
-    tbody.querySelectorAll('.edit-client').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const c = clients.find(x => x.id === btn.dataset.id);
-        if (c) openModal(c);
-      });
-    });
-    tbody.querySelectorAll('.delete-client').forEach(btn => {
-      btn.addEventListener('click', () => {
-        deleteTargetId = btn.dataset.id;
-        $('deleteModal').classList.add('show');
-      });
-    });
   }
 
-  function esc(s) {
-    const div = document.createElement('div');
-    div.textContent = s || '';
-    return div.innerHTML;
+  function escHtml(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   }
 
-  /* modal */
-  function openModal(client=null) {
+  function openModal(client = null) {
     const modal = $('clientModal');
     $('client_id').value = client ? client.id : '';
-    $('client_name').value  = client ? client.name  : '';
-    $('client_cin').value   = client ? client.cin   : '';
+    $('client_name').value = client ? client.name : '';
+    $('client_cin').value = client ? client.cin : '';
     $('client_phone').value = client ? client.phone : '';
     $('client_email').value = client ? client.email : '';
     $('client_address').value = client ? client.address : '';
-    $('client_notes').value   = client ? client.notes   : '';
-    $('clientModalTitle').textContent = window.t ? t(client ? 'clients.editClient' : 'clients.newClient') : (client ? 'Edit Client' : 'New Client');
-    modal.classList.add('show');
+    $('client_notes').value = client ? client.notes : '';
+    $('clientModalTitle').textContent = client ? JOSKA_I18N.t('clients.editClient') : JOSKA_I18N.t('clients.newClient');
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
   }
 
   function closeModal() {
-    $('clientModal').classList.remove('show');
+    $('clientModal').classList.remove('open');
+    document.body.style.overflow = '';
     $('clientForm').reset();
     $('client_id').value = '';
   }
 
   async function saveClient(e) {
     e.preventDefault();
-    const id   = $('client_id').value;
+    const id = $('client_id').value;
     const name = $('client_name').value.trim();
-    const cin  = $('client_cin').value.trim();
+    const cin = $('client_cin').value.trim();
     if (!name || !cin) {
-      showToast(t ? t('common.fillRequired') : 'Please fill required fields', 'error');
+      showToast(JOSKA_I18N.t('common.fillRequired'), 'error');
       return;
     }
 
-    const btn = $('clientSaveBtn');
-    btn.disabled = true;
-    btn.textContent = t ? t('common.saving') : 'Saving...';
+    const saveBtn = $('clientSaveBtn');
+    saveBtn.disabled = true;
+    saveBtn.textContent = JOSKA_I18N.t('common.saving');
 
     try {
       const data = {
-        name:     $('client_name').value.trim(),
-        cin:      $('client_cin').value.trim(),
-        phone:    $('client_phone').value.trim(),
-        email:    $('client_email').value.trim(),
-        address:  $('client_address').value.trim(),
-        notes:    $('client_notes').value.trim(),
+        name: $('client_name').value.trim(),
+        cin: $('client_cin').value.trim(),
+        phone: $('client_phone').value.trim(),
+        email: $('client_email').value.trim(),
+        address: $('client_address').value.trim(),
+        notes: $('client_notes').value.trim(),
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
       };
-      if (!id) {
-        data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-        await db.collection(COLLECTION).add(data);
-        showToast(t ? t('clients.saved') : 'Client created');
+
+      const col = db.collection('users').doc(currentUser.uid).collection('clients');
+
+      if (id) {
+        await col.doc(id).update(data);
+        showToast(JOSKA_I18N.t('clients.updated'));
       } else {
-        await db.collection(COLLECTION).doc(id).update(data);
-        showToast(t ? t('clients.updated') : 'Client updated');
+        data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+        await col.add(data);
+        showToast(JOSKA_I18N.t('clients.saved'));
       }
       closeModal();
     } catch (err) {
-      console.error('Save client error', err);
-      showToast(err.message || 'Error saving client', 'error');
+      console.error(err);
+      showToast(err.message || 'Error', 'error');
     } finally {
-      btn.disabled = false;
-      btn.textContent = t ? t('common.save') : 'Save';
+      saveBtn.disabled = false;
+      saveBtn.textContent = JOSKA_I18N.t('common.save');
     }
   }
 
-  async function deleteClient() {
-    if (!deleteTargetId) return;
+  async function confirmDelete() {
+    if (!deleteTargetId || !currentUser) return;
     const btn = $('deleteConfirmBtn');
     btn.disabled = true;
     try {
-      await db.collection(COLLECTION).doc(deleteTargetId).delete();
-      showToast(t ? t('clients.deleted') : 'Client deleted');
+      await db.collection('users').doc(currentUser.uid).collection('clients').doc(deleteTargetId).delete();
+      showToast(JOSKA_I18N.t('clients.deleted'));
+      closeDeleteModal();
     } catch (err) {
-      showToast(err.message || 'Error deleting client', 'error');
+      console.error(err);
+      showToast(err.message || 'Error', 'error');
     } finally {
       btn.disabled = false;
-      $('deleteModal').classList.remove('show');
-      deleteTargetId = null;
     }
   }
 
-  /* real-time subscription */
+  function closeDeleteModal() {
+    $('deleteModal').classList.remove('open');
+    document.body.style.overflow = '';
+    deleteTargetId = null;
+  }
+
   function subscribe() {
     if (unsubscribe) unsubscribe();
     loading.style.display = 'flex';
     setEmpty(false);
-    const q = db.collection(COLLECTION).orderBy('createdAt', 'desc');
-    unsubscribe = q.onSnapshot(snap => {
-      clients = snap.docs.map(makeClient);
+
+    const col = db.collection('users').doc(currentUser.uid).collection('clients');
+    unsubscribe = col.orderBy('createdAt', 'desc').onSnapshot(snap => {
+      allClients = snap.docs.map(makeClient);
       loadingDone();
-      render(search.value);
-      // update invoice counts if we have invoices
-      if (typeof loadClientInvoiceCounts === 'function') loadClientInvoiceCounts();
+      render();
+      loadInvoiceCounts();
     }, err => {
-      console.error('Client snapshot error', err);
+      console.error('Clients snapshot error', err);
       loadingDone();
       setEmpty(true);
     });
   }
 
-  /* invoice count per client */
-  window.loadClientInvoiceCounts = function() {
-    if (!window.db) return;
-    // We'll query invoices collection and group by clientName
-    db.collection('invoices').get().then(snap => {
+  function loadInvoiceCounts() {
+    if (!currentUser) return;
+    db.collection('users').doc(currentUser.uid).collection('invoices').get().then(snap => {
       const counts = {};
-      snap.forEach(doc => {
-        const d = doc.data();
-        const name = d.clientName || d.name || '';
-        counts[name] = (counts[name] || 0) + 1;
+      snap.forEach(d => {
+        const name = d.data().clientName || '';
+        if (name) counts[name] = (counts[name] || 0) + 1;
       });
       window.clientInvoiceCounts = counts;
-      render(search.value);
+      render();
     }).catch(() => {});
-  };
+  }
 
-  /* init */
-  function init() {
-    if (typeof db === 'undefined') { setTimeout(init, 300); return; }
+  function init(user) {
+    if (!user) return;
+    currentUser = user;
     subscribe();
 
     $('btnNewClient').addEventListener('click', () => openModal());
     $('clientModalClose').addEventListener('click', closeModal);
     $('clientModalCancel').addEventListener('click', closeModal);
     $('clientSaveBtn').addEventListener('click', saveClient);
-    $('clientForm').addEventListener('submit', e => { e.preventDefault(); saveClient(e); });
-    $('deleteModalClose').addEventListener('click', () => {
-      $('deleteModal').classList.remove('show');
-      deleteTargetId = null;
-    });
-    $('deleteCancelBtn').addEventListener('click', () => {
-      $('deleteModal').classList.remove('show');
-      deleteTargetId = null;
-    });
-    $('deleteConfirmBtn').addEventListener('click', deleteClient);
+    $('clientForm').addEventListener('submit', saveClient);
 
-    search.addEventListener('input', e => render(e.target.value));
-    search.addEventListener('search',  () => render());
+    $('deleteModalClose').addEventListener('click', closeDeleteModal);
+    $('deleteCancelBtn').addEventListener('click', closeDeleteModal);
+    $('deleteConfirmBtn').addEventListener('click', confirmDelete);
 
-    /* close modals on overlay click */
+    search.addEventListener('input', e => {
+      searchQuery = e.target.value;
+      render();
+    });
+    search.addEventListener('search', () => render());
+
     document.querySelectorAll('.modal-backdrop').forEach(el => {
       el.addEventListener('click', e => {
         if (e.target === el) {
-          el.classList.remove('show');
-          if (el.id === 'deleteModal') deleteTargetId = null;
+          el.classList.remove('open');
+          document.body.style.overflow = '';
         }
       });
     });
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
+  return { init, openEdit: openModal, openDelete: id => { deleteTargetId = id; $('deleteModal').classList.add('open'); document.body.style.overflow = 'hidden'; } };
 })();
+
+document.addEventListener('DOMContentLoaded', () => {
+  JOSKA_I18N.init();
+  JOSKA_AUTH.init();
+
+  document.addEventListener('joska:authReady', ({ detail }) => {
+    if (detail.user) JOSKA_CLIENTS.init(detail.user);
+  });
+
+  document.addEventListener('joska:langChanged', () => {
+    JOSKA_I18N.applyToDOM();
+  });
+});
