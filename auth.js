@@ -12,7 +12,7 @@ const JOSKA_AUTH = (() => {
   // (localhost, GitHub Pages, custom domain — no hardcoding needed).
   function getActionCodeSettings() {
    return {
-     url: 'https://joska.store/reset-password.html',
+     url: 'https://joska.store/login.html',
      handleCodeInApp: true
    };
   }
