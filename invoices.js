@@ -650,7 +650,7 @@ const JOSKA_INVOICES = (() => {
 
     // Status label
     const statusLabel = document.getElementById('preview_statusLabel');
-    if (statusLabel) statusLabel.textContent = t('status') || 'STATUS';
+    if (statusLabel) statusLabel.textContent = t('pdf.status');
 
     const badge = document.getElementById('preview_status');
     if (badge) {
