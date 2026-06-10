@@ -722,10 +722,21 @@
   }
   .ip-invoice {
     width: 100% !important;
-    max-width: 210mm !important;
+    max-width: 190mm !important;
     box-shadow: none !important;
-    padding: 20px !important;
+    padding: 8mm !important;
     min-height: auto !important;
+    font-size: 10pt !important;
   }
-  @page { margin: 10mm; }
+  .ip-invoice table.ip-invoice-table thead th {
+    font-size: 7.5pt !important;
+    padding: 6px 8px !important;
+  }
+  .ip-invoice table.ip-invoice-table tbody td {
+    font-size: 9pt !important;
+    padding: 5px 8px !important;
+  }
+  .ip-invoice .ip-invoice-title-bar h1 { font-size: 28pt !important; }
+  .ip-invoice .ip-invoice-company h2  { font-size: 16pt !important; }
+  @page { size: A4; margin: 5mm; }
 }
