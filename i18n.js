@@ -61,6 +61,27 @@ const JOSKA_I18N = (() => {
       'auth.resetFeature1': 'Your account is protected',
       'auth.resetFeature2': 'Secure password reset',
       'auth.resetFeature3': 'Back to managing revenue',
+      
+      'common.fillRequired': 'Please fill in all required fields',
+      'common.saving':       'Saving...',
+      // Clients
+      'clients.newClient':     'New Client',
+      'clients.editClient':    'Edit Client',
+      'clients.subtitle':      'Manage your customers and their information',
+      'clients.name':          'Full Name',
+      'clients.cin':           'CIN / Passport',
+      'clients.phone':         'Phone',
+      'clients.email':         'Email',
+      'clients.address':       'Address',
+      'clients.notes':         'Notes',
+      'clients.invoices':      'Invoices',
+      'clients.noClients':     'No clients yet',
+      'clients.noClientsDesc': 'Add your first client using the button above.',
+      'clients.deleteTitle':   'Delete Client',
+      'clients.deleteConfirm': 'Are you sure you want to delete this client? This action cannot be undone.',
+      'clients.saved':         'Client created successfully!',
+      'clients.updated':       'Client updated successfully!',
+      'clients.deleted':       'Client deleted successfully!',
 
       // Navigation
       'nav.dashboard':  'Dashboard',
@@ -249,6 +270,27 @@ const JOSKA_I18N = (() => {
       'common.edit':     'Modifier',
       'common.search':   'Rechercher...',
       'common.currency': 'MAD',
+      
+      'common.fillRequired': 'Veuillez remplir tous les champs obligatoires',
+      'common.saving':       'Enregistrement...',
+      // Clients
+      'clients.newClient':     'Nouveau Client',
+      'clients.editClient':    'Modifier le Client',
+      'clients.subtitle':      'Gérez vos clients et leurs informations',
+      'clients.name':          'Nom Complet',
+      'clients.cin':           'CIN / Passeport',
+      'clients.phone':         'Téléphone',
+      'clients.email':         'E-mail',
+      'clients.address':       'Adresse',
+      'clients.notes':         'Notes',
+      'clients.invoices':      'Factures',
+      'clients.noClients':     'Aucun client pour le moment',
+      'clients.noClientsDesc': 'Ajoutez votre premier client avec le bouton ci-dessus.',
+      'clients.deleteTitle':   'Supprimer le Client',
+      'clients.deleteConfirm': 'Êtes-vous sûr de vouloir supprimer ce client ? Cette action est irréversible.',
+      'clients.saved':         'Client créé avec succès !',
+      'clients.updated':       'Client mis à jour avec succès !',
+      'clients.deleted':       'Client supprimé avec succès !',
     },
 
     ar: {
@@ -366,6 +408,27 @@ const JOSKA_I18N = (() => {
       'common.edit':     'تعديل',
       'common.search':   'بحث...',
       'common.currency': 'درهم',
+      
+      'common.fillRequired': 'يرجى ملء جميع الحقول المطلوبة',
+      'common.saving':       'جارٍ الحفظ...',
+      // Clients
+      'clients.newClient':     'عميل جديد',
+      'clients.editClient':    'تعديل العميل',
+      'clients.subtitle':      'إدارة عملائك ومعلوماتهم',
+      'clients.name':          'الاسم الكامل',
+      'clients.cin':           'رقم الهوية / جواز السفر',
+      'clients.phone':         'الهاتف',
+      'clients.email':         'البريد الإلكتروني',
+      'clients.address':       'العنوان',
+      'clients.notes':         'ملاحظات',
+      'clients.invoices':      'الفواتير',
+      'clients.noClients':     'لا يوجد عملاء بعد',
+      'clients.noClientsDesc': 'أضف أول عميل باستخدام الزر أعلاه.',
+      'clients.deleteTitle':   'حذف العميل',
+      'clients.deleteConfirm': 'هل أنت متأكد من حذف هذا العميل؟ لا يمكن التراجع عن هذا الإجراء.',
+      'clients.saved':         'تم إنشاء العميل بنجاح!',
+      'clients.updated':       'تم تحديث العميل بنجاح!',
+      'clients.deleted':       'تم حذف العميل بنجاح!',
     }
   };
 
