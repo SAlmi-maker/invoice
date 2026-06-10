@@ -597,7 +597,7 @@
 .ip-invoice-table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 0;
+  margin-bottom: 72px;
 }
 .ip-invoice-table thead th {
   background: var(--ip-primary);
@@ -624,11 +624,10 @@
   background: var(--ip-bg);
 }
 
-.ip-summary {
-  margin-left: auto;
-  width: 60%;
-  margin-top: 250px;
-  margin-bottom: 60px;
+/* subtotal rows — aligned under the "rate per day" column (left ~50% of table) */
+.ip-summary-subtotals {
+  width: 50%;
+  margin-bottom: 0;
 }
 .ip-summary-row {
   display: flex;
@@ -637,17 +636,21 @@
   font-size: 10pt;
   color: var(--ip-text-secondary);
 }
+
+/* grand total — full width, 250px gap above */
 .ip-summary-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 14px 20px;
   background: var(--ip-primary);
   color: #FFFFFF;
   font-weight: 800;
   font-size: 18pt;
   border-radius: 6px;
-  margin-top: 8px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  margin-top: 250px;
+  width: 100%;
+  box-sizing: border-box;
 }
 .ip-summary-total span:first-child {
   font-size: 10pt;
