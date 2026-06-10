@@ -9,11 +9,12 @@ const JOSKA_INVOICES = (() => {
   // ── State ─────────────────────────────────────────────────
   let currentUser    = null;
   let companySettings = {};
+  let pdfTemplate    = 'classic';
   let allInvoices    = [];
   let filteredInvoices = [];
   let activeStatus   = 'all';
   let searchQuery    = '';
-  let editingId      = null;   // null = new, string = editing
+  let editingId      = null;
   let deleteTargetId = null;
   let unsubscribe    = null;
 
@@ -22,11 +23,13 @@ const JOSKA_INVOICES = (() => {
     if (!user) return;
     currentUser = user;
 
-    // Load company settings for PDF header
     try {
       const snap = await db.collection('users').doc(user.uid)
                            .collection('settings').doc('company').get();
-      if (snap.exists) companySettings = snap.data();
+      if (snap.exists) {
+        companySettings = snap.data();
+        pdfTemplate = companySettings.invoiceTemplate || 'classic';
+      }
     } catch (e) { /* non-critical */ }
 
     renderUserInfo(user);
@@ -62,7 +65,6 @@ const JOSKA_INVOICES = (() => {
         applyFilters();
         showLoading(false);
 
-        // Update nav badge
         const badge = document.getElementById('navInvoiceCount');
         if (badge) badge.textContent = allInvoices.length;
       }, err => {
@@ -170,41 +172,26 @@ const JOSKA_INVOICES = (() => {
 
   // ── Wire all UI events ────────────────────────────────────
   function wireUI() {
-    // New invoice button
     document.getElementById('btnNewInvoice')?.addEventListener('click', openNew);
-
-    // Modal close buttons
     document.getElementById('modalClose')?.addEventListener('click',  closeModal);
     document.getElementById('modalCancel')?.addEventListener('click', closeModal);
-
-    // Click outside modal to close
     document.getElementById('invoiceModal')?.addEventListener('click', e => {
       if (e.target === document.getElementById('invoiceModal')) closeModal();
     });
-
-    // Save buttons
     document.getElementById('modalSave')?.addEventListener('click', () => saveInvoice(false));
     document.getElementById('modalSaveDraft')?.addEventListener('click', () => saveInvoice(true));
     document.getElementById('modalPDF')?.addEventListener('click', () => saveAndExport());
-
-    // Delete modal
     document.getElementById('deleteModalClose')?.addEventListener('click', closeDeleteModal);
     document.getElementById('deleteCancelBtn')?.addEventListener('click', closeDeleteModal);
     document.getElementById('deleteConfirmBtn')?.addEventListener('click', confirmDelete);
     document.getElementById('deleteModal')?.addEventListener('click', e => {
       if (e.target === document.getElementById('deleteModal')) closeDeleteModal();
     });
-
-    // Export all filtered
     document.getElementById('btnExportAll')?.addEventListener('click', exportFiltered);
-
-    // Search
     document.getElementById('invSearch')?.addEventListener('input', e => {
       searchQuery = e.target.value;
       applyFilters();
     });
-
-    // Status tabs
     document.querySelectorAll('.inv-tab').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('.inv-tab').forEach(b => b.classList.remove('active'));
@@ -213,22 +200,16 @@ const JOSKA_INVOICES = (() => {
         applyFilters();
       });
     });
-
-    // Live totals
     const priceFields = ['inv_dailyPrice','inv_startDate','inv_endDate','inv_insurance','inv_fuel','inv_extraDriver','inv_other'];
     priceFields.forEach(id => {
       document.getElementById(id)?.addEventListener('input', recalculate);
       document.getElementById(id)?.addEventListener('change', recalculate);
     });
-
-    // Force uppercase plate
     document.getElementById('inv_plate')?.addEventListener('input', e => {
       const pos = e.target.selectionStart;
       e.target.value = e.target.value.toUpperCase();
       e.target.setSelectionRange(pos, pos);
     });
-
-    // Escape key
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape') {
         if (document.getElementById('invoiceModal')?.classList.contains('open')) closeModal();
@@ -427,7 +408,7 @@ const JOSKA_INVOICES = (() => {
     const s = new Date(start);
     const e = new Date(end);
     const diff = Math.round((e - s) / (1000 * 60 * 60 * 24));
-    return diff < 0 ? 0 : diff + 1; // inclusive
+    return diff < 0 ? 0 : diff + 1;
   }
 
   // ── Save invoice ──────────────────────────────────────────
@@ -539,7 +520,6 @@ const JOSKA_INVOICES = (() => {
       generatePDF(filteredInvoices[0]);
       return;
     }
-    // Multiple: export one page per invoice
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
     filteredInvoices.forEach((inv, i) => {
@@ -564,25 +544,26 @@ const JOSKA_INVOICES = (() => {
   }
 
   function buildPDFPage(doc, inv) {
+    if (pdfTemplate === 'modern') return buildPDFPageModern(doc, inv);
+    if (pdfTemplate === 'compact') return buildPDFPageCompact(doc, inv);
+    return buildPDFPageClassic(doc, inv);
+  }
+
+  function buildPDFPageClassic(doc, inv) {
     const currency = JOSKA_I18N.t('common.currency');
-    const W = 210, M = 18; // A4 width, margin
+    const W = 210, M = 18;
     let y = 0;
 
-    // ── Brand header bar ──
     doc.setFillColor(37, 99, 235);
     doc.rect(0, 0, W, 30, 'F');
-
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(22);
     doc.setTextColor(255, 255, 255);
     doc.text(companySettings.companyName || 'JOSKA', M, 18);
-
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
     doc.setTextColor(180, 210, 255);
     doc.text(JOSKA_I18N.t('brand.tagline'), M, 24);
-
-    // Invoice number (top right)
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(10);
     doc.setTextColor(255, 255, 255);
@@ -592,77 +573,51 @@ const JOSKA_INVOICES = (() => {
     doc.setFontSize(8);
     doc.setTextColor(180, 210, 255);
     doc.text(new Date().toLocaleDateString(JOSKA_I18N.getLang()), W - M, 24, { align: 'right' });
-
     y = 38;
 
-    // ── Company info block ──
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
     doc.setTextColor(100, 100, 100);
-    const compLines = [
-      companySettings.address || '',
-      companySettings.phone   || '',
-      companySettings.email   || '',
-      companySettings.website || '',
-    ].filter(Boolean);
-    compLines.forEach(line => {
-      doc.text(line, M, y);
-      y += 4.5;
-    });
-
+    const compLines = [companySettings.address || '', companySettings.phone || '', companySettings.email || '', companySettings.website || ''].filter(Boolean);
+    compLines.forEach(line => { doc.text(line, M, y); y += 4.5; });
     y += 4;
-
-    // ── Divider ──
     doc.setDrawColor(220, 220, 230);
     doc.line(M, y, W - M, y);
     y += 6;
 
-    // ── Two-column info: Customer | Vehicle ──
-    const colLeft  = M;
-    const colRight = W / 2 + 4;
-    const yStart   = y;
-
-    // Customer
+    const colLeft = M, colRight = W / 2 + 4, yStart = y;
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(7);
     doc.setTextColor(100, 116, 139);
     doc.text('CUSTOMER', colLeft, y);
     y += 5;
-
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(10);
     doc.setTextColor(15, 23, 42);
     doc.text(inv.clientName || '—', colLeft, y);
     y += 5;
-
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8.5);
     doc.setTextColor(71, 85, 105);
     doc.text(`CIN / Passport: ${inv.cin || '—'}`, colLeft, y); y += 4.5;
     if (inv.phone) { doc.text(`Phone: ${inv.phone}`, colLeft, y); y += 4.5; }
-
-    // Vehicle (right column, same y start)
     let yR = yStart;
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(7);
     doc.setTextColor(100, 116, 139);
     doc.text('VEHICLE', colRight, yR);
     yR += 5;
-
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(10);
     doc.setTextColor(15, 23, 42);
     doc.text(`${inv.vehicleBrand || ''} ${inv.vehicleModel || ''}`.trim() || '—', colRight, yR);
     yR += 5;
-
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8.5);
     doc.setTextColor(71, 85, 105);
     doc.text(`Plate: ${inv.plate || '—'}`, colRight, yR); yR += 4.5;
-
     y = Math.max(y, yR) + 6;
 
-    // ── Rental period row ──
     doc.setFillColor(239, 246, 255);
     doc.setDrawColor(191, 219, 254);
     doc.roundedRect(M, y, W - M * 2, 16, 2, 2, 'FD');
@@ -673,24 +628,15 @@ const JOSKA_INVOICES = (() => {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(9);
     doc.setTextColor(37, 99, 235);
-    const periodStr = `${inv.startDate || '—'}  →  ${inv.endDate || '—'}`;
-    doc.text(periodStr, M + 6, y + 12);
-
-    // Days badge (right of band)
+    doc.text(`${inv.startDate || '—'}  →  ${inv.endDate || '—'}`, M + 6, y + 12);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(7);
     doc.setTextColor(100, 116, 139);
     const daysLabel = `${inv.days ?? calcDays(inv.startDate, inv.endDate)} ${JOSKA_I18N.t('inv.days')}`;
     doc.text(daysLabel, W - M - 6, y + 9, { align: 'right' });
-
     y += 22;
 
-    // ── Line items table ──
-    const tW = W - M * 2;
-    const descW = tW * 0.5;
-    const amtW  = tW * 0.25;
-
-    // Table header
+    const tW = W - M * 2, descW = tW * 0.5, amtW = tW * 0.25;
     doc.setFillColor(248, 250, 252);
     doc.setDrawColor(226, 232, 240);
     doc.rect(M, y, tW, 8, 'FD');
@@ -698,43 +644,36 @@ const JOSKA_INVOICES = (() => {
     doc.setFontSize(7.5);
     doc.setTextColor(100, 116, 139);
     doc.text('DESCRIPTION', M + 4, y + 5.5);
-    doc.text('QTY',        M + descW + 2, y + 5.5);
+    doc.text('QTY', M + descW + 2, y + 5.5);
     doc.text('UNIT PRICE', M + descW + amtW / 2, y + 5.5, { align: 'center' });
-    doc.text('AMOUNT',     W - M - 4, y + 5.5, { align: 'right' });
+    doc.text('AMOUNT', W - M - 4, y + 5.5, { align: 'right' });
     y += 8;
 
-    const days       = inv.days ?? calcDays(inv.startDate, inv.endDate);
+    const days = inv.days ?? calcDays(inv.startDate, inv.endDate);
     const dailyPrice = parseFloat(inv.dailyPrice || 0);
-    const rental     = days * dailyPrice;
-
+    const rental = days * dailyPrice;
     const rows = [
       { desc: `${JOSKA_I18N.t('inv.field.rentalSubtotal')} (${inv.vehicleBrand} ${inv.vehicleModel})`, qty: days, unit: dailyPrice, total: rental },
-      ...(parseFloat(inv.insurance  || 0) > 0 ? [{ desc: JOSKA_I18N.t('inv.field.insurance'),  qty: 1, unit: parseFloat(inv.insurance),  total: parseFloat(inv.insurance)  }] : []),
-      ...(parseFloat(inv.fuel       || 0) > 0 ? [{ desc: JOSKA_I18N.t('inv.field.fuel'),        qty: 1, unit: parseFloat(inv.fuel),       total: parseFloat(inv.fuel)       }] : []),
-      ...(parseFloat(inv.extraDriver|| 0) > 0 ? [{ desc: JOSKA_I18N.t('inv.field.extraDriver'), qty: 1, unit: parseFloat(inv.extraDriver),total: parseFloat(inv.extraDriver)}] : []),
-      ...(parseFloat(inv.other      || 0) > 0 ? [{ desc: JOSKA_I18N.t('inv.field.other'),       qty: 1, unit: parseFloat(inv.other),      total: parseFloat(inv.other)      }] : []),
+      ...(parseFloat(inv.insurance || 0) > 0 ? [{ desc: JOSKA_I18N.t('inv.field.insurance'), qty: 1, unit: parseFloat(inv.insurance), total: parseFloat(inv.insurance) }] : []),
+      ...(parseFloat(inv.fuel || 0) > 0 ? [{ desc: JOSKA_I18N.t('inv.field.fuel'), qty: 1, unit: parseFloat(inv.fuel), total: parseFloat(inv.fuel) }] : []),
+      ...(parseFloat(inv.extraDriver || 0) > 0 ? [{ desc: JOSKA_I18N.t('inv.field.extraDriver'), qty: 1, unit: parseFloat(inv.extraDriver), total: parseFloat(inv.extraDriver) }] : []),
+      ...(parseFloat(inv.other || 0) > 0 ? [{ desc: JOSKA_I18N.t('inv.field.other'), qty: 1, unit: parseFloat(inv.other), total: parseFloat(inv.other) }] : []),
     ];
-
     rows.forEach((row, idx) => {
-      if (idx % 2 === 1) {
-        doc.setFillColor(248, 250, 252);
-        doc.rect(M, y, tW, 9, 'F');
-      }
+      if (idx % 2 === 1) { doc.setFillColor(248, 250, 252); doc.rect(M, y, tW, 9, 'F'); }
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(8.5);
       doc.setTextColor(15, 23, 42);
       doc.text(String(row.desc), M + 4, y + 6.5);
-      doc.text(String(row.qty),  M + descW + 2, y + 6.5);
-      doc.text(formatCurrency(row.unit,  currency), M + descW + amtW / 2, y + 6.5, { align: 'center' });
+      doc.text(String(row.qty), M + descW + 2, y + 6.5);
+      doc.text(formatCurrency(row.unit, currency), M + descW + amtW / 2, y + 6.5, { align: 'center' });
       doc.text(formatCurrency(row.total, currency), W - M - 4, y + 6.5, { align: 'right' });
       doc.setDrawColor(226, 232, 240);
       doc.line(M, y + 9, W - M, y + 9);
       y += 9;
     });
-
     y += 4;
 
-    // ── Total box ──
     const totalBoxH = 16;
     doc.setFillColor(37, 99, 235);
     doc.roundedRect(W - M - 60, y, 60, totalBoxH, 2, 2, 'F');
@@ -745,8 +684,6 @@ const JOSKA_INVOICES = (() => {
     doc.setFontSize(11);
     doc.setTextColor(255, 255, 255);
     doc.text(formatCurrency(parseFloat(inv.total || 0), currency), W - M - 4, y + 12.5, { align: 'right' });
-
-    // Status badge
     const status = inv.status || 'draft';
     const statusColors = { paid: [16, 185, 129], pending: [245, 158, 11], overdue: [239, 68, 68], draft: [107, 114, 128] };
     const [r, g, b] = statusColors[status] || statusColors.draft;
@@ -756,10 +693,8 @@ const JOSKA_INVOICES = (() => {
     doc.setFontSize(8);
     doc.setTextColor(255, 255, 255);
     doc.text(JOSKA_I18N.t(`dash.${status}`).toUpperCase(), M + 14, y + 9.5, { align: 'center' });
-
     y += totalBoxH + 8;
 
-    // ── Notes ──
     if (inv.notes) {
       doc.setFont('helvetica', 'italic');
       doc.setFontSize(8);
@@ -768,7 +703,6 @@ const JOSKA_INVOICES = (() => {
       y += 6;
     }
 
-    // ── Footer ──
     doc.setDrawColor(226, 232, 240);
     doc.line(M, 275, W - M, 275);
     doc.setFont('helvetica', 'normal');
@@ -776,6 +710,237 @@ const JOSKA_INVOICES = (() => {
     doc.setTextColor(148, 163, 184);
     doc.text('Generated by JOSKA — Invoice & Revenue Management', W / 2, 280, { align: 'center' });
     if (companySettings.email) doc.text(companySettings.email, W / 2, 284, { align: 'center' });
+  }
+
+  function buildPDFPageModern(doc, inv) {
+    const currency = JOSKA_I18N.t('common.currency');
+    const W = 210, M = 18;
+    let y = 0;
+
+    doc.setFillColor(15, 23, 42);
+    doc.rect(0, 0, 8, 297, 'F');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(20);
+    doc.setTextColor(15, 23, 42);
+    doc.text(companySettings.companyName || 'JOSKA', M + 4, 20);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(100, 116, 139);
+    doc.text(JOSKA_I18N.t('brand.tagline'), M + 4, 27);
+
+    const numY = 20;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.setTextColor(37, 99, 235);
+    doc.text(`#${inv.invoiceNumber || inv.id.slice(-6).toUpperCase()}`, W - M, numY, { align: 'right' });
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    doc.setTextColor(148, 163, 184);
+    doc.text(new Date().toLocaleDateString(JOSKA_I18N.getLang()), W - M, numY + 5, { align: 'right' });
+
+    y = 40;
+    doc.setDrawColor(226, 232, 240);
+    doc.line(M + 4, y, W - M, y);
+    y += 8;
+
+    const col1 = M + 4, col2 = W / 2 + 2;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7);
+    doc.setTextColor(148, 163, 184);
+    doc.text('CUSTOMER', col1, y);
+    doc.text('VEHICLE', col2, y);
+    y += 5;
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9.5);
+    doc.setTextColor(15, 23, 42);
+    doc.text(inv.clientName || '—', col1, y);
+    doc.text(`${inv.vehicleBrand || ''} ${inv.vehicleModel || ''}`.trim() || '—', col2, y);
+    y += 5;
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(100, 116, 139);
+    doc.text(`CIN: ${inv.cin || '—'}`, col1, y); y += 4;
+    doc.text(`Plate: ${inv.plate || '—'}`, col2, y - 4);
+    if (inv.phone) { doc.text(`Tel: ${inv.phone}`, col1, y); }
+    y += 10;
+
+    doc.setFillColor(248, 250, 252);
+    doc.roundedRect(M + 4, y, W - M * 2 - 4, 12, 2, 2, 'F');
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(100, 116, 139);
+    doc.text(`${inv.startDate || '—'}  →  ${inv.endDate || '—'}`, M + 10, y + 8);
+    const daysN = inv.days ?? calcDays(inv.startDate, inv.endDate);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(37, 99, 235);
+    doc.text(`${daysN} ${JOSKA_I18N.t('inv.days')}`, W - M - 8, y + 8, { align: 'right' });
+    y += 20;
+
+    const tW = W - M * 2 - 4, descW = tW * 0.5, amtW = tW * 0.25;
+    doc.setDrawColor(226, 232, 240);
+    doc.setFillColor(248, 250, 252);
+    doc.rect(M + 4, y, tW, 7, 'FD');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(6.5);
+    doc.setTextColor(100, 116, 139);
+    doc.text('DESCRIPTION', M + 8, y + 4.5);
+    doc.text('DAYS', M + descW + 4, y + 4.5);
+    doc.text('UNIT PRICE', M + descW + amtW / 2, y + 4.5, { align: 'center' });
+    doc.text('AMOUNT', W - M - 6, y + 4.5, { align: 'right' });
+    y += 7;
+
+    const dp = parseFloat(inv.dailyPrice || 0);
+    const rental = daysN * dp;
+    const items = [
+      { desc: JOSKA_I18N.t('inv.field.rentalSubtotal'), qty: daysN, unit: dp, total: rental },
+      ...(parseFloat(inv.insurance || 0) > 0 ? [{ desc: JOSKA_I18N.t('inv.field.insurance'), qty: 1, unit: parseFloat(inv.insurance), total: parseFloat(inv.insurance) }] : []),
+      ...(parseFloat(inv.fuel || 0) > 0 ? [{ desc: JOSKA_I18N.t('inv.field.fuel'), qty: 1, unit: parseFloat(inv.fuel), total: parseFloat(inv.fuel) }] : []),
+      ...(parseFloat(inv.extraDriver || 0) > 0 ? [{ desc: JOSKA_I18N.t('inv.field.extraDriver'), qty: 1, unit: parseFloat(inv.extraDriver), total: parseFloat(inv.extraDriver) }] : []),
+      ...(parseFloat(inv.other || 0) > 0 ? [{ desc: JOSKA_I18N.t('inv.field.other'), qty: 1, unit: parseFloat(inv.other), total: parseFloat(inv.other) }] : []),
+    ];
+    items.forEach((row) => {
+      doc.setDrawColor(241, 245, 249);
+      doc.rect(M + 4, y, tW, 8, 'FD');
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(15, 23, 42);
+      doc.text(String(row.desc), M + 8, y + 5.5);
+      doc.text(String(row.qty), M + descW + 4, y + 5.5);
+      doc.text(formatCurrency(row.unit, currency), M + descW + amtW / 2, y + 5.5, { align: 'center' });
+      doc.text(formatCurrency(row.total, currency), W - M - 6, y + 5.5, { align: 'right' });
+      y += 8;
+    });
+    y += 4;
+
+    doc.setFillColor(15, 23, 42);
+    doc.roundedRect(W - M - 55, y, 55, 14, 2, 2, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7);
+    doc.setTextColor(148, 163, 184);
+    doc.text('TOTAL', W - M - 51, y + 5);
+    doc.setFontSize(10);
+    doc.setTextColor(255, 255, 255);
+    doc.text(formatCurrency(parseFloat(inv.total || 0), currency), W - M - 4, y + 10.5, { align: 'right' });
+
+    const s = inv.status || 'draft';
+    const sc = { paid: [16, 185, 129], pending: [245, 158, 11], overdue: [239, 68, 68], draft: [107, 114, 128] };
+    const [r2, g2, b2] = sc[s] || sc.draft;
+    doc.setFillColor(r2, g2, b2);
+    doc.roundedRect(M + 4, y + 1, 24, 10, 2, 2, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7);
+    doc.setTextColor(255, 255, 255);
+    doc.text(JOSKA_I18N.t(`dash.${s}`).toUpperCase(), M + 16, y + 7, { align: 'center' });
+    y += 22;
+
+    if (inv.notes) {
+      doc.setFont('helvetica', 'italic');
+      doc.setFontSize(7.5);
+      doc.setTextColor(148, 163, 184);
+      doc.text(`Notes: ${inv.notes}`, M + 4, y);
+      y += 6;
+    }
+
+    doc.setDrawColor(226, 232, 240);
+    doc.line(M + 4, 278, W - M, 278);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(6.5);
+    doc.setTextColor(148, 163, 184);
+    doc.text('JOSKA — Invoice & Revenue Management', W / 2 + 2, 283, { align: 'center' });
+  }
+
+  function buildPDFPageCompact(doc, inv) {
+    const currency = JOSKA_I18N.t('common.currency');
+    const W = 210, M = 14;
+    let y = 0;
+
+    doc.setFillColor(30, 41, 59);
+    doc.rect(0, 0, W, 20, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11);
+    doc.setTextColor(255, 255, 255);
+    doc.text(companySettings.companyName || 'JOSKA', M, 13);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.setTextColor(255, 255, 255);
+    doc.text(`#${inv.invoiceNumber || inv.id.slice(-6).toUpperCase()}`, W - M, 13, { align: 'right' });
+    y = 28;
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    doc.setTextColor(100, 116, 139);
+    const info = [`${inv.clientName || '—'}  |  ${inv.cin || '—'}`];
+    if (inv.phone) info.push(`Tel: ${inv.phone}`);
+    info.forEach(line => { doc.text(line, M, y); y += 4; });
+    doc.text(`${inv.vehicleBrand || ''} ${inv.vehicleModel || ''}`.trim() || '—', W - M, y - 4, { align: 'right' });
+    if (inv.plate) doc.text(`Plate: ${inv.plate}`, W - M, y, { align: 'right' });
+    y += 4;
+    doc.text(`${inv.startDate || '—'} → ${inv.endDate || '—'}  (${inv.days ?? calcDays(inv.startDate, inv.endDate)} ${JOSKA_I18N.t('inv.days')})`, M, y);
+    y += 8;
+
+    doc.setDrawColor(203, 213, 225);
+    doc.setLineWidth(0.3);
+    doc.line(M, y, W - M, y);
+    y += 3;
+
+    const cols = [M, M + 70, M + 110, W - M];
+    const colW = [66, 40, 38, 42];
+    const drawRow = (cells, bold = false, color = [15, 23, 42], size = 7) => {
+      cells.forEach((text, i) => {
+        const align = i < 2 ? 'left' : (i === 2 ? 'center' : 'right');
+        doc.setFont('helvetica', bold ? 'bold' : 'normal');
+        doc.setFontSize(size);
+        doc.setTextColor(color[0], color[1], color[2]);
+        doc.text(text, cols[i] + (align === 'right' ? colW[i] : 0), y, { align });
+      });
+    };
+
+    drawRow([JOSKA_I18N.t('inv.field.rentalSubtotal'), `${inv.days ?? calcDays(inv.startDate, inv.endDate)} ${JOSKA_I18N.t('inv.days')}`, formatCurrency(parseFloat(inv.dailyPrice || 0), currency), formatCurrency((inv.days ?? calcDays(inv.startDate, inv.endDate)) * parseFloat(inv.dailyPrice || 0), currency)], false, [71, 85, 105], 6.5);
+    y += 5;
+
+    const extras = [
+      [JOSKA_I18N.t('inv.field.insurance'), parseFloat(inv.insurance || 0)],
+      [JOSKA_I18N.t('inv.field.fuel'), parseFloat(inv.fuel || 0)],
+      [JOSKA_I18N.t('inv.field.extraDriver'), parseFloat(inv.extraDriver || 0)],
+      [JOSKA_I18N.t('inv.field.other'), parseFloat(inv.other || 0)],
+    ];
+    extras.forEach(([label, val]) => {
+      if (val > 0) {
+        drawRow([label, '', formatCurrency(val, currency), formatCurrency(val, currency)], false, [71, 85, 105], 6.5);
+        y += 4.5;
+      }
+    });
+
+    doc.setDrawColor(203, 213, 225);
+    doc.setLineWidth(0.3);
+    doc.line(M, y, W - M, y);
+    y += 3;
+
+    drawRow(['', '', 'Total', formatCurrency(parseFloat(inv.total || 0), currency)], true, [15, 23, 42], 8);
+    y += 7;
+
+    const s = inv.status || 'draft';
+    const sc = { paid: [16, 185, 129], pending: [245, 158, 11], overdue: [239, 68, 68], draft: [107, 114, 128] };
+    const [r, g, b] = sc[s] || sc.draft;
+    doc.setFillColor(r, g, b);
+    doc.roundedRect(M, y - 6, 22, 8, 2, 2, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(6);
+    doc.setTextColor(255, 255, 255);
+    doc.text(JOSKA_I18N.t(`dash.${s}`).toUpperCase(), M + 11, y - 1.5, { align: 'center' });
+    y += 6;
+    if (inv.notes) {
+      doc.setFont('helvetica', 'italic');
+      doc.setFontSize(6.5);
+      doc.setTextColor(148, 163, 184);
+      doc.text(inv.notes, M, y);
+    }
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(6);
+    doc.setTextColor(203, 213, 225);
+    doc.text('JOSKA', W / 2, 288, { align: 'center' });
   }
 
   // ── Theme toggle ──────────────────────────────────────────
@@ -878,7 +1043,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   document.addEventListener('joska:langChanged', () => {
-    // Re-apply i18n strings after language switch (table re-renders via Firestore listener)
     JOSKA_I18N.applyToDOM();
   });
 });
