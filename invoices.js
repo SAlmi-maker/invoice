@@ -556,14 +556,20 @@ const JOSKA_INVOICES = (() => {
 
     doc.setFillColor(37, 99, 235);
     doc.rect(0, 0, W, 30, 'F');
+    let nameX = M;
+    if (companySettings.logoBase64) {
+      doc.addImage(companySettings.logoBase64, 'PNG', M, 4, 16, 16);
+      nameX = M + 20;
+    }
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(22);
     doc.setTextColor(255, 255, 255);
-    doc.text(companySettings.companyName || 'JOSKA', M, 18);
+    doc.text(companySettings.companyName || 'JOSKA', nameX, 18);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
+    if (!companySettings.logoBase64) nameX = M;
     doc.setTextColor(180, 210, 255);
-    doc.text(JOSKA_I18N.t('brand.tagline'), M, 24);
+    doc.text(JOSKA_I18N.t('brand.tagline'), nameX, 24);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(10);
     doc.setTextColor(255, 255, 255);
@@ -703,6 +709,10 @@ const JOSKA_INVOICES = (() => {
       y += 6;
     }
 
+    if (companySettings.sealBase64) {
+      doc.addImage(companySettings.sealBase64, 'PNG', W - M - 30, y, 30, 30);
+    }
+
     doc.setDrawColor(226, 232, 240);
     doc.line(M, 275, W - M, 275);
     doc.setFont('helvetica', 'normal');
@@ -720,14 +730,19 @@ const JOSKA_INVOICES = (() => {
     doc.setFillColor(15, 23, 42);
     doc.rect(0, 0, 8, 297, 'F');
 
+    let nameX2 = M + 4;
+    if (companySettings.logoBase64) {
+      doc.addImage(companySettings.logoBase64, 'PNG', M + 4, 4, 14, 14);
+      nameX2 = M + 22;
+    }
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(20);
     doc.setTextColor(15, 23, 42);
-    doc.text(companySettings.companyName || 'JOSKA', M + 4, 20);
+    doc.text(companySettings.companyName || 'JOSKA', nameX2, 20);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7.5);
     doc.setTextColor(100, 116, 139);
-    doc.text(JOSKA_I18N.t('brand.tagline'), M + 4, 27);
+    doc.text(JOSKA_I18N.t('brand.tagline'), nameX2, 27);
 
     const numY = 20;
     doc.setFont('helvetica', 'bold');
@@ -842,6 +857,10 @@ const JOSKA_INVOICES = (() => {
       y += 6;
     }
 
+    if (companySettings.sealBase64) {
+      doc.addImage(companySettings.sealBase64, 'PNG', W - M - 25, y, 25, 25);
+    }
+
     doc.setDrawColor(226, 232, 240);
     doc.line(M + 4, 278, W - M, 278);
     doc.setFont('helvetica', 'normal');
@@ -857,10 +876,15 @@ const JOSKA_INVOICES = (() => {
 
     doc.setFillColor(30, 41, 59);
     doc.rect(0, 0, W, 20, 'F');
+    let nameX3 = M;
+    if (companySettings.logoBase64) {
+      doc.addImage(companySettings.logoBase64, 'PNG', M, 2, 12, 12);
+      nameX3 = M + 15;
+    }
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(11);
     doc.setTextColor(255, 255, 255);
-    doc.text(companySettings.companyName || 'JOSKA', M, 13);
+    doc.text(companySettings.companyName || 'JOSKA', nameX3, 13);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(9);
     doc.setTextColor(255, 255, 255);
@@ -935,6 +959,10 @@ const JOSKA_INVOICES = (() => {
       doc.setFontSize(6.5);
       doc.setTextColor(148, 163, 184);
       doc.text(inv.notes, M, y);
+    }
+
+    if (companySettings.sealBase64) {
+      doc.addImage(companySettings.sealBase64, 'PNG', W - M - 22, y, 22, 22);
     }
 
     doc.setFont('helvetica', 'normal');
