@@ -6,8 +6,8 @@
 
 const firebaseConfig = {
   apiKey: "AIzaSyCRNK5nRVZKV7Xy2Rk0-KjJCMr-cg2kthg",
-  authDomain: "joska-ebb4d.firebaseapp.com",
-  projectId: "joska-ebb4d",
+  authDomain: "joska.store",
+  projectId: "joska",
   storageBucket: "joska-ebb4d.firebasestorage.app",
   messagingSenderId: "555809439826",
   appId: "1:555809439826:web:d6adba53f321eb9711df8b",
