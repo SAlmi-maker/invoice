@@ -8,7 +8,7 @@
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232563EB'/%3E%3Ctext x='16' y='22' text-anchor='middle' fill='white' font-family='Inter,sans-serif' font-weight='800' font-size='14'%3EJ%3C/text%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Arabic:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="dashboard.css" />
   <link rel="stylesheet" href="invoices.css" />
@@ -360,15 +360,82 @@
 
   </div>
 
-  <!-- ═══ Live Preview Panel ═══ -->
+  <!-- ═══ Live Preview Panel (InvoicePro-style) ═══ -->
   <div class="inv-preview-wrap" id="invPreviewWrap">
     <div class="inv-preview-header">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
       <span data-i18n="inv.preview">Preview</span>
-      <button class="inv-preview-close" onclick="document.getElementById('invoiceModal').classList.remove('open');document.getElementById('invPreviewWrap').classList.remove('open');document.body.style.overflow='';">&times;</button>
+      <button class="inv-preview-close" id="previewCloseBtn">&times;</button>
     </div>
     <div class="inv-preview-body">
-      <div class="inv-preview-inner" id="invPreviewHTML"></div>
+      <!-- Invoice document (preview + print target) -->
+      <div class="ip-invoice" id="ip_invoicePreview">
+        <div class="ip-invoice-header">
+          <img class="ip-invoice-logo" id="preview_logo" src="" alt="Logo" style="display:none;" />
+          <div class="ip-invoice-company">
+            <h2 id="preview_companyName">JOSKA</h2>
+            <p id="preview_companyAddr"></p>
+            <p id="preview_companyContact"></p>
+          </div>
+        </div>
+        <div class="ip-invoice-title-bar">
+          <h1 id="preview_title">INVOICE</h1>
+          <div class="ip-invoice-meta">
+            <strong id="preview_invNumber">#—</strong><br />
+            <span id="preview_issueLabel">Issue</span>: <span id="preview_issueDate">—</span><br />
+            <span id="preview_dueLabel">Due</span>: <span id="preview_dueDate">—</span>
+          </div>
+        </div>
+        <div class="ip-addresses">
+          <div class="ip-address-block">
+            <h4 id="preview_fromLabel">FROM</h4>
+            <h3 id="preview_fromCoName">JOSKA</h3>
+            <p id="preview_fromAddr"></p>
+          </div>
+          <div class="ip-address-block">
+            <h4 id="preview_billToLabel">BILL TO</h4>
+            <h3 id="preview_clientName">—</h3>
+            <p id="preview_clientCIN"></p>
+            <p id="preview_clientPhone"></p>
+            <p id="preview_clientVehicle"></p>
+            <p id="preview_clientPlate"></p>
+          </div>
+        </div>
+        <table class="ip-invoice-table">
+          <thead>
+            <tr>
+              <th style="width:50%;" id="preview_descLabel">DESCRIPTION</th>
+              <th style="width:12%;" id="preview_qtyLabel">QTY</th>
+              <th style="width:18%;" id="preview_unitLabel">UNIT PRICE</th>
+              <th style="width:20%;" id="preview_amtLabel">AMOUNT</th>
+            </tr>
+          </thead>
+          <tbody id="preview_itemsBody"></tbody>
+        </table>
+        <div class="ip-summary">
+          <div class="ip-summary-row">
+            <span id="preview_subtotalLabel">Subtotal</span>
+            <span id="preview_subtotal">0.00 MAD</span>
+          </div>
+          <div class="ip-summary-row" id="preview_extrasRow" style="display:none;">
+            <span id="preview_extrasLabel">Extras</span>
+            <span id="preview_extras">0.00 MAD</span>
+          </div>
+          <div class="ip-summary-row ip-summary-total">
+            <span id="preview_grandLabel">GRAND TOTAL</span>
+            <span id="preview_grandTotal">0.00 MAD</span>
+          </div>
+        </div>
+        <div style="text-align:right;margin-bottom:12px;">
+          <span class="ip-status-badge ip-status-draft" id="preview_status">Draft</span>
+        </div>
+        <div class="ip-invoice-footer">
+          <div id="preview_notesWrap" style="display:none;">
+            <h5 id="preview_notesLabel">NOTES</h5>
+            <p id="preview_notes"></p>
+          </div>
+        </div>
+      </div>
       <div class="inv-preview-empty" id="invPreviewEmpty">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="6" y1="8" x2="18" y2="8"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="6" y1="16" x2="12" y2="16"/></svg>
         <p data-i18n="inv.previewEmpty">Fill in the form to preview</p>
@@ -404,7 +471,6 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="firebase.js"></script>
 <script src="i18n.js"></script>
 <script src="auth.js"></script>

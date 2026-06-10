@@ -187,6 +187,7 @@ const JOSKA_INVOICES = (() => {
     document.getElementById('modalSave')?.addEventListener('click', () => saveInvoice(false));
     document.getElementById('modalSaveDraft')?.addEventListener('click', () => saveInvoice(true));
     document.getElementById('modalPDF')?.addEventListener('click', () => saveAndExport());
+    document.getElementById('previewCloseBtn')?.addEventListener('click', closeModal);
     document.getElementById('deleteModalClose')?.addEventListener('click', closeDeleteModal);
     document.getElementById('deleteCancelBtn')?.addEventListener('click', closeDeleteModal);
     document.getElementById('deleteConfirmBtn')?.addEventListener('click', confirmDelete);
@@ -501,7 +502,7 @@ const JOSKA_INVOICES = (() => {
       }
 
       const fullInv = { id: docId, invoiceNumber: invNumber, days, rentalSubtotal: rental, total, ...data };
-      generatePDF(fullInv);
+      printInvoice(fullInv);
       showToast('success', JOSKA_I18N.t('inv.pdfReady'));
     } catch (err) {
       console.error(err);
@@ -523,58 +524,153 @@ const JOSKA_INVOICES = (() => {
   function exportSingle(id) {
     const inv = allInvoices.find(i => i.id === id);
     if (!inv) return;
-    generatePDF(inv);
+    printInvoice(inv);
   }
 
-  // ── Export all filtered invoices (combined PDF) ───────────
+  // ── Export all filtered invoices ─────────────────────────
   function exportFiltered() {
     if (!filteredInvoices.length) {
       showToast('error', JOSKA_I18N.t('inv.noInvoices'));
       return;
     }
-    if (filteredInvoices.length === 1) {
-      generatePDF(filteredInvoices[0]);
-      return;
-    }
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-    filteredInvoices.forEach((inv, i) => {
-      if (i > 0) doc.addPage();
-      buildPDFPage(doc, inv);
-    });
-    doc.save(`JOSKA-Invoices-${new Date().toISOString().split('T')[0]}.pdf`);
+    printInvoice(filteredInvoices[0]);
     showToast('success', JOSKA_I18N.t('inv.pdfReady'));
   }
 
-  // ── PDF Generation ────────────────────────────────────────
-  function generatePDF(inv) {
-    if (!window.jspdf) {
-      showToast('error', 'jsPDF not loaded. Please check your internet connection.');
-      return;
-    }
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-    buildPDFPage(doc, inv);
-    const filename = `JOSKA-${inv.invoiceNumber || inv.id.slice(-6)}.pdf`;
-    doc.save(filename);
-  }
-
-  function buildPDFPage(doc, inv) {
-    if (pdfTemplate === 'modern') return buildPDFPageModern(doc, inv);
-    if (pdfTemplate === 'compact') return buildPDFPageCompact(doc, inv);
-    return buildPDFPageClassic(doc, inv);
-  }
-
+  // ── Print / PDF via browser ─────────────────────────────
   function getPDFLang() {
     return invoiceLanguage || JOSKA_I18N.getLang();
   }
 
-  // ── HTML Live Preview (InvoicePro-style) ───────────────────
+  function printInvoice(inv) {
+    // Populate preview with invoice data then print
+    const wrap = document.getElementById('invPreviewWrap');
+    const modal = document.getElementById('invoiceModal');
+    const wasOpen = modal?.classList.contains('open');
+
+    // Helper to set preview element text
+    const s = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val ?? ''; };
+
+    const t = JOSKA_I18N.t;
+    const lang = getPDFLang();
+    const currency = t('common.currency');
+    const fmt = (n) => formatCurrency(n, currency, lang);
+    const coName = companySettings.companyName || 'JOSKA';
+    const coAddr = companySettings.address || '';
+    const coEmail = companySettings.email || '';
+    const coPhone = companySettings.phone || '';
+    const days = inv.days ?? calcDays(inv.startDate, inv.endDate);
+    const dp = parseFloat(inv.dailyPrice || 0);
+    const rental = days * dp;
+    const total = parseFloat(inv.total || 0);
+    const status = inv.status || 'draft';
+
+    const extras = [
+      { label: t('inv.field.insurance'), val: parseFloat(inv.insurance || 0) },
+      { label: t('inv.field.fuel'), val: parseFloat(inv.fuel || 0) },
+      { label: t('inv.field.extraDriver'), val: parseFloat(inv.extraDriver || 0) },
+      { label: t('inv.field.other'), val: parseFloat(inv.other || 0) },
+    ].filter(e => e.val > 0);
+
+    const accentHex = invoiceColorMode === 'bw' ? '#1e293b' : (invoiceColor || '#2563EB');
+    const invoiceEl = document.getElementById('ip_invoicePreview');
+    if (invoiceEl) invoiceEl.style.setProperty('--ip-primary', accentHex);
+
+    const logoEl = document.getElementById('preview_logo');
+    if (companySettings.logoBase64) {
+      logoEl.src = companySettings.logoBase64;
+      logoEl.style.display = 'block';
+    } else {
+      logoEl.style.display = 'none';
+    }
+    s('preview_companyName', coName);
+    s('preview_companyAddr', coAddr);
+    s('preview_companyContact', [coPhone, coEmail].filter(Boolean).join(' · '));
+    s('preview_title', t('pdf.invoice'));
+    s('preview_invNumber', `#${inv.invoiceNumber || inv.id?.slice(-6) || '—'}`);
+    s('preview_issueLabel', t('pdf.issue'));
+    s('preview_issueDate', inv.startDate || '—');
+    s('preview_dueLabel', t('pdf.due'));
+    s('preview_dueDate', inv.endDate || '—');
+    s('preview_fromLabel', t('pdf.from'));
+    s('preview_fromCoName', coName);
+    s('preview_fromAddr', coAddr);
+    s('preview_billToLabel', t('pdf.billTo'));
+    s('preview_clientName', inv.clientName || '—');
+    s('preview_clientCIN', inv.cin ? `${t('pdf.cin')}: ${inv.cin}` : '');
+    s('preview_clientPhone', inv.phone ? `${t('pdf.tel')}: ${inv.phone}` : '');
+    s('preview_clientVehicle', `${inv.vehicleBrand || ''} ${inv.vehicleModel || ''}`.trim() || '');
+    s('preview_clientPlate', inv.plate ? `${t('pdf.plate')}: ${inv.plate}` : '');
+    s('preview_descLabel', t('pdf.description'));
+    s('preview_qtyLabel', t('pdf.qty'));
+    s('preview_unitLabel', t('pdf.unitPrice'));
+    s('preview_amtLabel', t('pdf.amount'));
+
+    const tbody = document.getElementById('preview_itemsBody');
+    if (tbody) {
+      tbody.innerHTML = '';
+      const addRow = (desc, qty, unit, amt) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${escHtml(desc)}</td><td>${qty}</td><td>${fmt(unit)}</td><td>${fmt(amt)}</td>`;
+        tbody.appendChild(tr);
+      };
+      addRow(`${t('inv.field.rentalSubtotal')} (${inv.vehicleBrand || ''} ${inv.vehicleModel || ''})`, days, dp, rental);
+      extras.forEach(e => addRow(e.label, 1, e.val, e.val));
+    }
+
+    s('preview_subtotalLabel', t('pdf.subtotal'));
+    s('preview_subtotal', fmt(rental));
+    const extrasRow = document.getElementById('preview_extrasRow');
+    if (extras.length) {
+      s('preview_extrasLabel', t('pdf.extras'));
+      s('preview_extras', fmt(extras.reduce((a, e) => a + e.val, 0)));
+      extrasRow.style.display = 'flex';
+    } else {
+      extrasRow.style.display = 'none';
+    }
+    s('preview_grandLabel', t('pdf.grandTotal'));
+    s('preview_grandTotal', fmt(total));
+
+    const badge = document.getElementById('preview_status');
+    if (badge) {
+      badge.textContent = t('dash.' + status);
+      badge.className = 'ip-status-badge ip-status-' + status;
+    }
+
+    const notesWrap = document.getElementById('preview_notesWrap');
+    if (inv.notes) {
+      s('preview_notesLabel', t('pdf.notes'));
+      s('preview_notes', inv.notes);
+      notesWrap.style.display = 'block';
+    } else {
+      notesWrap.style.display = 'none';
+    }
+
+    // Show the preview panel and mark as print area
+    if (wrap) wrap.classList.add('open');
+    if (modal) modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    const emptyEl = document.getElementById('invPreviewEmpty');
+    if (emptyEl) emptyEl.classList.add('hidden');
+
+    // Wait a tick for rendering, then print
+    setTimeout(() => {
+      wrap.classList.add('print-area');
+      window.print();
+      wrap.classList.remove('print-area');
+      if (!wasOpen) {
+        wrap.classList.remove('open');
+        modal?.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+    }, 200);
+  }
+
+  // ── InvoicePro-style Live Preview ────────────────────────
   function renderHTMLPreview() {
     const wrap = document.getElementById('invPreviewWrap');
-    const container = document.getElementById('invPreviewHTML');
     const emptyEl = document.getElementById('invPreviewEmpty');
-    if (!wrap || !container || !wrap.classList.contains('open')) return;
+    if (!wrap || !wrap.classList.contains('open')) return;
 
     const d = readForm();
     const days = calcDays(d.startDate, d.endDate);
@@ -592,117 +688,113 @@ const JOSKA_INVOICES = (() => {
 
     const hasData = d.clientName || d.vehicleBrand || d.startDate || dp > 0;
     if (emptyEl) emptyEl.classList.toggle('hidden', hasData);
-    if (!hasData) { container.innerHTML = ''; return; }
+    if (!hasData) return;
 
-    const currency = JOSKA_I18N.t('common.currency');
+    const t = JOSKA_I18N.t;
+    const lang = getPDFLang();
+    const currency = t('common.currency');
     const coName = companySettings.companyName || 'JOSKA';
     const coAddr = companySettings.address || '';
     const coEmail = companySettings.email || '';
     const coPhone = companySettings.phone || '';
-    const logoHtml = companySettings.logoBase64
-      ? `<img class="ipv-logo" src="${companySettings.logoBase64}" alt="Logo" />`
-      : '';
+    const fmt = (n) => formatCurrency(n, currency, lang);
 
     const extras = [
-      { label: JOSKA_I18N.t('inv.field.insurance'), val: ins },
-      { label: JOSKA_I18N.t('inv.field.fuel'), val: fuel },
-      { label: JOSKA_I18N.t('inv.field.extraDriver'), val: ed },
-      { label: JOSKA_I18N.t('inv.field.other'), val: oth },
+      { label: t('inv.field.insurance'), val: ins },
+      { label: t('inv.field.fuel'), val: fuel },
+      { label: t('inv.field.extraDriver'), val: ed },
+      { label: t('inv.field.other'), val: oth },
     ].filter(e => e.val > 0);
 
-    const fmt = (n) => new Intl.NumberFormat(getPDFLang(), { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n) + ' ' + currency;
+    const accentHex = invoiceColorMode === 'bw' ? '#1e293b' : (invoiceColor || '#2563EB');
 
-    const accent = getAccentColor();
-    const accentHex = invoiceColorMode === 'bw' ? '#1e293b' : invoiceColor;
+    // Set accent color CSS variable on the invoice element
+    const invoiceEl = document.getElementById('ip_invoicePreview');
+    if (invoiceEl) invoiceEl.style.setProperty('--ip-primary', accentHex);
 
-    // Status colors
-    const statusColors = { paid: '#10b981', pending: '#f59e0b', overdue: '#ef4444', draft: '#6b7280' };
-    const statusBg = { paid: '#d1fae5', pending: '#fef3c7', overdue: '#fee2e2', draft: '#f1f5f9' };
+    // Helper to set text
+    const s = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
 
-    container.innerHTML = `
-      <div class="ipv-document">
-        <div class="ipv-header">
-          ${logoHtml}
-          <div class="ipv-company">
-            <h2>${escHtml(coName)}</h2>
-            <p>${escHtml(coAddr)}</p>
-            <p>${[coPhone, coEmail].filter(Boolean).join(' · ')}</p>
-          </div>
-        </div>
+    // Company info
+    const logoEl = document.getElementById('preview_logo');
+    if (companySettings.logoBase64) {
+      logoEl.src = companySettings.logoBase64;
+      logoEl.style.display = 'block';
+    } else {
+      logoEl.style.display = 'none';
+    }
+    s('preview_companyName', coName);
+    s('preview_companyAddr', coAddr);
+    s('preview_companyContact', [coPhone, coEmail].filter(Boolean).join(' · '));
 
-        <div class="ipv-title-bar">
-          <h1 style="color:${accentHex}">${JOSKA_I18N.t('pdf.invoice')}</h1>
-          <div class="ipv-meta">
-            <strong>#${escHtml(invNum)}</strong><br />
-            ${JOSKA_I18N.t('pdf.issue')}: ${d.startDate || '—'}<br />
-            ${JOSKA_I18N.t('pdf.due')}: ${d.endDate || '—'}
-          </div>
-        </div>
+    // Invoice meta
+    s('preview_title', t('pdf.invoice'));
+    s('preview_invNumber', `#${invNum}`);
+    s('preview_issueLabel', t('pdf.issue'));
+    s('preview_issueDate', d.startDate || '—');
+    s('preview_dueLabel', t('pdf.due'));
+    s('preview_dueDate', d.endDate || '—');
 
-        <div class="ipv-addresses">
-          <div class="ipv-addr">
-            <h4>${JOSKA_I18N.t('pdf.from')}</h4>
-            <h3>${escHtml(coName)}</h3>
-            <p>${escHtml(coAddr)}</p>
-          </div>
-          <div class="ipv-addr">
-            <h4>${JOSKA_I18N.t('pdf.billTo')}</h4>
-            <h3>${escHtml(d.clientName) || '—'}</h3>
-            <p>${d.cin ? escHtml(JOSKA_I18N.t('pdf.cin')) + ': ' + escHtml(d.cin) : ''}</p>
-            <p>${d.phone ? escHtml(JOSKA_I18N.t('pdf.tel')) + ': ' + escHtml(d.phone) : ''}</p>
-            <p>${escHtml(d.vehicleBrand)} ${escHtml(d.vehicleModel)}</p>
-            <p>${d.plate ? escHtml(JOSKA_I18N.t('pdf.plate')) + ': ' + escHtml(d.plate) : ''}</p>
-          </div>
-        </div>
+    // Addresses
+    s('preview_fromLabel', t('pdf.from'));
+    s('preview_fromCoName', coName);
+    s('preview_fromAddr', coAddr);
+    s('preview_billToLabel', t('pdf.billTo'));
+    s('preview_clientName', d.clientName || '—');
+    s('preview_clientCIN', d.cin ? `${t('pdf.cin')}: ${d.cin}` : '');
+    s('preview_clientPhone', d.phone ? `${t('pdf.tel')}: ${d.phone}` : '');
+    s('preview_clientVehicle', `${d.vehicleBrand || ''} ${d.vehicleModel || ''}`.trim() || '');
+    s('preview_clientPlate', d.plate ? `${t('pdf.plate')}: ${d.plate}` : '');
 
-        <table class="ipv-table">
-          <thead>
-            <tr style="background:${accentHex};color:#fff;">
-              <th style="width:50%;">${JOSKA_I18N.t('pdf.description')}</th>
-              <th style="width:12%;">${JOSKA_I18N.t('pdf.qty')}</th>
-              <th style="width:18%;">${JOSKA_I18N.t('pdf.unitPrice')}</th>
-              <th style="width:20%;text-align:right;">${JOSKA_I18N.t('pdf.amount')}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>${escHtml(JOSKA_I18N.t('inv.field.rentalSubtotal'))} (${escHtml(d.vehicleBrand)} ${escHtml(d.vehicleModel)})</td>
-              <td>${days}</td>
-              <td>${fmt(dp)}</td>
-              <td style="text-align:right;font-weight:600;">${fmt(rental)}</td>
-            </tr>
-            ${extras.map(e => `
-              <tr>
-                <td>${escHtml(e.label)}</td>
-                <td>1</td>
-                <td>${fmt(e.val)}</td>
-                <td style="text-align:right;">${fmt(e.val)}</td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
+    // Table header labels
+    s('preview_descLabel', t('pdf.description'));
+    s('preview_qtyLabel', t('pdf.qty'));
+    s('preview_unitLabel', t('pdf.unitPrice'));
+    s('preview_amtLabel', t('pdf.amount'));
 
-        <div class="ipv-summary">
-          <div class="ipv-srow">
-            <span>${JOSKA_I18N.t('pdf.subtotal')}</span>
-            <span>${fmt(rental)}</span>
-          </div>
-          ${extras.length ? `<div class="ipv-srow"><span>${JOSKA_I18N.t('pdf.extras')}</span><span>${fmt(extras.reduce((a,e)=>a+e.val,0))}</span></div>` : ''}
-          <div class="ipv-srow ipv-grand" style="background:${accentHex};">
-            <span>${JOSKA_I18N.t('pdf.grandTotal')}</span>
-            <span>${fmt(total)}</span>
-          </div>
-        </div>
+    // Build items table body
+    const tbody = document.getElementById('preview_itemsBody');
+    if (tbody) {
+      tbody.innerHTML = '';
+      const addRow = (desc, qty, unit, amt) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${escHtml(desc)}</td><td>${qty}</td><td>${fmt(unit)}</td><td>${fmt(amt)}</td>`;
+        tbody.appendChild(tr);
+      };
+      addRow(`${t('inv.field.rentalSubtotal')} (${d.vehicleBrand || ''} ${d.vehicleModel || ''})`, days, dp, rental);
+      extras.forEach(e => addRow(e.label, 1, e.val, e.val));
+    }
 
-        <div class="ipv-status-wrap">
-          <span class="ipv-badge" style="background:${statusBg[status] || statusBg.draft};color:${statusColors[status] || statusColors.draft};">${JOSKA_I18N.t('dash.' + status)}</span>
-        </div>
+    // Summary
+    s('preview_subtotalLabel', t('pdf.subtotal'));
+    s('preview_subtotal', fmt(rental));
+    const extrasRow = document.getElementById('preview_extrasRow');
+    if (extras.length) {
+      s('preview_extrasLabel', t('pdf.extras'));
+      s('preview_extras', fmt(extras.reduce((a, e) => a + e.val, 0)));
+      extrasRow.style.display = 'flex';
+    } else {
+      extrasRow.style.display = 'none';
+    }
+    s('preview_grandLabel', t('pdf.grandTotal'));
+    s('preview_grandTotal', fmt(total));
 
-        <div class="ipv-footer">
-          ${d.notes ? `<div><h5>${JOSKA_I18N.t('pdf.notes')}</h5><p>${escHtml(d.notes)}</p></div>` : ''}
-        </div>
-      </div>
-    `;
+    // Status badge
+    const badge = document.getElementById('preview_status');
+    if (badge) {
+      badge.textContent = t('dash.' + status);
+      badge.className = 'ip-status-badge ip-status-' + status;
+    }
+
+    // Footer notes
+    const notesWrap = document.getElementById('preview_notesWrap');
+    if (d.notes) {
+      s('preview_notesLabel', t('pdf.notes'));
+      s('preview_notes', d.notes);
+      notesWrap.style.display = 'block';
+    } else {
+      notesWrap.style.display = 'none';
+    }
   }
 
   function buildPDFPageClassic(doc, inv) {
