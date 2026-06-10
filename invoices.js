@@ -571,7 +571,9 @@ const JOSKA_INVOICES = (() => {
     const emptyEl = document.getElementById('invPreviewEmpty');
     if (emptyEl) emptyEl.classList.add('hidden');
 
-    // Call print directly — must be synchronous to preserve user gesture
+    // Force browser to finish layout with the new classes before print captures it
+    void modal?.offsetHeight;
+
     window.print();
 
     if (!wasOpen) {

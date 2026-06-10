@@ -686,50 +686,41 @@
 
 /* Print Styles — hide everything except the invoice */
 @media print {
-  body { background: #fff !important; margin: 0 !important; padding: 0 !important; }
+  body { background: #fff !important; }
   body > *:not(#invoiceModal) { display: none !important; }
   #invoiceModal {
-    display: block !important;
-    width: 210mm !important;
-    min-height: 297mm !important;
-    padding: 0 !important;
-    margin: 0 auto !important;
+    position: fixed !important;
+    inset: 0 !important;
     background: #fff !important;
+  }
+  .inv-preview-wrap {
+    width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    border: none !important;
+    box-shadow: none !important;
+    transform: none !important;
+    overflow: visible !important;
+  }
+  .inv-preview-body {
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    padding: 0 !important;
+    background: none !important;
+    overflow: visible !important;
   }
   #invoiceModal .modal-panel,
   .inv-preview-header,
   .inv-preview-empty { display: none !important; }
-  .inv-preview-wrap {
-    display: block !important;
-    width: 210mm !important;
-    height: auto !important;
-    max-height: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    border: none !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    transform: none !important;
-    background: #fff !important;
-    flex: none !important;
-    overflow: visible !important;
-  }
-  .inv-preview-body {
-    display: block !important;
-    width: 210mm !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    background: #fff !important;
-    overflow: visible !important;
-  }
   .ip-invoice {
-    width: 210mm !important;
-    min-height: 297mm !important;
+    flex: 1 !important;
+    width: auto !important;
     padding: 10mm 12mm !important;
-    margin: 0 !important;
     box-sizing: border-box !important;
-    font-size: 11pt !important;
     box-shadow: none !important;
+    font-size: 11pt !important;
   }
   .ip-invoice table.ip-invoice-table thead th {
     font-size: 8pt !important;
@@ -750,5 +741,5 @@
   .ip-invoice .ip-summary-total      { font-size: 12pt !important; }
   .ip-invoice .ip-invoice-footer h5  { font-size: 8pt !important; }
   .ip-invoice .ip-invoice-footer p   { font-size: 9pt !important; }
-  @page { size: A4; margin: 0; }
+  @page { size: A4 portrait; margin: 0; }
 }
