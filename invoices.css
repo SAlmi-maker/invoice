@@ -636,24 +636,27 @@
 
 /* ── Subtotal rows — removed (no longer shown in invoice) ── */
 
-/* ── Status row — sits directly below grand total, same column alignment ── */
+/* ── Status row — same size/font as grand total, sits directly below ── */
 .ip-status-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 8px 20px;
-  background: rgba(37, 99, 235, 0.08);
+  padding: 14px 20px;
+  background: var(--ip-primary-dark);
   border-radius: 0 0 6px 6px;
   width: 100%;
   box-sizing: border-box;
   margin-bottom: 0;
+  font-weight: 800;
+  font-size: 18pt;
+  color: #FFFFFF;
 }
 .ip-status-label {
-  font-size: 6.5pt;
+  font-size: 10pt;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--ip-text-secondary);
+  color: #FFFFFF;
 }
 
 /* ── Grand total ── */
@@ -676,6 +679,16 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
+}
+
+.ip-status-row .ip-status-badge {
+  font-size: 18pt;
+  font-weight: 800;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #FFFFFF;
+  letter-spacing: -0.02em;
 }
 
 .ip-status-badge {
