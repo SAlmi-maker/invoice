@@ -559,28 +559,21 @@ const JOSKA_INVOICES = (() => {
   }
 
   function printInvoice(inv) {
-    const modal = document.getElementById('invoiceModal');
-    const wasOpen = modal?.classList.contains('open');
-
     populatePreview(inv);
 
-    const wrap = document.getElementById('invPreviewWrap');
-    if (wrap) wrap.classList.add('open');
-    if (modal) modal.classList.add('open');
-    document.body.style.overflow = 'hidden';
-    const emptyEl = document.getElementById('invPreviewEmpty');
-    if (emptyEl) emptyEl.classList.add('hidden');
+    const invoiceEl = document.querySelector('.ip-invoice');
+    if (!invoiceEl) return;
 
-    // Force browser to finish layout with the new classes before print captures it
-    void modal?.offsetHeight;
+    const clone = invoiceEl.cloneNode(true);
+    const pc = document.createElement('div');
+    pc.id = 'joska-print-container';
+    pc.appendChild(clone);
+    document.body.appendChild(pc);
+    void pc.offsetHeight;
 
     window.print();
 
-    if (!wasOpen) {
-      if (wrap) wrap.classList.remove('open');
-      if (modal) modal.classList.remove('open');
-      document.body.style.overflow = '';
-    }
+    document.body.removeChild(pc);
   }
 
   // ── Populate InvoicePro preview elements ────────────────

@@ -686,60 +686,43 @@
 
 /* Print Styles — hide everything except the invoice */
 @media print {
-  body { background: #fff !important; }
-  body > *:not(#invoiceModal) { display: none !important; }
-  #invoiceModal {
-    position: fixed !important;
-    inset: 0 !important;
-    background: #fff !important;
+  body > *:not(#joska-print-container) { display: none !important; }
+  #joska-print-container { display: block !important; }
+
+  #joska-print-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #fff;
   }
-  .inv-preview-wrap {
-    width: 100% !important;
-    height: 100% !important;
-    display: flex !important;
-    flex-direction: column !important;
-    border: none !important;
-    box-shadow: none !important;
-    transform: none !important;
-    overflow: visible !important;
+  #joska-print-container .ip-invoice {
+    width: 100%;
+    height: 100%;
+    padding: 10mm 12mm;
+    box-sizing: border-box;
+    box-shadow: none;
+    font-size: 11pt;
   }
-  .inv-preview-body {
-    flex: 1 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    padding: 0 !important;
-    background: none !important;
-    overflow: visible !important;
+  #joska-print-container .ip-invoice table.ip-invoice-table thead th {
+    font-size: 8pt;
+    padding: 7px 10px;
   }
-  #invoiceModal .modal-panel,
-  .inv-preview-header,
-  .inv-preview-empty { display: none !important; }
-  .ip-invoice {
-    flex: 1 !important;
-    width: auto !important;
-    padding: 10mm 12mm !important;
-    box-sizing: border-box !important;
-    box-shadow: none !important;
-    font-size: 11pt !important;
+  #joska-print-container .ip-invoice table.ip-invoice-table tbody td {
+    font-size: 10pt;
+    padding: 6px 10px;
   }
-  .ip-invoice table.ip-invoice-table thead th {
-    font-size: 8pt !important;
-    padding: 7px 10px !important;
-  }
-  .ip-invoice table.ip-invoice-table tbody td {
-    font-size: 10pt !important;
-    padding: 6px 10px !important;
-  }
-  .ip-invoice .ip-invoice-title-bar h1 { font-size: 30pt !important; }
-  .ip-invoice .ip-invoice-company h2  { font-size: 18pt !important; }
-  .ip-invoice .ip-invoice-company p  { font-size: 9pt !important; }
-  .ip-invoice .ip-address-block h4   { font-size: 8pt !important; }
-  .ip-invoice .ip-address-block h3   { font-size: 12pt !important; }
-  .ip-invoice .ip-address-block p    { font-size: 9pt !important; }
-  .ip-invoice .ip-invoice-meta       { font-size: 9pt !important; }
-  .ip-invoice .ip-summary-row        { font-size: 10pt !important; }
-  .ip-invoice .ip-summary-total      { font-size: 12pt !important; }
-  .ip-invoice .ip-invoice-footer h5  { font-size: 8pt !important; }
-  .ip-invoice .ip-invoice-footer p   { font-size: 9pt !important; }
+  #joska-print-container .ip-invoice .ip-invoice-title-bar h1 { font-size: 30pt; }
+  #joska-print-container .ip-invoice .ip-invoice-company h2  { font-size: 18pt; }
+  #joska-print-container .ip-invoice .ip-invoice-company p  { font-size: 9pt; }
+  #joska-print-container .ip-invoice .ip-address-block h4   { font-size: 8pt; }
+  #joska-print-container .ip-invoice .ip-address-block h3   { font-size: 12pt; }
+  #joska-print-container .ip-invoice .ip-address-block p    { font-size: 9pt; }
+  #joska-print-container .ip-invoice .ip-invoice-meta       { font-size: 9pt; }
+  #joska-print-container .ip-invoice .ip-summary-row        { font-size: 10pt; }
+  #joska-print-container .ip-invoice .ip-summary-total      { font-size: 12pt; }
+  #joska-print-container .ip-invoice .ip-invoice-footer h5  { font-size: 8pt; }
+  #joska-print-container .ip-invoice .ip-invoice-footer p   { font-size: 9pt; }
   @page { size: A4 portrait; margin: 0; }
 }
