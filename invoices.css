@@ -684,12 +684,25 @@
   margin: 0;
 }
 
-/* Print Styles — hide everything except the invoice */
+/* Print Styles — hide everything except the invoice preview */
 @media print {
-  body > *:not(.print-area) { display: none !important; }
-  .inv-preview-wrap {
+  body > *:not(#invoiceModal) { display: none !important; }
+  #invoiceModal {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     position: fixed !important;
     inset: 0 !important;
+    background: #fff !important;
+    backdrop-filter: none !important;
+    padding: 0 !important;
+    opacity: 1 !important;
+    pointer-events: all !important;
+  }
+  #invoiceModal .modal-panel { display: none !important; }
+  .inv-preview-header,
+  .inv-preview-empty { display: none !important; }
+  .inv-preview-wrap {
     width: 100% !important;
     height: 100% !important;
     max-height: none !important;
@@ -698,17 +711,18 @@
     box-shadow: none !important;
     transform: none !important;
     display: flex !important;
-    background: #fff !important;
   }
-  .inv-preview-header,
-  .inv-preview-empty { display: none !important; }
   .inv-preview-body {
     padding: 0 !important;
     background: #fff !important;
     overflow: visible !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
   }
   .ip-invoice {
     width: 100% !important;
+    max-width: 210mm !important;
     box-shadow: none !important;
     padding: 20px !important;
     min-height: auto !important;

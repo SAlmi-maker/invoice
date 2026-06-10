@@ -541,6 +541,12 @@ const JOSKA_I18N = (() => {
       || key;
   }
 
+  function tLang(key, lang) {
+    return (translations[lang] && translations[lang][key])
+      || (translations[DEFAULT_LANG] && translations[DEFAULT_LANG][key])
+      || key;
+  }
+
   function setLang(lang) {
     if (!translations[lang]) return;
     currentLang = lang;
@@ -592,5 +598,5 @@ const JOSKA_I18N = (() => {
     });
   }
 
-  return { t, setLang, getLang, isRTL, init, applyToDOM };
+  return { t, tLang, setLang, getLang, isRTL, init, applyToDOM };
 })();

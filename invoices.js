@@ -542,6 +542,14 @@ const JOSKA_INVOICES = (() => {
     return invoiceLanguage || JOSKA_I18N.getLang();
   }
 
+  // Translate a key using the invoice language (falls back to website language)
+  function tl(key) {
+    if (invoiceLanguage && invoiceLanguage !== JOSKA_I18N.getLang()) {
+      return JOSKA_I18N.tLang(key, invoiceLanguage);
+    }
+    return JOSKA_I18N.t(key);
+  }
+
   function printInvoice(inv) {
     // Populate preview with invoice data then print
     const wrap = document.getElementById('invPreviewWrap');
@@ -551,9 +559,9 @@ const JOSKA_INVOICES = (() => {
     // Helper to set preview element text
     const s = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val ?? ''; };
 
-    const t = JOSKA_I18N.t;
+    const t = tl;
     const lang = getPDFLang();
-    const currency = t('common.currency');
+    const currency = JOSKA_I18N.t('common.currency');
     const fmt = (n) => formatCurrency(n, currency, lang);
     const coName = companySettings.companyName || 'JOSKA';
     const coAddr = companySettings.address || '';
@@ -577,10 +585,10 @@ const JOSKA_INVOICES = (() => {
     if (invoiceEl) invoiceEl.style.setProperty('--ip-primary', accentHex);
 
     const logoEl = document.getElementById('preview_logo');
-    if (companySettings.logoBase64) {
+    if (companySettings.logoBase64 && logoEl) {
       logoEl.src = companySettings.logoBase64;
       logoEl.style.display = 'block';
-    } else {
+    } else if (logoEl) {
       logoEl.style.display = 'none';
     }
     s('preview_companyName', coName);
@@ -655,9 +663,7 @@ const JOSKA_INVOICES = (() => {
 
     // Wait a tick for rendering, then print
     setTimeout(() => {
-      wrap.classList.add('print-area');
       window.print();
-      wrap.classList.remove('print-area');
       if (!wasOpen) {
         wrap.classList.remove('open');
         modal?.classList.remove('open');
@@ -690,9 +696,9 @@ const JOSKA_INVOICES = (() => {
     if (emptyEl) emptyEl.classList.toggle('hidden', hasData);
     if (!hasData) return;
 
-    const t = JOSKA_I18N.t;
+    const t = tl;
     const lang = getPDFLang();
-    const currency = t('common.currency');
+    const currency = JOSKA_I18N.t('common.currency');
     const coName = companySettings.companyName || 'JOSKA';
     const coAddr = companySettings.address || '';
     const coEmail = companySettings.email || '';
@@ -717,10 +723,10 @@ const JOSKA_INVOICES = (() => {
 
     // Company info
     const logoEl = document.getElementById('preview_logo');
-    if (companySettings.logoBase64) {
+    if (companySettings.logoBase64 && logoEl) {
       logoEl.src = companySettings.logoBase64;
       logoEl.style.display = 'block';
-    } else {
+    } else if (logoEl) {
       logoEl.style.display = 'none';
     }
     s('preview_companyName', coName);
@@ -798,7 +804,7 @@ const JOSKA_INVOICES = (() => {
   }
 
   function buildPDFPageClassic(doc, inv) {
-    const t = JOSKA_I18N.t;
+    const t = tl;
     const currency = t('common.currency');
     const W = 210, M = 18;
     let y = 0;
