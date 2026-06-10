@@ -129,6 +129,7 @@ const JOSKA_I18N = (() => {
       'inv.field.extraDriver':'Extra Driver',
       'inv.field.other':      'Other',
       'inv.days':             'days',
+      'inv.preview':          'Preview',
 
       'pdf.invoice':       'INVOICE',
       'pdf.from':          'FROM',
@@ -303,6 +304,7 @@ const JOSKA_I18N = (() => {
       'inv.field.extraDriver':'Chauffeur Suppl.',
       'inv.field.other':      'Autres',
       'inv.days':             'jours',
+      'inv.preview':          'Aperçu',
 
       'pdf.invoice':       'FACTURE',
       'pdf.from':          'DE',
@@ -477,6 +479,7 @@ const JOSKA_I18N = (() => {
       'inv.field.extraDriver':'سائق إضافي',
       'inv.field.other':      'أخرى',
       'inv.days':             'أيام',
+      'inv.preview':          'معاينة',
 
       'pdf.invoice':       'فاتورة',
       'pdf.from':          'من',

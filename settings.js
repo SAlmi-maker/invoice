@@ -70,6 +70,8 @@ const JOSKA_SETTINGS = (() => {
     if (colorInput) colorInput.value = colorVal;
     if (colorText) colorText.value = colorVal;
     toggleColorPicker(colorMode === 'custom');
+    const langSel = document.getElementById('invoiceLanguage');
+    if (langSel) langSel.value = data.invoiceLanguage || '';
   }
 
   function toggleColorPicker(show) {
@@ -113,6 +115,7 @@ const JOSKA_SETTINGS = (() => {
           invoiceTemplate: 'classic',
           invoiceColorMode: document.querySelector('input[name="invoiceColorMode"]:checked')?.value || 'bw',
           invoiceColor: document.getElementById('invoiceColorInput')?.value || '#2563EB',
+          invoiceLanguage: document.getElementById('invoiceLanguage')?.value || '',
           updatedAt:   firebase.firestore.FieldValue.serverTimestamp()
         };
 
