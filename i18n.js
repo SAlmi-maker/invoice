@@ -113,6 +113,17 @@ const JOSKA_I18N = (() => {
       'settings.sealHint':     'Recommended: 200×200px, PNG with transparency',
       'settings.dragDrop':     'Drag & drop or click to upload',
 
+      // Reports
+      'reports.title':           'Revenue Analytics',
+      'reports.subtitle':        'Track your car rental business performance',
+      'reports.revenueTrend':    'Revenue Trend',
+      'reports.topPerformers':   'Top Performers',
+      'reports.monthlyBreakdown':'Monthly Breakdown',
+      'reports.today':           'Today',
+      'reports.thisMonth':       'This Month',
+      'reports.thisYear':        'This Year',
+      'reports.totalInvoices':   'Total Invoices',
+
       // Common
       'common.loading':  'Loading...',
       'common.save':     'Save',
@@ -220,6 +231,17 @@ const JOSKA_I18N = (() => {
       'settings.sealHint':     'Recommandé : 200×200px, PNG transparent',
       'settings.dragDrop':     'Glisser-déposer ou cliquer pour télécharger',
 
+      // Reports
+      'reports.title':           'Analyse des Revenus',
+      'reports.subtitle':        'Suivez la performance de votre location de voitures',
+      'reports.revenueTrend':    'Tendance des Revenus',
+      'reports.topPerformers':   'Meilleurs Performeurs',
+      'reports.monthlyBreakdown':'Répartition Mensuelle',
+      'reports.today':           'Aujourd\'hui',
+      'reports.thisMonth':       'Ce Mois',
+      'reports.thisYear':        'Cette Année',
+      'reports.totalInvoices':   'Total Factures',
+
       'common.loading':  'Chargement...',
       'common.save':     'Enregistrer',
       'common.cancel':   'Annuler',
@@ -325,6 +347,17 @@ const JOSKA_I18N = (() => {
       'settings.logoHint':     'موصى به: 200×200 بكسل، PNG أو SVG',
       'settings.sealHint':     'موصى به: 200×200 بكسل، PNG بخلفية شفافة',
       'settings.dragDrop':     'اسحب وأفلت أو انقر للرفع',
+
+      // Reports
+      'reports.title':           'تحليل الإيرادات',
+      'reports.subtitle':        'تتبع أداء أعمال تأجير السيارات',
+      'reports.revenueTrend':    'اتجاه الإيرادات',
+      'reports.topPerformers':   'أفضل الأداء',
+      'reports.monthlyBreakdown':'توزيع شهري',
+      'reports.today':           'اليوم',
+      'reports.thisMonth':       'هذا الشهر',
+      'reports.thisYear':        'هذا العام',
+      'reports.totalInvoices':   'إجمالي الفواتير',
 
       'common.loading':  'جارٍ التحميل...',
       'common.save':     'حفظ',
