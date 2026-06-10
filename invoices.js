@@ -614,7 +614,8 @@ const JOSKA_INVOICES = (() => {
     }
     s('preview_companyName', coName);
     s('preview_companyAddr', coAddr);
-    s('preview_companyContact', [coPhone, coEmail].filter(Boolean).join(' · '));
+    s('preview_companyEmail', coEmail);
+    s('preview_companyPhone', coPhone);
     s('preview_title', t('pdf.invoice'));
     s('preview_invNumber', `#${inv.invoiceNumber || inv.id?.slice(-6) || '—'}`);
     s('preview_issueLabel', t('pdf.issue'));

@@ -515,6 +515,8 @@
   flex-shrink: 0;
   margin: 0 auto;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ── Header: logo + company name ── */
@@ -632,17 +634,28 @@
   background: var(--ip-bg);
 }
 
-/* ── Subtotal rows — left 50%, aligned under description/rate columns ── */
+/* ── Subtotal rows — labels align under DESCRIPTION col, amounts under AMOUNT col ── */
 .ip-summary-subtotals {
-  width: 50%;
+  width: 100%;
   margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
 }
 .ip-summary-row {
   display: flex;
-  justify-content: space-between;
   padding: 5px 0;
   font-size: 10pt;
   color: var(--ip-text-secondary);
+}
+.ip-summary-row span:first-child {
+  width: 50%;
+  box-sizing: border-box;
+}
+.ip-summary-row span:last-child {
+  width: 20%;
+  margin-left: auto;
+  text-align: right;
+  box-sizing: border-box;
 }
 
 /* ── Grand total — full width, 180px gap above ── */
@@ -688,7 +701,7 @@
 }
 
 .ip-invoice-footer {
-  margin-top: 36px;
+  margin-top: auto;
   padding-top: 20px;
   border-top: 1px solid var(--ip-border);
 }
