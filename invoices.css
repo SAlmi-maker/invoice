@@ -666,6 +666,12 @@
 .ip-status-overdue { background: #FEE2E2; color: #991B1B; }
 .ip-status-draft { background: #F1F5F9; color: #475569; }
 
+.ip-status-row {
+  text-align: right;
+  margin-top: 20px;
+  margin-bottom: 0;
+}
+
 .ip-invoice-footer {
   margin-top: 28px;
   padding-top: 16px;
