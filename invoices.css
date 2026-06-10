@@ -521,7 +521,7 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 80px;
+  margin-bottom: 40px;
 }
 .ip-invoice-logo {
   width: 80px;
@@ -550,7 +550,7 @@
   align-items: flex-end;
   border-bottom: 3px solid var(--ip-primary);
   padding-bottom: 10px;
-  margin-bottom: 72px;
+  margin-bottom: 36px;
 }
 .ip-invoice-title-bar h1 {
   font-family: var(--ip-font-heading);
@@ -571,7 +571,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
-  margin-bottom: 80px;
+  margin-bottom: 40px;
 }
 .ip-address-block h4 {
   font-size: 6.5pt;
@@ -597,7 +597,7 @@
 .ip-invoice-table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 72px;
+  margin-bottom: 36px;
 }
 .ip-invoice-table thead th {
   background: var(--ip-primary);
@@ -648,7 +648,7 @@
   font-weight: 800;
   font-size: 18pt;
   border-radius: 6px;
-  margin-top: 250px;
+  margin-top: 180px;
   width: 100%;
   box-sizing: border-box;
 }
@@ -675,12 +675,12 @@
 
 .ip-status-row {
   text-align: right;
-  margin-top: 52px;
+  margin-top: 26px;
   margin-bottom: 0;
 }
 
 .ip-invoice-footer {
-  margin-top: 72px;
+  margin-top: 36px;
   padding-top: 20px;
   border-top: 1px solid var(--ip-border);
 }
