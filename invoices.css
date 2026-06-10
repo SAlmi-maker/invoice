@@ -521,13 +521,13 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 20px;
+  margin-bottom: 32px;
 }
 .ip-invoice-logo {
-  width: 50px;
-  height: 50px;
+  width: 80px;
+  height: 80px;
   object-fit: contain;
-  border-radius: 4px;
+  border-radius: 6px;
 }
 .ip-invoice-company { text-align: right; }
 .ip-invoice-company h2 {
@@ -549,8 +549,8 @@
   justify-content: space-between;
   align-items: flex-end;
   border-bottom: 3px solid var(--ip-primary);
-  padding-bottom: 8px;
-  margin-bottom: 16px;
+  padding-bottom: 10px;
+  margin-bottom: 28px;
 }
 .ip-invoice-title-bar h1 {
   font-family: var(--ip-font-heading);
@@ -571,7 +571,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
-  margin-bottom: 18px;
+  margin-bottom: 32px;
 }
 .ip-address-block h4 {
   font-size: 6.5pt;
@@ -597,7 +597,7 @@
 .ip-invoice-table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 16px;
+  margin-bottom: 28px;
 }
 .ip-invoice-table thead th {
   background: var(--ip-primary);
@@ -627,7 +627,7 @@
 .ip-summary {
   margin-left: auto;
   width: 60%;
-  margin-bottom: 8px;
+  margin-bottom: 20px;
 }
 .ip-summary-row {
   display: flex;
@@ -667,8 +667,8 @@
 .ip-status-draft { background: #F1F5F9; color: #475569; }
 
 .ip-invoice-footer {
-  margin-top: 16px;
-  padding-top: 12px;
+  margin-top: 28px;
+  padding-top: 16px;
   border-top: 1px solid var(--ip-border);
 }
 .ip-invoice-footer h5 {
