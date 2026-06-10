@@ -7,7 +7,7 @@ const JOSKA_AUTH = (() => {
   const LOGIN_PAGE      = 'login.html';
   const HOME_PAGE       = 'dashboard.html';
 
-  // ── Action Code Settings (custom reset-password page) ────
+  // ── Action Code Settings (login page) ────
   // Builds the URL dynamically so it works on any host
   // (localhost, GitHub Pages, custom domain — no hardcoding needed).
   function getActionCodeSettings() {
