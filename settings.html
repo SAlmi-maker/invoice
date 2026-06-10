@@ -16,9 +16,6 @@
 
   <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-  <!-- ══════════════════════════════════════════════════════
-       SIDEBAR (same as dashboard)
-  ══════════════════════════════════════════════════════ -->
   <aside class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <div class="sidebar-logo">
@@ -82,11 +79,7 @@
     </div>
   </aside>
 
-  <!-- ══════════════════════════════════════════════════════
-       MAIN CONTENT
-  ══════════════════════════════════════════════════════ -->
   <main class="main-content">
-
     <header class="topbar">
       <button class="topbar-hamburger" id="hamburger" aria-label="Toggle sidebar">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
@@ -105,7 +98,6 @@
     </header>
 
     <div class="page-body">
-
       <div class="page-header fade-in-up">
         <h1 data-i18n="settings.title">Company Settings</h1>
         <p data-i18n="settings.subtitle">Manage your company profile and branding</p>
@@ -113,8 +105,6 @@
 
       <form id="settingsForm" novalidate>
         <div class="settings-layout">
-
-          <!-- ── Settings Sidebar Nav ────────────────── -->
           <div class="settings-nav fade-in-up">
             <a href="#section-company" class="settings-nav-item active">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -128,12 +118,13 @@
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
               Contact
             </a>
+            <a href="#section-template" class="settings-nav-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+              Invoice Template
+            </a>
           </div>
 
-          <!-- ── Settings Content ────────────────────── -->
           <div class="settings-content">
-
-            <!-- Company Info -->
             <div class="settings-section fade-in-up" id="section-company">
               <div class="settings-section-header">
                 <h3>Company Information</h3>
@@ -142,32 +133,15 @@
               <div class="settings-section-body">
                 <div class="form-group">
                   <label class="form-label" for="field_companyName" data-i18n="settings.companyName">Company Name</label>
-                  <input
-                    class="form-input"
-                    type="text"
-                    id="field_companyName"
-                    name="companyName"
-                    data-i18n-placeholder="settings.companyName"
-                    placeholder="Company Name"
-                    maxlength="100"
-                  />
+                  <input class="form-input" type="text" id="field_companyName" name="companyName" data-i18n-placeholder="settings.companyName" placeholder="Company Name" maxlength="100" />
                 </div>
-
                 <div class="form-group">
                   <label class="form-label" for="field_address" data-i18n="settings.address">Address</label>
-                  <textarea
-                    class="form-textarea"
-                    id="field_address"
-                    name="address"
-                    data-i18n-placeholder="settings.address"
-                    placeholder="Address"
-                    rows="3"
-                  ></textarea>
+                  <textarea class="form-textarea" id="field_address" name="address" data-i18n-placeholder="settings.address" placeholder="Address" rows="3"></textarea>
                 </div>
               </div>
             </div>
 
-            <!-- Branding -->
             <div class="settings-section fade-in-up" id="section-branding">
               <div class="settings-section-header">
                 <h3>Branding &amp; Visuals</h3>
@@ -175,40 +149,127 @@
               </div>
               <div class="settings-section-body">
                 <div class="upload-pair">
-
-                  <!-- Logo -->
                   <div>
                     <label class="form-label" data-i18n="settings.logo">Company Logo</label>
                     <div class="drop-zone" id="logoDropZone">
                       <input type="file" id="logoInput" accept="image/png,image/jpeg,image/svg+xml,image/webp" />
                       <img class="drop-zone-preview" id="logoPreview" src="" alt="Logo preview" />
-                      <div class="drop-zone-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                      </div>
+                      <div class="drop-zone-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
                       <div class="drop-zone-label" data-i18n="settings.dragDrop">Drag &amp; drop or click</div>
                       <div class="drop-zone-hint" data-i18n="settings.logoHint">200×200px, PNG or SVG</div>
                     </div>
                   </div>
-
-                  <!-- Seal -->
                   <div>
                     <label class="form-label" data-i18n="settings.seal">Company Seal / Stamp</label>
                     <div class="drop-zone" id="sealDropZone">
                       <input type="file" id="sealInput" accept="image/png,image/jpeg,image/webp" />
                       <img class="drop-zone-preview" id="sealPreview" src="" alt="Seal preview" />
-                      <div class="drop-zone-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                      </div>
+                      <div class="drop-zone-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
                       <div class="drop-zone-label" data-i18n="settings.dragDrop">Drag &amp; drop or click</div>
                       <div class="drop-zone-hint" data-i18n="settings.sealHint">200×200px, PNG transparent</div>
                     </div>
                   </div>
-
                 </div>
               </div>
             </div>
 
-            <!-- Contact -->
+            <!-- ═══ INVOICE TEMPLATE ═══ -->
+            <div class="settings-section fade-in-up" id="section-template">
+              <div class="settings-section-header">
+                <h3 data-i18n="template.title">Invoice Template</h3>
+                <p data-i18n="template.subtitle">Choose the layout style for your PDF invoices</p>
+              </div>
+              <div class="settings-section-body">
+                <div class="template-grid">
+                  <label class="template-card" data-value="classic">
+                    <input type="radio" name="invoiceTemplate" value="classic" class="template-radio" />
+                    <div class="template-preview">
+                      <svg viewBox="0 0 200 140" fill="none">
+                        <rect x="0" y="0" width="200" height="30" rx="2" fill="#2563EB"/>
+                        <rect x="10" y="8" width="60" height="6" rx="2" fill="#fff" opacity="0.9"/>
+                        <rect x="10" y="18" width="40" height="4" rx="2" fill="#fff" opacity="0.5"/>
+                        <rect x="140" y="8" width="50" height="6" rx="2" fill="#fff" opacity="0.9"/>
+                        <rect x="10" y="40" width="80" height="4" rx="1" fill="#d1d5db"/>
+                        <rect x="10" y="50" width="60" height="4" rx="1" fill="#d1d5db"/>
+                        <rect x="10" y="65" width="180" height="2" rx="1" fill="#e5e7eb"/>
+                        <rect x="10" y="75" width="80" height="5" rx="1" fill="#f3f4f6"/>
+                        <rect x="100" y="75" width="40" height="5" rx="1" fill="#f3f4f6"/>
+                        <rect x="150" y="75" width="40" height="5" rx="1" fill="#f3f4f6"/>
+                        <rect x="10" y="87" width="80" height="5" rx="1" fill="#f3f4f6"/>
+                        <rect x="100" y="87" width="40" height="5" rx="1" fill="#f3f4f6"/>
+                        <rect x="150" y="87" width="40" height="5" rx="1" fill="#f3f4f6"/>
+                        <rect x="10" y="99" width="80" height="5" rx="1" fill="#f3f4f6"/>
+                        <rect x="100" y="99" width="40" height="5" rx="1" fill="#f3f4f6"/>
+                        <rect x="150" y="99" width="40" height="5" rx="1" fill="#f3f4f6"/>
+                        <rect x="130" y="118" width="60" height="14" rx="2" fill="#2563EB"/>
+                      </svg>
+                    </div>
+                    <div class="template-label" data-i18n="template.classic">Classic</div>
+                    <div class="template-desc" data-i18n="template.classicDesc">Blue header bar, clean table layout</div>
+                  </label>
+
+                  <label class="template-card" data-value="modern">
+                    <input type="radio" name="invoiceTemplate" value="modern" class="template-radio" />
+                    <div class="template-preview">
+                      <svg viewBox="0 0 200 140" fill="none">
+                        <rect x="0" y="0" width="6" height="140" rx="2" fill="#2563EB"/>
+                        <rect x="16" y="12" width="60" height="6" rx="2" fill="#1e293b"/>
+                        <rect x="16" y="22" width="40" height="4" rx="2" fill="#94a3b8"/>
+                        <rect x="140" y="12" width="50" height="6" rx="2" fill="#1e293b"/>
+                        <rect x="140" y="22" width="35" height="4" rx="2" fill="#94a3b8"/>
+                        <rect x="16" y="42" width="80" height="4" rx="1" fill="#d1d5db"/>
+                        <rect x="16" y="50" width="60" height="4" rx="1" fill="#d1d5db"/>
+                        <rect x="16" y="62" width="168" height="2" rx="1" fill="#e2e8f0"/>
+                        <rect x="16" y="72" width="84" height="6" rx="2" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.5"/>
+                        <rect x="108" y="72" width="38" height="6" rx="2" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.5"/>
+                        <rect x="154" y="72" width="30" height="6" rx="2" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.5"/>
+                        <rect x="16" y="86" width="84" height="6" rx="2" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.5"/>
+                        <rect x="108" y="86" width="38" height="6" rx="2" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.5"/>
+                        <rect x="154" y="86" width="30" height="6" rx="2" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.5"/>
+                        <rect x="16" y="100" width="84" height="6" rx="2" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.5"/>
+                        <rect x="108" y="100" width="38" height="6" rx="2" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.5"/>
+                        <rect x="154" y="100" width="30" height="6" rx="2" fill="#f8fafc" stroke="#e2e8f0" stroke-width="0.5"/>
+                        <rect x="135" y="118" width="49" height="14" rx="2" fill="#0f172a"/>
+                      </svg>
+                    </div>
+                    <div class="template-label" data-i18n="template.modern">Modern</div>
+                    <div class="template-desc" data-i18n="template.modernDesc">Clean sidebar accent, card-style rows</div>
+                  </label>
+
+                  <label class="template-card" data-value="compact">
+                    <input type="radio" name="invoiceTemplate" value="compact" class="template-radio" />
+                    <div class="template-preview">
+                      <svg viewBox="0 0 200 140" fill="none">
+                        <rect x="0" y="0" width="200" height="22" rx="2" fill="#1e293b"/>
+                        <rect x="10" y="5" width="45" height="5" rx="1" fill="#fff" opacity="0.9"/>
+                        <rect x="150" y="5" width="40" height="5" rx="1" fill="#fff" opacity="0.9"/>
+                        <rect x="10" y="30" width="50" height="3" rx="1" fill="#94a3b8"/>
+                        <rect x="120" y="30" width="30" height="3" rx="1" fill="#94a3b8"/>
+                        <rect x="10" y="38" width="180" height="1" rx="0.5" fill="#e2e8f0"/>
+                        <rect x="10" y="44" width="60" height="4" rx="1" fill="#f1f5f9"/>
+                        <rect x="80" y="44" width="30" height="4" rx="1" fill="#f1f5f9"/>
+                        <rect x="120" y="44" width="25" height="4" rx="1" fill="#f1f5f9"/>
+                        <rect x="155" y="44" width="35" height="4" rx="1" fill="#f1f5f9"/>
+                        <rect x="10" y="52" width="60" height="4" rx="1" fill="#f1f5f9"/>
+                        <rect x="80" y="52" width="30" height="4" rx="1" fill="#f1f5f9"/>
+                        <rect x="120" y="52" width="25" height="4" rx="1" fill="#f1f5f9"/>
+                        <rect x="155" y="52" width="35" height="4" rx="1" fill="#f1f5f9"/>
+                        <rect x="10" y="60" width="60" height="4" rx="1" fill="#f1f5f9"/>
+                        <rect x="80" y="60" width="30" height="4" rx="1" fill="#f1f5f9"/>
+                        <rect x="120" y="60" width="25" height="4" rx="1" fill="#f1f5f9"/>
+                        <rect x="155" y="60" width="35" height="4" rx="1" fill="#f1f5f9"/>
+                        <rect x="145" y="72" width="45" height="12" rx="2" fill="#059669"/>
+                        <rect x="10" y="92" width="180" height="1" rx="0.5" fill="#e2e8f0"/>
+                        <text x="10" y="108" font-size="5" fill="#94a3b8" font-family="sans-serif">Generated by JOSKA</text>
+                      </svg>
+                    </div>
+                    <div class="template-label" data-i18n="template.compact">Compact</div>
+                    <div class="template-desc" data-i18n="template.compactDesc">Smaller fonts, tighter spacing</div>
+                  </label>
+                </div>
+              </div>
+            </div>
+
             <div class="settings-section fade-in-up" id="section-contact">
               <div class="settings-section-header">
                 <h3>Contact Details</h3>
@@ -218,39 +279,18 @@
                 <div class="form-row">
                   <div class="form-group">
                     <label class="form-label" for="field_phone" data-i18n="settings.phone">Phone Number</label>
-                    <input
-                      class="form-input"
-                      type="tel"
-                      id="field_phone"
-                      name="phone"
-                      placeholder="+212 600 000 000"
-                    />
+                    <input class="form-input" type="tel" id="field_phone" name="phone" placeholder="+212 600 000 000" />
                   </div>
                   <div class="form-group">
                     <label class="form-label" for="field_email" data-i18n="settings.email">Email Address</label>
-                    <input
-                      class="form-input"
-                      type="email"
-                      id="field_email"
-                      name="email"
-                      placeholder="contact@company.ma"
-                    />
+                    <input class="form-input" type="email" id="field_email" name="email" placeholder="contact@company.ma" />
                   </div>
                 </div>
-
                 <div class="form-group">
                   <label class="form-label" for="field_website" data-i18n="settings.website">Website</label>
-                  <input
-                    class="form-input"
-                    type="url"
-                    id="field_website"
-                    name="website"
-                    placeholder="https://yourcompany.ma"
-                  />
+                  <input class="form-input" type="url" id="field_website" name="website" placeholder="https://yourcompany.ma" />
                 </div>
               </div>
-
-              <!-- Save Bar -->
               <div class="settings-save-bar">
                 <a href="dashboard.html" class="btn btn-ghost" data-i18n="common.cancel">Cancel</a>
                 <button type="submit" class="btn btn-primary" id="saveBtn">
@@ -259,35 +299,26 @@
                 </button>
               </div>
             </div>
-
           </div>
-          <!-- /settings-content -->
         </div>
-        <!-- /settings-layout -->
       </form>
-
     </div>
-    <!-- /page-body -->
   </main>
 </div>
 
-<!-- Toast -->
 <div class="toast" id="settingsToast"></div>
 
-<!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 
-<!-- JOSKA Scripts -->
 <script src="firebase.js"></script>
 <script src="i18n.js"></script>
 <script src="auth.js"></script>
 <script src="settings.js"></script>
 
 <script>
-  // Sync theme icon state on load
   document.addEventListener('DOMContentLoaded', () => {
     const saved = localStorage.getItem('joska_theme') || 'light';
     document.documentElement.setAttribute('data-theme', saved);
@@ -296,8 +327,6 @@
       btn.querySelector('.theme-icon-sun')?.classList.toggle('hidden', saved === 'light');
       btn.querySelector('.theme-icon-moon')?.classList.toggle('hidden', saved === 'dark');
     }
-
-    // Settings nav active scroll
     document.querySelectorAll('.settings-nav-item').forEach(item => {
       item.addEventListener('click', () => {
         document.querySelectorAll('.settings-nav-item').forEach(i => i.classList.remove('active'));
@@ -306,5 +335,21 @@
     });
   });
 </script>
+
+<style>
+.template-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:16px; }
+.template-card {
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+  padding:16px; border-radius:10px; border:2px solid var(--border, #e2e8f0);
+  cursor:pointer; transition:all .2s; background:var(--card-bg, #fff);
+}
+.template-card:hover { border-color:var(--primary, #2563EB); }
+.template-card:has(.template-radio:checked) { border-color:var(--primary, #2563EB); background:var(--primary-light, #eff6ff); }
+.template-radio { display:none; }
+.template-preview { width:100%; border-radius:6px; overflow:hidden; }
+.template-preview svg { display:block; width:100%; height:auto; }
+.template-label { font-weight:600; font-size:.9rem; color:var(--text, #1e293b); }
+.template-desc { font-size:.75rem; color:var(--text-secondary, #64748b); text-align:center; }
+</style>
 </body>
 </html>
