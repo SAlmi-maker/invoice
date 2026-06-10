@@ -33,33 +33,38 @@ const JOSKA_SETTINGS = (() => {
   }
 
   function populateForm(data) {
-  const fields = ['companyName', 'address', 'phone', 'email', 'website'];
+    const fields = ['companyName', 'address', 'phone', 'email', 'website'];
 
-  fields.forEach(f => {
-    const el = document.getElementById(`field_${f}`);
-    if (el && data[f]) {
-      el.value = data[f];
-    }
-  });
+    fields.forEach(f => {
+      const el = document.getElementById(`field_${f}`);
+      if (el && data[f]) {
+        el.value = data[f];
+      }
+    });
 
-  // Logo Preview
-  if (data.logoBase64) {
-    const preview = document.getElementById('logoPreview');
-    if (preview) {
-      preview.src = data.logoBase64;
-      preview.style.display = 'block';
+    // Logo Preview
+    if (data.logoBase64) {
+      const preview = document.getElementById('logoPreview');
+      if (preview) {
+        preview.src = data.logoBase64;
+        preview.style.display = 'block';
+      }
     }
+
+    // Seal Preview
+    if (data.sealBase64) {
+      const preview = document.getElementById('sealPreview');
+      if (preview) {
+        preview.src = data.sealBase64;
+        preview.style.display = 'block';
+      }
+    }
+
+    // Invoice template
+    const templateVal = data.invoiceTemplate || 'classic';
+    const radio = document.querySelector(`input[name="invoiceTemplate"][value="${templateVal}"]`);
+    if (radio) radio.checked = true;
   }
-
-  // Seal Preview
-  if (data.sealBase64) {
-    const preview = document.getElementById('sealPreview');
-    if (preview) {
-      preview.src = data.sealBase64;
-      preview.style.display = 'block';
-    }
-  }
-}
 
   // ── Form Wiring ───────────────────────────────────────────
   function wireForm(uid) {
@@ -80,6 +85,7 @@ const JOSKA_SETTINGS = (() => {
           phone:       document.getElementById('field_phone')?.value.trim()       || '',
           email:       document.getElementById('field_email')?.value.trim()       || '',
           website:     document.getElementById('field_website')?.value.trim()     || '',
+          invoiceTemplate: document.querySelector('input[name="invoiceTemplate"]:checked')?.value || 'classic',
           updatedAt:   firebase.firestore.FieldValue.serverTimestamp()
         };
 
@@ -152,18 +158,13 @@ const JOSKA_SETTINGS = (() => {
   }
 
   async function fileToBase64(file) {
-  return new Promise((resolve, reject) => {
-
-    const reader = new FileReader();
-
-    reader.onload = () => resolve(reader.result);
-
-    reader.onerror = reject;
-
-    reader.readAsDataURL(file);
-
-  });
-}
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
 
   // ── Helpers ───────────────────────────────────────────────
   function setLoading(btn, state) {
