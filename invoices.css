@@ -517,6 +517,7 @@
   box-sizing: border-box;
 }
 
+/* ── Header: logo + company name ── */
 .ip-invoice-header {
   display: flex;
   justify-content: space-between;
@@ -544,13 +545,17 @@
   margin: 0;
 }
 
-.ip-invoice-title-bar {
+/* ── Title row: INVOICE title+meta on left, customer info on right ── */
+.ip-invoice-title-row {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
+  gap: 32px;
+  align-items: flex-start;
+  margin-bottom: 40px;
+}
+.ip-invoice-title-bar {
+  flex: 1;
   border-bottom: 3px solid var(--ip-primary);
   padding-bottom: 10px;
-  margin-bottom: 36px;
 }
 .ip-invoice-title-bar h1 {
   font-family: var(--ip-font-heading);
@@ -558,21 +563,23 @@
   font-weight: 700;
   color: var(--ip-primary);
   line-height: 1;
+  margin-bottom: 6px;
 }
 .ip-invoice-meta {
-  text-align: right;
   font-size: 7.5pt;
   color: var(--ip-text-secondary);
   line-height: 1.6;
 }
 .ip-invoice-meta strong { color: var(--ip-text); font-weight: 600; }
 
-.ip-addresses {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 40px;
+/* ── Customer info block (right side of title row) ── */
+.ip-customer-block {
+  width: 220px;
+  flex-shrink: 0;
+  border-left: 2px solid var(--ip-border);
+  padding-left: 20px;
 }
+
 .ip-address-block h4 {
   font-size: 6.5pt;
   font-weight: 600;
@@ -594,6 +601,7 @@
   margin: 0;
 }
 
+/* ── Pricing table ── */
 .ip-invoice-table {
   width: 100%;
   border-collapse: collapse;
@@ -624,7 +632,7 @@
   background: var(--ip-bg);
 }
 
-/* subtotal rows — aligned under the "rate per day" column (left ~50% of table) */
+/* ── Subtotal rows — left 50%, aligned under description/rate columns ── */
 .ip-summary-subtotals {
   width: 50%;
   margin-bottom: 0;
@@ -637,7 +645,7 @@
   color: var(--ip-text-secondary);
 }
 
-/* grand total — full width, 250px gap above */
+/* ── Grand total — full width, 180px gap above ── */
 .ip-summary-total {
   display: flex;
   justify-content: space-between;
@@ -668,10 +676,10 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
-.ip-status-paid { background: #D1FAE5; color: #065F46; }
+.ip-status-paid    { background: #D1FAE5; color: #065F46; }
 .ip-status-pending { background: #FEF3C7; color: #92400E; }
 .ip-status-overdue { background: #FEE2E2; color: #991B1B; }
-.ip-status-draft { background: #F1F5F9; color: #475569; }
+.ip-status-draft   { background: #F1F5F9; color: #475569; }
 
 .ip-status-row {
   text-align: right;
