@@ -645,18 +645,12 @@ const JOSKA_INVOICES = (() => {
       extras.forEach(e => addRow(e.label, 1, e.val, e.val));
     }
 
-    s('preview_subtotalLabel', t('pdf.subtotal'));
-    s('preview_subtotal', fmt(rental));
-    const extrasRow = document.getElementById('preview_extrasRow');
-    if (extras.length) {
-      s('preview_extrasLabel', t('pdf.extras'));
-      s('preview_extras', fmt(extras.reduce((a, e) => a + e.val, 0)));
-      extrasRow.style.display = 'flex';
-    } else {
-      extrasRow.style.display = 'none';
-    }
     s('preview_grandLabel', t('pdf.grandTotal'));
     s('preview_grandTotal', fmt(total));
+
+    // Status label
+    const statusLabel = document.getElementById('preview_statusLabel');
+    if (statusLabel) statusLabel.textContent = t('pdf.status') || 'STATUS';
 
     const badge = document.getElementById('preview_status');
     if (badge) {
