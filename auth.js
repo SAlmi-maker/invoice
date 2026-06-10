@@ -11,10 +11,10 @@ const JOSKA_AUTH = (() => {
   // Builds the URL dynamically so it works on any host
   // (localhost, GitHub Pages, custom domain — no hardcoding needed).
   function getActionCodeSettings() {
-    const origin   = window.location.origin;
-    const basePath = window.location.pathname.replace(/\/[^/]*$/, '/');
-    const url      = `${origin}${basePath}reset-password.html`;
-    return { url, handleCodeInApp: true };
+   return {
+     url: 'https://joska.store/reset-password.html',
+     handleCodeInApp: true
+   };
   }
 
   // ── Route Guard ──────────────────────────────────────────
