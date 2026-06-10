@@ -130,6 +130,7 @@ const JOSKA_I18N = (() => {
       'inv.field.other':      'Other',
       'inv.days':             'days',
       'inv.preview':          'Preview',
+      'inv.previewEmpty':     'Fill in the form to preview',
 
       'pdf.invoice':       'INVOICE',
       'pdf.from':          'FROM',
@@ -305,6 +306,7 @@ const JOSKA_I18N = (() => {
       'inv.field.other':      'Autres',
       'inv.days':             'jours',
       'inv.preview':          'Aperçu',
+      'inv.previewEmpty':     'Remplissez le formulaire pour voir un aperçu',
 
       'pdf.invoice':       'FACTURE',
       'pdf.from':          'DE',
@@ -480,6 +482,7 @@ const JOSKA_I18N = (() => {
       'inv.field.other':      'أخرى',
       'inv.days':             'أيام',
       'inv.preview':          'معاينة',
+      'inv.previewEmpty':     'املأ النموذج للمعاينة',
 
       'pdf.invoice':       'فاتورة',
       'pdf.from':          'من',

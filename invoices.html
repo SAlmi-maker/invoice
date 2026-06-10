@@ -368,10 +368,10 @@
       <button class="inv-preview-close" onclick="document.getElementById('invoiceModal').classList.remove('open');document.getElementById('invPreviewWrap').classList.remove('open');document.body.style.overflow='';">&times;</button>
     </div>
     <div class="inv-preview-body">
-      <iframe class="inv-preview-frame" id="invPreviewFrame" frameborder="0"></iframe>
-      <div class="inv-preview-empty">
+      <div class="inv-preview-inner" id="invPreviewHTML"></div>
+      <div class="inv-preview-empty" id="invPreviewEmpty">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="6" y1="8" x2="18" y2="8"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="6" y1="16" x2="12" y2="16"/></svg>
-        <p>Fill in the form to preview</p>
+        <p data-i18n="inv.previewEmpty">Fill in the form to preview</p>
       </div>
     </div>
   </div>

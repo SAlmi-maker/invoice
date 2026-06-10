@@ -20,7 +20,6 @@ const JOSKA_INVOICES = (() => {
   let invoiceColorMode = 'bw';
   let invoiceColor     = '#2563EB';
   let invoiceLanguage  = '';
-  let _previewTimer   = null;
 
   // ── Init ─────────────────────────────────────────────────
   async function init(user) {
@@ -209,19 +208,20 @@ const JOSKA_INVOICES = (() => {
     });
     const priceFields = ['inv_dailyPrice','inv_startDate','inv_endDate','inv_insurance','inv_fuel','inv_extraDriver','inv_other'];
     priceFields.forEach(id => {
-      document.getElementById(id)?.addEventListener('input', recalculate);
-      document.getElementById(id)?.addEventListener('change', recalculate);
+      document.getElementById(id)?.addEventListener('input', () => { recalculate(); renderHTMLPreview(); });
+      document.getElementById(id)?.addEventListener('change', () => { recalculate(); renderHTMLPreview(); });
     });
     const previewFields = ['inv_clientName','inv_cin','inv_phone','inv_vehicleBrand','inv_vehicleModel','inv_plate','inv_startDate','inv_endDate','inv_dailyPrice','inv_insurance','inv_fuel','inv_extraDriver','inv_other','inv_notes'];
     previewFields.forEach(id => {
-      document.getElementById(id)?.addEventListener('input', schedulePreview);
-      document.getElementById(id)?.addEventListener('change', schedulePreview);
+      document.getElementById(id)?.addEventListener('input', renderHTMLPreview);
+      document.getElementById(id)?.addEventListener('change', renderHTMLPreview);
     });
     document.getElementById('inv_plate')?.addEventListener('input', e => {
       const pos = e.target.selectionStart;
       e.target.value = e.target.value.toUpperCase();
       e.target.setSelectionRange(pos, pos);
     });
+    document.getElementById('inv_status')?.addEventListener('change', renderHTMLPreview);
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape') {
         if (document.getElementById('invoiceModal')?.classList.contains('open')) closeModal();
@@ -250,7 +250,7 @@ const JOSKA_INVOICES = (() => {
     document.getElementById('invoiceModal').classList.add('open');
     document.body.style.overflow = 'hidden';
     document.getElementById('invPreviewWrap')?.classList.add('open');
-    setTimeout(() => { document.getElementById('inv_clientName')?.focus(); schedulePreview(); }, 100);
+    setTimeout(() => { document.getElementById('inv_clientName')?.focus(); renderHTMLPreview(); }, 100);
   }
 
   function openEdit(id) {
@@ -263,7 +263,7 @@ const JOSKA_INVOICES = (() => {
     document.getElementById('invoiceModal').classList.add('open');
     document.body.style.overflow = 'hidden';
     document.getElementById('invPreviewWrap')?.classList.add('open');
-    setTimeout(() => schedulePreview(), 100);
+    setTimeout(() => renderHTMLPreview(), 100);
   }
 
   function closeModal() {
@@ -271,7 +271,6 @@ const JOSKA_INVOICES = (() => {
     document.getElementById('invPreviewWrap')?.classList.remove('open');
     document.body.style.overflow = '';
     editingId = null;
-    if (_previewTimer) { clearTimeout(_previewTimer); _previewTimer = null; }
   }
 
   // ── Delete modal ──────────────────────────────────────────
@@ -570,45 +569,140 @@ const JOSKA_INVOICES = (() => {
     return invoiceLanguage || JOSKA_I18N.getLang();
   }
 
-  // ── Live preview ───────────────────────────────────────────
-  function schedulePreview() {
-    if (_previewTimer) clearTimeout(_previewTimer);
-    _previewTimer = setTimeout(updatePreview, 600);
-  }
-
-  function updatePreview() {
-    _previewTimer = null;
+  // ── HTML Live Preview (InvoicePro-style) ───────────────────
+  function renderHTMLPreview() {
     const wrap = document.getElementById('invPreviewWrap');
-    const frame = document.getElementById('invPreviewFrame');
-    if (!wrap || !frame || !wrap.classList.contains('open')) return;
+    const container = document.getElementById('invPreviewHTML');
+    const emptyEl = document.getElementById('invPreviewEmpty');
+    if (!wrap || !container || !wrap.classList.contains('open')) return;
 
-    const data = readForm();
-    data.days = calcDays(data.startDate, data.endDate);
-    data.dailyPrice = parseFloat(data.dailyPrice || 0);
-    data.insurance = parseFloat(data.insurance || 0);
-    data.fuel = parseFloat(data.fuel || 0);
-    data.extraDriver = parseFloat(data.extraDriver || 0);
-    data.other = parseFloat(data.other || 0);
-    data.total = data.days * data.dailyPrice + data.insurance + data.fuel + data.extraDriver + data.other;
-    data.invoiceNumber = editingId
+    const d = readForm();
+    const days = calcDays(d.startDate, d.endDate);
+    const dp = parseFloat(d.dailyPrice || 0);
+    const ins = parseFloat(d.insurance || 0);
+    const fuel = parseFloat(d.fuel || 0);
+    const ed = parseFloat(d.extraDriver || 0);
+    const oth = parseFloat(d.other || 0);
+    const rental = days * dp;
+    const total = rental + ins + fuel + ed + oth;
+    const status = document.getElementById('inv_status')?.value || 'draft';
+    const invNum = editingId
       ? (allInvoices.find(i => i.id === editingId)?.invoiceNumber || editingId.slice(-6).toUpperCase())
       : `INV-${new Date().getFullYear()}${String(new Date().getMonth()+1).padStart(2,'0')}-${String(allInvoices.length+1).padStart(4,'0')}`;
-    data.status = document.getElementById('inv_status')?.value || 'draft';
 
-    try {
-      const { jsPDF } = window.jspdf;
-      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-      buildPDFPageClassic(doc, data);
-      const blob = doc.output('blob');
-      const url = URL.createObjectURL(blob);
-      frame.src = url;
-      if (frame._prevUrl) URL.revokeObjectURL(frame._prevUrl);
-      frame._prevUrl = url;
-      frame.style.display = 'block';
-      wrap.querySelector('.inv-preview-empty')?.classList.add('hidden');
-    } catch (e) {
-      console.error('Preview error:', e);
-    }
+    const hasData = d.clientName || d.vehicleBrand || d.startDate || dp > 0;
+    if (emptyEl) emptyEl.classList.toggle('hidden', hasData);
+    if (!hasData) { container.innerHTML = ''; return; }
+
+    const currency = JOSKA_I18N.t('common.currency');
+    const coName = companySettings.companyName || 'JOSKA';
+    const coAddr = companySettings.address || '';
+    const coEmail = companySettings.email || '';
+    const coPhone = companySettings.phone || '';
+    const logoHtml = companySettings.logoBase64
+      ? `<img class="ipv-logo" src="${companySettings.logoBase64}" alt="Logo" />`
+      : '';
+
+    const extras = [
+      { label: JOSKA_I18N.t('inv.field.insurance'), val: ins },
+      { label: JOSKA_I18N.t('inv.field.fuel'), val: fuel },
+      { label: JOSKA_I18N.t('inv.field.extraDriver'), val: ed },
+      { label: JOSKA_I18N.t('inv.field.other'), val: oth },
+    ].filter(e => e.val > 0);
+
+    const fmt = (n) => new Intl.NumberFormat(getPDFLang(), { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(n) + ' ' + currency;
+
+    const accent = getAccentColor();
+    const accentHex = invoiceColorMode === 'bw' ? '#1e293b' : invoiceColor;
+
+    // Status colors
+    const statusColors = { paid: '#10b981', pending: '#f59e0b', overdue: '#ef4444', draft: '#6b7280' };
+    const statusBg = { paid: '#d1fae5', pending: '#fef3c7', overdue: '#fee2e2', draft: '#f1f5f9' };
+
+    container.innerHTML = `
+      <div class="ipv-document">
+        <div class="ipv-header">
+          ${logoHtml}
+          <div class="ipv-company">
+            <h2>${escHtml(coName)}</h2>
+            <p>${escHtml(coAddr)}</p>
+            <p>${[coPhone, coEmail].filter(Boolean).join(' · ')}</p>
+          </div>
+        </div>
+
+        <div class="ipv-title-bar">
+          <h1 style="color:${accentHex}">${JOSKA_I18N.t('pdf.invoice')}</h1>
+          <div class="ipv-meta">
+            <strong>#${escHtml(invNum)}</strong><br />
+            ${JOSKA_I18N.t('pdf.issue')}: ${d.startDate || '—'}<br />
+            ${JOSKA_I18N.t('pdf.due')}: ${d.endDate || '—'}
+          </div>
+        </div>
+
+        <div class="ipv-addresses">
+          <div class="ipv-addr">
+            <h4>${JOSKA_I18N.t('pdf.from')}</h4>
+            <h3>${escHtml(coName)}</h3>
+            <p>${escHtml(coAddr)}</p>
+          </div>
+          <div class="ipv-addr">
+            <h4>${JOSKA_I18N.t('pdf.billTo')}</h4>
+            <h3>${escHtml(d.clientName) || '—'}</h3>
+            <p>${d.cin ? escHtml(JOSKA_I18N.t('pdf.cin')) + ': ' + escHtml(d.cin) : ''}</p>
+            <p>${d.phone ? escHtml(JOSKA_I18N.t('pdf.tel')) + ': ' + escHtml(d.phone) : ''}</p>
+            <p>${escHtml(d.vehicleBrand)} ${escHtml(d.vehicleModel)}</p>
+            <p>${d.plate ? escHtml(JOSKA_I18N.t('pdf.plate')) + ': ' + escHtml(d.plate) : ''}</p>
+          </div>
+        </div>
+
+        <table class="ipv-table">
+          <thead>
+            <tr style="background:${accentHex};color:#fff;">
+              <th style="width:50%;">${JOSKA_I18N.t('pdf.description')}</th>
+              <th style="width:12%;">${JOSKA_I18N.t('pdf.qty')}</th>
+              <th style="width:18%;">${JOSKA_I18N.t('pdf.unitPrice')}</th>
+              <th style="width:20%;text-align:right;">${JOSKA_I18N.t('pdf.amount')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>${escHtml(JOSKA_I18N.t('inv.field.rentalSubtotal'))} (${escHtml(d.vehicleBrand)} ${escHtml(d.vehicleModel)})</td>
+              <td>${days}</td>
+              <td>${fmt(dp)}</td>
+              <td style="text-align:right;font-weight:600;">${fmt(rental)}</td>
+            </tr>
+            ${extras.map(e => `
+              <tr>
+                <td>${escHtml(e.label)}</td>
+                <td>1</td>
+                <td>${fmt(e.val)}</td>
+                <td style="text-align:right;">${fmt(e.val)}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+
+        <div class="ipv-summary">
+          <div class="ipv-srow">
+            <span>${JOSKA_I18N.t('pdf.subtotal')}</span>
+            <span>${fmt(rental)}</span>
+          </div>
+          ${extras.length ? `<div class="ipv-srow"><span>${JOSKA_I18N.t('pdf.extras')}</span><span>${fmt(extras.reduce((a,e)=>a+e.val,0))}</span></div>` : ''}
+          <div class="ipv-srow ipv-grand" style="background:${accentHex};">
+            <span>${JOSKA_I18N.t('pdf.grandTotal')}</span>
+            <span>${fmt(total)}</span>
+          </div>
+        </div>
+
+        <div class="ipv-status-wrap">
+          <span class="ipv-badge" style="background:${statusBg[status] || statusBg.draft};color:${statusColors[status] || statusColors.draft};">${JOSKA_I18N.t('dash.' + status)}</span>
+        </div>
+
+        <div class="ipv-footer">
+          ${d.notes ? `<div><h5>${JOSKA_I18N.t('pdf.notes')}</h5><p>${escHtml(d.notes)}</p></div>` : ''}
+        </div>
+      </div>
+    `;
   }
 
   function buildPDFPageClassic(doc, inv) {
@@ -708,22 +802,15 @@ const JOSKA_INVOICES = (() => {
     doc.text(`${inv.vehicleBrand || ''} ${inv.vehicleModel || ''}`.trim() || '—', billToX, y2); y2 += 4;
     if (inv.plate) { doc.text(`${t('pdf.plate')}: ${inv.plate}`, billToX, y2); y2 += 4; }
 
-    y = Math.max(y, y2) + 10;
+    y = Math.max(y, y2) + 8;
 
-    // ── Rental Period bar ─────────────────────────────────────
-    doc.setFillColor(248, 250, 252);
-    doc.roundedRect(M, y, W - M * 2, 12, 2, 2, 'F');
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(7);
+    // ── Rental info line (between addresses and table) ────────
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
     doc.setTextColor(100, 116, 139);
-    doc.text(t('pdf.rentalPeriod'), M + 6, y + 5);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(8.5);
-    setAccent();
     const daysN = inv.days ?? calcDays(inv.startDate, inv.endDate);
-    doc.text(`${inv.startDate || '—'}  →  ${inv.endDate || '—'}`, M + 6, y + 9.5);
-    doc.text(`${daysN} ${t('inv.days')}`, W - M - 6, y + 9.5, { align: 'right' });
-    y += 18;
+    doc.text(`${t('pdf.rentalPeriod')}: ${inv.startDate || '—'} → ${inv.endDate || '—'}  |  ${daysN} ${t('inv.days')}`, M, y);
+    y += 6;
 
     // ── Items table ───────────────────────────────────────────
     const tW = W - M * 2;
