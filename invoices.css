@@ -461,12 +461,12 @@
 /* ── Responsive ─────────────────────────────────────────── */
 @media (max-width: 1100px) {
   .inv-preview-wrap { width: 340px; }
-  .ip-invoice { width: 320px; padding: 22px 18px; }
+  .ip-invoice { width: 100%; min-height: unset; padding: 22px 18px; }
 }
 @media (max-width: 900px) {
   #invoiceModal.open { flex-direction: column; align-items: center; }
   .inv-preview-wrap { width: 100%; max-width: 500px; height: 60vh; }
-  .ip-invoice { width: 100%; }
+  .ip-invoice { width: 100%; min-height: unset; }
 }
 
 @media (max-width: 768px) {
@@ -504,15 +504,17 @@
 
 /* Invoice Document A4 */
 .ip-invoice {
-  width: 380px;
-  min-height: 200px;
+  width: 794px;        /* A4 at 96dpi = 210mm */
+  min-height: 1123px;  /* A4 at 96dpi = 297mm */
   background: var(--ip-card-bg);
   box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-  padding: 28px 24px;
-  font-size: 9pt;
+  padding: 40px 48px;
+  font-size: 10pt;
   line-height: 1.5;
   color: var(--ip-text);
   flex-shrink: 0;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
 .ip-invoice-header {
@@ -625,7 +627,7 @@
 .ip-summary {
   margin-left: auto;
   width: 60%;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 .ip-summary-row {
   display: flex;
@@ -641,7 +643,7 @@
   font-weight: 700;
   font-size: 10pt;
   border-radius: 4px;
-  margin-top: 4px;
+  margin-top: 0;
 }
 .ip-summary-total span:first-child {
   font-size: 7pt;
