@@ -13,7 +13,7 @@ const JOSKA_AUTH = (() => {
   function getActionCodeSettings() {
     return {
       url: 'https://joska.store/login.html',
-      handleCodeInApp: false
+      handleCodeInApp: true
     };
   }
 
