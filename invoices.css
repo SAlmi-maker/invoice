@@ -675,8 +675,8 @@
   font-weight: 800;
 }
 .ip-summary-status td {
-  background: var(--ip-primary-dark, #1e293b);
-  color: #FFFFFF;
+  background: var(--ip-bg, #F8FAFC);
+  color: var(--ip-text, #0F172A);
   padding: 8px 10px;
   font-weight: 600;
   text-transform: uppercase;
