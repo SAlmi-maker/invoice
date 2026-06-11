@@ -425,7 +425,15 @@
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding: 30px;
+  padding: 20px;
+}
+
+/* Scale A4 invoice (794px) down to fit the preview panel */
+.inv-preview-body .ip-invoice {
+  transform-origin: top center;
+  transform: scale(0.48);
+  margin-top: 0;
+  margin-bottom: calc((1123px * 0.48 - 1123px));
 }
 .inv-preview-empty {
   display: flex;
@@ -461,12 +469,14 @@
 /* ── Responsive ─────────────────────────────────────────── */
 @media (max-width: 1100px) {
   .inv-preview-wrap { width: 340px; }
-  .ip-invoice { width: 100%; min-height: unset; padding: 22px 18px; }
+  .inv-preview-body .ip-invoice { transform: scale(0.39); margin-bottom: calc((1123px * 0.39 - 1123px)); }
+  .ip-invoice { min-height: unset; padding: 22px 18px; }
 }
 @media (max-width: 900px) {
   #invoiceModal.open { flex-direction: column; align-items: center; }
   .inv-preview-wrap { width: 100%; max-width: 500px; height: 60vh; }
-  .ip-invoice { width: 100%; min-height: unset; }
+  .inv-preview-body .ip-invoice { transform: scale(0.57); margin-bottom: calc((1123px * 0.57 - 1123px)); }
+  .ip-invoice { min-height: unset; }
 }
 
 @media (max-width: 768px) {
