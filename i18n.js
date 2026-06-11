@@ -8,7 +8,7 @@ const JOSKA_I18N = (() => {
       'brand.name': 'JOSKA',
       'brand.tagline': 'Invoice & Revenue Management',
 
-      'auth.loginTitle':      'Welcome Back',
+      'auth.loginTitle':      'Welcome Back!',
       'auth.loginSubtitle':   'Sign in to your JOSKA account',
       'auth.email':           'Email Address',
       'auth.password':        'Password',
@@ -185,7 +185,7 @@ const JOSKA_I18N = (() => {
       'brand.name': 'JOSKA',
       'brand.tagline': 'Gestion des Factures & Revenus',
 
-      'auth.loginTitle':      'Bon Retour',
+      'auth.loginTitle':      'Bon Retour!',
       'auth.loginSubtitle':   'Connectez-vous à votre compte JOSKA',
       'auth.email':           'Adresse E-mail',
       'auth.password':        'Mot de Passe',
@@ -362,7 +362,7 @@ const JOSKA_I18N = (() => {
       'brand.name': 'جوسكا',
       'brand.tagline': 'إدارة الفواتير والإيرادات',
 
-      'auth.loginTitle':      'مرحباً بعودتك',
+      'auth.loginTitle':      'مرحباً بعودتك!',
       'auth.loginSubtitle':   'سجّل الدخول إلى حساب جوسكا',
       'auth.email':           'البريد الإلكتروني',
       'auth.password':        'كلمة المرور',
