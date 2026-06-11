@@ -18,6 +18,7 @@
 
   <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
+  <!-- ═══ SIDEBAR ═══ -->
   <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
     <div class="sidebar-header">
       <div class="sidebar-logo">
@@ -83,6 +84,7 @@
     </div>
   </aside>
 
+  <!-- ═══ MAIN ═══ -->
   <main class="main-content">
     <header class="topbar">
       <button class="topbar-hamburger" id="hamburger" aria-label="Toggle sidebar">
@@ -112,6 +114,7 @@
         <p data-i18n="clients.subtitle">Manage your customers and their information</p>
       </div>
 
+      <!-- Search -->
       <div class="inv-filter-bar glass-card visible" style="margin-bottom:22px;">
         <div class="inv-filter-left">
           <div class="inv-search-wrap">
@@ -124,6 +127,7 @@
         </div>
       </div>
 
+      <!-- Client Table -->
       <div class="section-card glass-card visible">
         <div class="section-header">
           <h3><span data-i18n="nav.clients">Clients</span></h3>
@@ -158,6 +162,7 @@
   </main>
 </div>
 
+<!-- ═══ CLIENT MODAL ═══ -->
 <div class="modal-backdrop" id="clientModal" role="dialog" aria-modal="true">
   <div class="modal-panel modal-panel-sm">
     <div class="modal-header">
@@ -171,26 +176,32 @@
     <div class="modal-body">
       <form id="clientForm" novalidate autocomplete="off">
         <input type="hidden" id="client_id" />
+
         <div class="form-group">
           <label class="form-label" for="client_name" data-i18n="clients.name">Full Name <span class="req">*</span></label>
           <input type="text" id="client_name" class="form-input" required />
         </div>
+
         <div class="form-group">
           <label class="form-label" for="client_cin" data-i18n="clients.cin">CIN / Passport <span class="req">*</span></label>
           <input type="text" id="client_cin" class="form-input" required />
         </div>
+
         <div class="form-group">
           <label class="form-label" for="client_phone" data-i18n="clients.phone">Phone</label>
           <input type="tel" id="client_phone" class="form-input" />
         </div>
+
         <div class="form-group">
           <label class="form-label" for="client_email" data-i18n="clients.email">Email</label>
           <input type="email" id="client_email" class="form-input" />
         </div>
+
         <div class="form-group">
           <label class="form-label" for="client_address" data-i18n="clients.address">Address</label>
           <textarea id="client_address" class="form-textarea" rows="2"></textarea>
         </div>
+
         <div class="form-group">
           <label class="form-label" for="client_notes" data-i18n="clients.notes">Notes</label>
           <input type="text" id="client_notes" class="form-input" />
@@ -204,6 +215,7 @@
   </div>
 </div>
 
+<!-- ═══ DELETE MODAL ═══ -->
 <div class="modal-backdrop modal-backdrop-sm" id="deleteModal" role="dialog" aria-modal="true">
   <div class="modal-panel modal-panel-sm">
     <div class="modal-header">
@@ -224,10 +236,12 @@
 
 <div class="toast" id="clientToast"></div>
 
+<!-- Firebase SDKs -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+
 <script src="firebase.js"></script>
 <script src="i18n.js"></script>
 <script src="auth.js"></script>

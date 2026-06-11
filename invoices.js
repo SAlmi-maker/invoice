@@ -547,21 +547,39 @@ const JOSKA_INVOICES = (() => {
   }
 
   function printInvoice(inv) {
+    const modal = document.getElementById('invoiceModal');
+    const wasOpen = modal?.classList.contains('open');
+
     populatePreview(inv);
 
+    const wrap = document.getElementById('invPreviewWrap');
+    if (wrap) wrap.classList.add('open');
+    if (modal) modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    const emptyEl = document.getElementById('invPreviewEmpty');
+    if (emptyEl) emptyEl.classList.add('hidden');
+
+    void modal?.offsetHeight;
+
     const invoiceEl = document.querySelector('.ip-invoice');
-    if (!invoiceEl) return;
+    if (invoiceEl) {
+      const clone = invoiceEl.cloneNode(true);
+      const pc = document.createElement('div');
+      pc.id = 'joska-print-container';
+      pc.appendChild(clone);
+      document.body.appendChild(pc);
+      void pc.offsetHeight;
+      window.print();
+      document.body.removeChild(pc);
+    } else {
+      window.print();
+    }
 
-    const clone = invoiceEl.cloneNode(true);
-    const pc = document.createElement('div');
-    pc.id = 'joska-print-container';
-    pc.appendChild(clone);
-    document.body.appendChild(pc);
-    void pc.offsetHeight;
-
-    window.print();
-
-    document.body.removeChild(pc);
+    if (!wasOpen) {
+      if (wrap) wrap.classList.remove('open');
+      if (modal) modal.classList.remove('open');
+      document.body.style.overflow = '';
+    }
   }
 
   // ── Populate InvoicePro preview elements ────────────────

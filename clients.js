@@ -243,5 +243,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.addEventListener('joska:langChanged', () => {
     JOSKA_I18N.applyToDOM();
+    render();
   });
 });
