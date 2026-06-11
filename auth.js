@@ -3,9 +3,9 @@
 // ============================================================
 
 const JOSKA_AUTH = (() => {
-  const PROTECTED_PAGES = ['dashboard.html', 'settings.html', 'invoices.html', 'reports.html'];
+  const PROTECTED_PAGES = ['dashboard.html', 'settings.html', 'invoices.html', 'reports.html', 'clients.html'];
   const LOGIN_PAGE      = 'login.html';
-  const HOME_PAGE       = 'invoices.html';
+  const HOME_PAGE       = 'dashboard.html';
 
   // ── Route Guard ──────────────────────────────────────────
   function guardRoute() {
