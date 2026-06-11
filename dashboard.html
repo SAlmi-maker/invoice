@@ -13,20 +13,13 @@
   <link rel="stylesheet" href="dashboard.css" />
   <link rel="stylesheet" href="invoices.css" />
   <style>
-    #invPreviewWrap {
-      position: fixed;
-      top: 0; right: 0;
-      height: 100vh;
+    #dashPreviewBackdrop {
       z-index: 1000;
-      border-radius: 0;
-      border-top: none;
-      border-bottom: none;
-      border-right: none;
-      box-shadow: -4px 0 24px rgba(0,0,0,0.15);
     }
-    [dir="rtl"] #invPreviewWrap {
-      right: auto; left: 0;
-      box-shadow: 4px 0 24px rgba(0,0,0,0.15);
+    #dashPreviewBackdrop .inv-preview-wrap {
+      width: min(90vw, 600px);
+      max-height: 90vh;
+      box-shadow: var(--shadow-xl);
     }
   </style>
 </head>
@@ -264,6 +257,7 @@
 <div class="toast" id="dashToast"></div>
 
 <!-- ═══ Live Preview Panel ═══ -->
+<div class="modal-backdrop" id="dashPreviewBackdrop">
 <div class="inv-preview-wrap" id="invPreviewWrap">
   <div class="inv-preview-header">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
@@ -338,6 +332,7 @@
       <p data-i18n="inv.previewEmpty">Select an invoice to preview</p>
     </div>
   </div>
+</div>
 </div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>

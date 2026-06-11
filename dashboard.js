@@ -263,17 +263,22 @@ const JOSKA_DASHBOARD = (() => {
     const inv = allInvoices.find(i => i.id === id);
     if (!inv) return;
     populateDashboardPreview(inv);
+    document.getElementById('dashPreviewBackdrop')?.classList.add('open');
     document.getElementById('invPreviewWrap')?.classList.add('open');
     document.body.style.overflow = 'hidden';
   }
 
   function closePreview() {
+    document.getElementById('dashPreviewBackdrop')?.classList.remove('open');
     document.getElementById('invPreviewWrap')?.classList.remove('open');
     document.body.style.overflow = '';
   }
 
   function wirePreviewClose() {
     document.getElementById('previewCloseBtn')?.addEventListener('click', closePreview);
+    document.getElementById('dashPreviewBackdrop')?.addEventListener('click', e => {
+      if (e.target === document.getElementById('dashPreviewBackdrop')) closePreview();
+    });
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape') closePreview();
     });
