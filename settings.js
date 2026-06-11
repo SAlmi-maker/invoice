@@ -6,7 +6,6 @@ const JOSKA_SETTINGS = (() => {
 
   let currentSettings = {};
   let pendingLogoFile = null;
-  let pendingSealFile = null;
 
   // ── Init ─────────────────────────────────────────────────
   function init(user) {
@@ -42,20 +41,17 @@ const JOSKA_SETTINGS = (() => {
       }
     });
 
+    const currencyEl = document.getElementById('field_currency');
+    if (currencyEl && data.currency) {
+      currencyEl.value = data.currency;
+      JOSKA_I18N.setCurrency(data.currency);
+    }
+
     // Logo Preview
     if (data.logoBase64) {
       const preview = document.getElementById('logoPreview');
       if (preview) {
         preview.src = data.logoBase64;
-        preview.style.display = 'block';
-      }
-    }
-
-    // Seal Preview
-    if (data.sealBase64) {
-      const preview = document.getElementById('sealPreview');
-      if (preview) {
-        preview.src = data.sealBase64;
         preview.style.display = 'block';
       }
     }
@@ -116,6 +112,7 @@ const JOSKA_SETTINGS = (() => {
           invoiceColorMode: document.querySelector('input[name="invoiceColorMode"]:checked')?.value || 'bw',
           invoiceColor: document.getElementById('invoiceColorInput')?.value || '#2563EB',
           invoiceLanguage: document.getElementById('invoiceLanguage')?.value || '',
+          currency: document.getElementById('field_currency')?.value || 'MAD',
           updatedAt:   firebase.firestore.FieldValue.serverTimestamp()
         };
 
@@ -127,18 +124,11 @@ const JOSKA_SETTINGS = (() => {
           updates.logoBase64 = currentSettings.logoBase64;
         }
 
-        // Save seal as Base64
-        if (pendingSealFile) {
-          updates.sealBase64 = await fileToBase64(pendingSealFile);
-          pendingSealFile = null;
-        } else if (currentSettings.sealBase64) {
-          updates.sealBase64 = currentSettings.sealBase64;
-        }
-
         await db.collection('users').doc(uid)
                 .collection('settings').doc('company').set(updates, { merge: true });
 
         currentSettings = { ...currentSettings, ...updates };
+        JOSKA_I18N.setCurrency(updates.currency);
         showToast(toast, 'success', JOSKA_I18N.t('settings.saved'));
       } catch (err) {
         console.error('Settings save error:', err);
@@ -152,7 +142,6 @@ const JOSKA_SETTINGS = (() => {
   // ── File Uploads ──────────────────────────────────────────
   function wireFileUploads() {
     wireDropZone('logoDropZone', 'logoInput', 'logoPreview', file => { pendingLogoFile = file; });
-    wireDropZone('sealDropZone', 'sealInput', 'sealPreview', file => { pendingSealFile = file; });
   }
 
   function wireDropZone(zoneId, inputId, previewId, onFile) {

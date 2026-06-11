@@ -74,16 +74,16 @@ const JOSKA_I18N = (() => {
       'settings.email':        'Email Address',
       'settings.website':      'Website',
       'settings.logo':         'Company Logo',
-      'settings.seal':         'Company Seal / Stamp',
       'settings.uploadLogo':   'Upload Logo',
-      'settings.uploadSeal':   'Upload Seal',
       'settings.saveBtn':      'Save Settings',
       'settings.saving':       'Saving...',
       'settings.saved':        'Settings saved successfully!',
       'settings.error':        'Failed to save settings. Please try again.',
       'settings.logoHint':     'Recommended: 200×200px, PNG or SVG',
-      'settings.sealHint':     'Recommended: 200×200px, PNG with transparency',
       'settings.dragDrop':     'Drag & drop or click to upload',
+      'settings.currency':     'Invoice Currency',
+      'settings.currencyDesc': 'Choose the currency for invoices and reports',
+      'settings.currencyLabel':'Currency',
 
       // Invoices / PDF
       'inv.days':           'days',
@@ -258,16 +258,16 @@ const JOSKA_I18N = (() => {
       'settings.email':        'Adresse E-mail',
       'settings.website':      'Site Web',
       'settings.logo':         'Logo de l\'Entreprise',
-      'settings.seal':         'Cachet / Tampon',
       'settings.uploadLogo':   'Télécharger Logo',
-      'settings.uploadSeal':   'Télécharger Cachet',
       'settings.saveBtn':      'Enregistrer',
       'settings.saving':       'Enregistrement...',
       'settings.saved':        'Paramètres enregistrés avec succès !',
       'settings.error':        'Échec de l\'enregistrement. Réessayez.',
       'settings.logoHint':     'Recommandé : 200×200px, PNG ou SVG',
-      'settings.sealHint':     'Recommandé : 200×200px, PNG transparent',
       'settings.dragDrop':     'Glisser-déposer ou cliquer pour télécharger',
+      'settings.currency':     'Devise de Facture',
+      'settings.currencyDesc': 'Choisissez la devise pour les factures et rapports',
+      'settings.currencyLabel':'Devise',
 
       // Invoices / PDF
       'inv.days':           'jours',
@@ -440,16 +440,16 @@ const JOSKA_I18N = (() => {
       'settings.email':        'البريد الإلكتروني',
       'settings.website':      'الموقع الإلكتروني',
       'settings.logo':         'شعار الشركة',
-      'settings.seal':         'ختم / طابع الشركة',
       'settings.uploadLogo':   'رفع الشعار',
-      'settings.uploadSeal':   'رفع الختم',
       'settings.saveBtn':      'حفظ الإعدادات',
       'settings.saving':       'جارٍ الحفظ...',
       'settings.saved':        'تم حفظ الإعدادات بنجاح!',
       'settings.error':        'فشل الحفظ. يرجى المحاولة مرة أخرى.',
       'settings.logoHint':     'موصى به: 200×200 بكسل، PNG أو SVG',
-      'settings.sealHint':     'موصى به: 200×200 بكسل، PNG بخلفية شفافة',
       'settings.dragDrop':     'اسحب وأفلت أو انقر للرفع',
+      'settings.currency':     'عملة الفاتورة',
+      'settings.currencyDesc': 'اختر العملة للفواتير والتقارير',
+      'settings.currencyLabel':'العملة',
 
       // Invoices / PDF
       'inv.days':           'أيام',
@@ -588,6 +588,12 @@ const JOSKA_I18N = (() => {
 
   function getLang() { return currentLang; }
 
+  function setCurrency(code) {
+    ['en', 'fr', 'ar'].forEach(lang => {
+      if (translations[lang]) translations[lang]['common.currency'] = code;
+    });
+  }
+
   function isRTL() { return RTL_LANGS.includes(currentLang); }
 
   function applyDirection() {
@@ -630,5 +636,5 @@ const JOSKA_I18N = (() => {
     });
   }
 
-  return { t, tLang, setLang, getLang, isRTL, init, applyToDOM };
+  return { t, tLang, setLang, getLang, setCurrency, isRTL, init, applyToDOM };
 })();

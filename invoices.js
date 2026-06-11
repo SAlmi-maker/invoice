@@ -36,6 +36,7 @@ const JOSKA_INVOICES = (() => {
         invoiceColorMode = companySettings.invoiceColorMode || 'bw';
         invoiceColor     = companySettings.invoiceColor || '#2563EB';
         invoiceLanguage  = companySettings.invoiceLanguage || '';
+        JOSKA_I18N.setCurrency(companySettings.currency || 'MAD');
       }
     } catch (e) { /* non-critical */ }
 

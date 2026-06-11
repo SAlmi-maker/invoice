@@ -44,6 +44,7 @@ const JOSKA_DASHBOARD = (() => {
       if (doc.exists) {
         companySettings = doc.data();
         applyCompanyBranding(companySettings);
+        JOSKA_I18N.setCurrency(companySettings.currency || 'MAD');
         hideSetupBanner();
       } else {
         showSetupBanner();

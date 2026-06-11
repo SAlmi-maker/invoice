@@ -144,6 +144,27 @@
               </div>
             </div>
 
+            <div class="settings-section fade-in-up" id="section-currency">
+              <div class="settings-section-header">
+                <h3 data-i18n="settings.currency">Invoice Currency</h3>
+                <p data-i18n="settings.currencyDesc">Choose the currency for invoices and reports</p>
+              </div>
+              <div class="settings-section-body">
+                <div class="form-group">
+                  <label class="form-label" for="field_currency" data-i18n="settings.currencyLabel">Currency</label>
+                  <select class="form-input" id="field_currency" name="currency">
+                    <option value="MAD">MAD — Moroccan Dirham (درهم)</option>
+                    <option value="EUR">EUR — Euro (€)</option>
+                    <option value="USD">USD — US Dollar ($)</option>
+                    <option value="GBP">GBP — British Pound (£)</option>
+                    <option value="CAD">CAD — Canadian Dollar (C$)</option>
+                    <option value="CHF">CHF — Swiss Franc (₣)</option>
+                    <option value="AED">AED — UAE Dirham (د.إ)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
             <div class="settings-section fade-in-up" id="section-branding">
               <div class="settings-section-header">
                 <h3>Branding &amp; Visuals</h3>
@@ -161,16 +182,7 @@
                       <div class="drop-zone-hint" data-i18n="settings.logoHint">200×200px, PNG or SVG</div>
                     </div>
                   </div>
-                  <div>
-                    <label class="form-label" data-i18n="settings.seal">Company Seal / Stamp</label>
-                    <div class="drop-zone" id="sealDropZone">
-                      <input type="file" id="sealInput" accept="image/png,image/jpeg,image/webp" />
-                      <img class="drop-zone-preview" id="sealPreview" src="" alt="Seal preview" />
-                      <div class="drop-zone-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
-                      <div class="drop-zone-label" data-i18n="settings.dragDrop">Drag &amp; drop or click</div>
-                      <div class="drop-zone-hint" data-i18n="settings.sealHint">200×200px, PNG transparent</div>
-                    </div>
-                  </div>
+
                 </div>
               </div>
             </div>

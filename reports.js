@@ -12,15 +12,17 @@ const JOSKA_REPORTS = (() => {
   let barChart          = null;
   let doughnutChart     = null;
   let selectedYear      = new Date().getFullYear();
+  let companySettings   = {};
 
   const MONTHS_EN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const MONTHS_FR = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
   const MONTHS_AR = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
 
   // ── Init ─────────────────────────────────────────────────
-  function init(user) {
+  async function init(user) {
     if (!user) return;
     renderUserInfo(user);
+    await loadCompanySettings(user.uid);
     populateYearSelector();
     initThemeToggle();
     initSidebar();
@@ -34,6 +36,20 @@ const JOSKA_REPORTS = (() => {
     });
 
     document.addEventListener('joska:langChanged', () => renderAll());
+  }
+
+  // ── Company Settings ──────────────────────────────────────
+  async function loadCompanySettings(uid) {
+    try {
+      const doc = await db.collection('users').doc(uid)
+                          .collection('settings').doc('company').get();
+      if (doc.exists) {
+        companySettings = doc.data();
+        JOSKA_I18N.setCurrency(companySettings.currency || 'MAD');
+      }
+    } catch (err) {
+      console.error('Error loading settings:', err);
+    }
   }
 
   // ── User Info ─────────────────────────────────────────────
