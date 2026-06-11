@@ -3,7 +3,7 @@
 // ============================================================
 
 const JOSKA_AUTH = (() => {
-  const PROTECTED_PAGES = ['dashboard.html', 'settings.html', 'invoices.html'];
+  const PROTECTED_PAGES = ['dashboard.html', 'settings.html', 'invoices.html', 'reports.html'];
   const LOGIN_PAGE      = 'login.html';
   const HOME_PAGE       = 'invoices.html';
 

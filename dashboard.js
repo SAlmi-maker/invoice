@@ -1,331 +1,136 @@
-// ============================================================
-// JOSKA - Dashboard Module
-// ============================================================
-
 const JOSKA_DASHBOARD = (() => {
+  let currentUser = null;
+  let allInvoices = [];
+  let companySettings = {};
+  let unsubscribe = null;
 
-  // ── State ─────────────────────────────────────────────────
-  let companySettings = null;
-  let unsubscribeInvoices = null;
-
-  // ── Init ─────────────────────────────────────────────────
-  async function init(user) {
+  function init(user) {
     if (!user) return;
-    renderUserInfo(user);
-    await loadCompanySettings(user.uid);
+    currentUser = user;
+    loadSettings(user.uid);
     subscribeToInvoices(user.uid);
+    renderUserInfo(user);
     initThemeToggle();
     initSidebar();
-    initAnimations();
+    wireActions();
   }
 
-  // ── User Info ─────────────────────────────────────────────
   function renderUserInfo(user) {
-    const nameEls = document.querySelectorAll('.user-name');
-    const emailEls = document.querySelectorAll('.user-email');
-    const avatarEls = document.querySelectorAll('.user-avatar-text');
-
-    const displayName = user.displayName || user.email.split('@')[0];
-    const initials    = displayName.slice(0, 2).toUpperCase();
-
-    nameEls.forEach(el  => el.textContent = displayName);
-    emailEls.forEach(el => el.textContent = user.email);
-    avatarEls.forEach(el => el.textContent = initials);
+    const display = user.displayName || user.email.split('@')[0];
+    const initials = display.slice(0, 2).toUpperCase();
+    document.querySelectorAll('.user-name').forEach(el => el.textContent = display);
+    document.querySelectorAll('.user-email').forEach(el => el.textContent = user.email);
+    document.querySelectorAll('.user-avatar-text').forEach(el => el.textContent = initials);
   }
 
-  // ── Company Settings ──────────────────────────────────────
-  async function loadCompanySettings(uid) {
+  async function loadSettings(uid) {
     try {
-      const doc = await db.collection('users').doc(uid)
-                          .collection('settings').doc('company').get();
-
-      if (doc.exists) {
-        companySettings = doc.data();
-        applyCompanyBranding(companySettings);
-        hideSetupBanner();
-      } else {
-        showSetupBanner();
+      const snap = await db.collection('users').doc(uid)
+        .collection('settings').doc('company').get();
+      if (snap.exists) {
+        companySettings = snap.data();
+        if (companySettings.companyName) {
+          document.querySelectorAll('.company-name').forEach(el => el.textContent = companySettings.companyName);
+        }
       }
-    } catch (err) {
-      console.error('Error loading settings:', err);
-    }
+    } catch (e) { /* non-critical */ }
   }
 
-  function applyCompanyBranding(settings) {
-    const nameEls = document.querySelectorAll('.company-name');
-    nameEls.forEach(el => el.textContent = settings.companyName || 'JOSKA');
-
-    if (settings.logoUrl) {
-      const logoEls = document.querySelectorAll('.company-logo-img');
-      logoEls.forEach(el => {
-        el.src = settings.logoUrl;
-        el.style.display = 'block';
-      });
-    }
-
-    document.title = `${settings.companyName || 'JOSKA'} — Dashboard`;
-  }
-
-  function showSetupBanner() {
-    const banner = document.getElementById('setupBanner');
-    if (banner) banner.style.display = 'flex';
-  }
-
-  function hideSetupBanner() {
-    const banner = document.getElementById('setupBanner');
-    if (banner) banner.style.display = 'none';
-  }
-
-  // ── Invoice Subscription ──────────────────────────────────
   function subscribeToInvoices(uid) {
-    if (unsubscribeInvoices) unsubscribeInvoices();
-
-    setStatsLoading(true);
-
-    unsubscribeInvoices = db.collection('users').doc(uid)
+    if (unsubscribe) unsubscribe();
+    setLoading(true);
+    unsubscribe = db.collection('users').doc(uid)
       .collection('invoices')
       .orderBy('createdAt', 'desc')
       .onSnapshot(snapshot => {
-        const invoices = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-        renderStats(invoices);
-        renderRecentInvoices(invoices.slice(0, 6));
-        setStatsLoading(false);
+        allInvoices = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderAll();
+        setLoading(false);
+        const badge = document.getElementById('navInvoiceCount');
+        if (badge) badge.textContent = allInvoices.length;
       }, err => {
-        console.error('Invoice subscription error:', err);
-        setStatsLoading(false);
-        renderEmptyStats();
+        console.error('Dashboard subscription error:', err);
+        setLoading(false);
       });
   }
 
-  // ── Stats Calculation ─────────────────────────────────────
-  function renderStats(invoices) {
-    const now       = new Date();
-    const todayStr  = now.toISOString().split('T')[0];
-    const thisMonth = now.getMonth();
-    const thisYear  = now.getFullYear();
-    const lastMonth = thisMonth === 0 ? 11 : thisMonth - 1;
-    const lastMonthYear = thisMonth === 0 ? thisYear - 1 : thisYear;
-
-    const paidInvoices = invoices.filter(inv => inv.status === 'paid');
-
-    const toNum = inv => parseFloat(inv.total || inv.amount || 0);
-
-    // Today
-    const todayRevenue = paidInvoices
-      .filter(inv => (inv.paidAt || inv.createdAt?.toDate?.()?.toISOString() || '').startsWith(todayStr))
-      .reduce((sum, inv) => sum + toNum(inv), 0);
-
-    // This month
-    const thisMonthRevenue = paidInvoices
-      .filter(inv => {
-        const d = getInvoiceDate(inv);
-        return d && d.getMonth() === thisMonth && d.getFullYear() === thisYear;
-      })
-      .reduce((sum, inv) => sum + toNum(inv), 0);
-
-    // Last month (for trend)
-    const lastMonthRevenue = paidInvoices
-      .filter(inv => {
-        const d = getInvoiceDate(inv);
-        return d && d.getMonth() === lastMonth && d.getFullYear() === lastMonthYear;
-      })
-      .reduce((sum, inv) => sum + toNum(inv), 0);
-
-    // This year
-    const thisYearRevenue = paidInvoices
-      .filter(inv => {
-        const d = getInvoiceDate(inv);
-        return d && d.getFullYear() === thisYear;
-      })
-      .reduce((sum, inv) => sum + toNum(inv), 0);
-
-    // Last year
-    const lastYearRevenue = paidInvoices
-      .filter(inv => {
-        const d = getInvoiceDate(inv);
-        return d && d.getFullYear() === thisYear - 1;
-      })
-      .reduce((sum, inv) => sum + toNum(inv), 0);
-
-    // Invoice counts
-    const totalInvoices     = invoices.length;
-    const thisMonthInvoices = invoices.filter(inv => {
-      const d = getInvoiceDate(inv);
-      return d && d.getMonth() === thisMonth && d.getFullYear() === thisYear;
-    }).length;
-
-    const currency = JOSKA_I18N.t('common.currency');
-
-    // Set values
-    setStatCard('statToday',      formatCurrency(todayRevenue, currency), null, null);
-    setStatCard('statMonth',      formatCurrency(thisMonthRevenue, currency), lastMonthRevenue, thisMonthRevenue, JOSKA_I18N.t('dash.vsLastMonth'));
-    setStatCard('statYear',       formatCurrency(thisYearRevenue, currency), lastYearRevenue, thisYearRevenue, JOSKA_I18N.t('dash.vsLastYear'));
-    setStatCard('statInvoices',   totalInvoices, null, null, `${thisMonthInvoices} ${JOSKA_I18N.t('dash.invoicesThisMonth')}`);
+  function renderAll() {
+    renderStats();
+    renderRecentInvoices();
   }
 
-  function getInvoiceDate(inv) {
-    if (inv.createdAt && inv.createdAt.toDate) return inv.createdAt.toDate();
+  function renderStats() {
+    const now = new Date();
+    const todayStr = now.toISOString().split('T')[0];
+    const thisMonth = now.getMonth();
+    const thisYear = now.getFullYear();
+    const currency = JOSKA_I18N.t('common.currency');
+
+    const paid = allInvoices.filter(inv => inv.status === 'paid');
+    const toNum = inv => parseFloat(inv.total || inv.amount || 0);
+
+    const todayRev = paid.filter(inv => {
+      const d = getDate(inv);
+      return d && d.toISOString().split('T')[0] === todayStr;
+    }).reduce((s, inv) => s + toNum(inv), 0);
+
+    const monthRev = paid.filter(inv => {
+      const d = getDate(inv);
+      return d && d.getMonth() === thisMonth && d.getFullYear() === thisYear;
+    }).reduce((s, inv) => s + toNum(inv), 0);
+
+    const yearRev = paid.filter(inv => {
+      const d = getDate(inv);
+      return d && d.getFullYear() === thisYear;
+    }).reduce((s, inv) => s + toNum(inv), 0);
+
+    setText('dashValToday', formatCurrency(todayRev, currency));
+    setText('dashValMonth', formatCurrency(monthRev, currency));
+    setText('dashValYear', formatCurrency(yearRev, currency));
+    setText('dashValInvoices', allInvoices.length);
+
+    document.querySelectorAll('.stat-card').forEach(c => c.classList.add('visible'));
+  }
+
+  function renderRecentInvoices() {
+    const tbody = document.getElementById('dashRecentBody');
+    if (!tbody) return;
+    const lang = JOSKA_I18N.getLang();
+    const currency = JOSKA_I18N.t('common.currency');
+    const recent = allInvoices.slice(0, 5);
+
+    if (!recent.length) {
+      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:30px;color:var(--text-tertiary);">${JOSKA_I18N.t('dash.noData')}</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = recent.map((inv, i) => {
+      const status = inv.status || 'draft';
+      const statusLabel = JOSKA_I18N.t(`dash.${status}`);
+      const date = getDate(inv);
+      const dateStr = date ? date.toLocaleDateString(lang) : '—';
+      const vehicle = [inv.vehicleBrand, inv.vehicleModel].filter(Boolean).join(' ') || '—';
+      return `<tr class="fade-in-row" style="animation-delay:${i*50}ms">
+        <td>${escHtml(inv.clientName || '—')}</td>
+        <td style="color:var(--text-secondary);font-size:0.85rem;">${escHtml(vehicle)}</td>
+        <td><span class="badge badge-${status}">${statusLabel}</span></td>
+        <td style="text-align:right;font-weight:600;">${formatCurrency(parseFloat(inv.total||0), currency)}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  function wireActions() {
+    document.getElementById('btnNewInvoiceDash')?.addEventListener('click', () => {
+      window.location.href = 'invoices.html';
+    });
+  }
+
+  function getDate(inv) {
+    if (inv.createdAt?.toDate) return inv.createdAt.toDate();
     if (inv.date) return new Date(inv.date);
     return null;
   }
 
-  function setStatCard(id, value, prev, curr, subtitle) {
-    const card = document.getElementById(id);
-    if (!card) return;
-
-    const valEl  = card.querySelector('.stat-value');
-    const subEl  = card.querySelector('.stat-subtitle');
-    const trendEl = card.querySelector('.stat-trend');
-
-    if (valEl) {
-      valEl.textContent = value;
-      animateCount(valEl);
-    }
-    if (subEl && subtitle) subEl.textContent = subtitle;
-
-    if (trendEl && prev !== null && curr !== null) {
-      const diff = prev === 0 ? (curr > 0 ? 100 : 0) : ((curr - prev) / prev * 100);
-      const sign = diff >= 0 ? '+' : '';
-      const cls  = diff >= 0 ? 'up' : 'down';
-      const icon = diff >= 0 ? '↑' : '↓';
-      trendEl.textContent = `${icon} ${sign}${diff.toFixed(1)}%`;
-      trendEl.className   = `stat-trend ${cls}`;
-    }
-  }
-
-  function renderEmptyStats() {
-    const currency = JOSKA_I18N.t('common.currency');
-    ['statToday','statMonth','statYear'].forEach(id => {
-      const card = document.getElementById(id);
-      if (!card) return;
-      const v = card.querySelector('.stat-value');
-      if (v) v.textContent = formatCurrency(0, currency);
-    });
-    const si = document.getElementById('statInvoices');
-    if (si) { const v = si.querySelector('.stat-value'); if (v) v.textContent = '0'; }
-  }
-
-  function setStatsLoading(state) {
-    document.querySelectorAll('.stat-card').forEach(card => {
-      card.classList.toggle('skeleton', state);
-    });
-  }
-
-  // ── Recent Invoices Table ─────────────────────────────────
-  function renderRecentInvoices(invoices) {
-    const tbody = document.getElementById('recentInvoicesBody');
-    const empty = document.getElementById('recentEmpty');
-    if (!tbody) return;
-
-    tbody.innerHTML = '';
-
-    if (!invoices.length) {
-      if (empty) empty.style.display = 'block';
-      return;
-    }
-    if (empty) empty.style.display = 'none';
-
-    const currency = JOSKA_I18N.t('common.currency');
-
-    invoices.forEach((inv, i) => {
-      const tr = document.createElement('tr');
-      tr.style.animationDelay = `${i * 50}ms`;
-      tr.classList.add('fade-in-row');
-
-      const date = getInvoiceDate(inv);
-      const dateStr = date ? date.toLocaleDateString(JOSKA_I18N.getLang()) : '—';
-      const statusLabel = JOSKA_I18N.t(`dash.${inv.status || 'draft'}`);
-      const statusCls   = `badge badge-${inv.status || 'draft'}`;
-
-      tr.innerHTML = `
-        <td><span class="invoice-num">#${inv.invoiceNumber || inv.id.slice(-6).toUpperCase()}</span></td>
-        <td>${escHtml(inv.clientName || '—')}</td>
-        <td>${dateStr}</td>
-        <td><span class="amount">${formatCurrency(parseFloat(inv.total || inv.amount || 0), currency)}</span></td>
-        <td><span class="${statusCls}">${statusLabel}</span></td>
-        <td>
-          <div class="row-actions">
-            <button class="btn-icon" title="View" onclick="JOSKA_DASHBOARD.viewInvoice('${inv.id}')">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-            </button>
-          </div>
-        </td>`;
-
-      tbody.appendChild(tr);
-    });
-  }
-
-  function viewInvoice(id) {
-    // Placeholder: will navigate to invoice detail page
-    console.log('View invoice:', id);
-  }
-
-  // ── Theme Toggle ─────────────────────────────────────────
-  function initThemeToggle() {
-    const toggle = document.getElementById('themeToggle');
-    const saved  = localStorage.getItem('joska_theme') || 'light';
-    applyTheme(saved);
-
-    if (toggle) {
-      toggle.addEventListener('click', () => {
-        const current = document.documentElement.getAttribute('data-theme') || 'light';
-        const next    = current === 'dark' ? 'light' : 'dark';
-        applyTheme(next);
-        localStorage.setItem('joska_theme', next);
-      });
-    }
-  }
-
-  function applyTheme(theme) {
-    document.documentElement.setAttribute('data-theme', theme);
-    const toggle = document.getElementById('themeToggle');
-    if (toggle) {
-      toggle.querySelector('.theme-icon-sun')?.classList.toggle('hidden', theme === 'light');
-      toggle.querySelector('.theme-icon-moon')?.classList.toggle('hidden', theme === 'dark');
-    }
-  }
-
-  // ── Sidebar ───────────────────────────────────────────────
-  function initSidebar() {
-    const hamburger = document.getElementById('hamburger');
-    const sidebar   = document.getElementById('sidebar');
-    const overlay   = document.getElementById('sidebarOverlay');
-
-    if (hamburger && sidebar) {
-      hamburger.addEventListener('click', () => {
-        sidebar.classList.toggle('open');
-        overlay?.classList.toggle('show');
-      });
-    }
-    if (overlay) {
-      overlay.addEventListener('click', () => {
-        sidebar.classList.remove('open');
-        overlay.classList.remove('show');
-      });
-    }
-  }
-
-  // ── Animations ────────────────────────────────────────────
-  function initAnimations() {
-    const observer = new IntersectionObserver(entries => {
-      entries.forEach(e => {
-        if (e.isIntersecting) {
-          e.target.classList.add('visible');
-          observer.unobserve(e.target);
-        }
-      });
-    }, { threshold: 0.1 });
-
-    document.querySelectorAll('.stat-card, .glass-card').forEach(el => observer.observe(el));
-  }
-
-  function animateCount(el) {
-    el.classList.remove('count-animate');
-    void el.offsetWidth; // reflow
-    el.classList.add('count-animate');
-  }
-
-  // ── Helpers ───────────────────────────────────────────────
   function formatCurrency(amount, currency) {
     if (isNaN(amount)) amount = 0;
     return new Intl.NumberFormat(JOSKA_I18N.getLang(), {
@@ -338,22 +143,50 @@ const JOSKA_DASHBOARD = (() => {
     return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
-  return { init, viewInvoice, applyTheme };
+  function setText(id, val) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = val;
+  }
+
+  function setLoading(state) {
+    document.querySelectorAll('.stat-card').forEach(c => c.classList.toggle('skeleton', state));
+  }
+
+  function initThemeToggle() {
+    const saved = localStorage.getItem('joska_theme') || 'light';
+    document.documentElement.setAttribute('data-theme', saved);
+    document.getElementById('themeToggle')?.addEventListener('click', () => {
+      const cur = document.documentElement.getAttribute('data-theme') || 'light';
+      const next = cur === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('joska_theme', next);
+    });
+  }
+
+  function initSidebar() {
+    const hamburger = document.getElementById('hamburger');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    hamburger?.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+      overlay?.classList.toggle('show');
+    });
+    overlay?.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('show');
+    });
+  }
+
+  return { init };
 })();
 
-
-// ── Boot ──────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   JOSKA_I18N.init();
   JOSKA_AUTH.init();
-
   document.addEventListener('joska:authReady', ({ detail }) => {
     if (detail.user) JOSKA_DASHBOARD.init(detail.user);
   });
-
   document.addEventListener('joska:langChanged', () => {
-    // Re-render dynamic content when language changes
-    const user = JOSKA_AUTH.currentUser();
-    if (user) JOSKA_DASHBOARD.init(user);
+    JOSKA_I18N.applyToDOM();
   });
 });

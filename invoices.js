@@ -713,20 +713,22 @@ const JOSKA_INVOICES = (() => {
     const setAccent = () => doc.setTextColor(accent.r, accent.g, accent.b);
     const fillAccent = () => doc.setFillColor(accent.r, accent.g, accent.b);
 
-    // ── Header: Logo left, Company right ──────────────────────
+    // ── Header: Logo left, Company left ───────────────────────
+    let nameX = M;
     if (companySettings.logoBase64) {
       doc.addImage(companySettings.logoBase64, 'PNG', M, 6, 18, 18);
+      nameX = M + 22;
     }
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(16);
     doc.setTextColor(15, 23, 42);
-    doc.text(companySettings.companyName || 'JOSKA', W - M, 14, { align: 'right' });
+    doc.text(companySettings.companyName || 'JOSKA', nameX, 14);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7.5);
     doc.setTextColor(100, 116, 139);
-    const compLines = [companySettings.address || '', companySettings.phone || '', companySettings.email || ''].filter(Boolean);
+    const compLines = [companySettings.address || '', companySettings.email || '', companySettings.phone || ''].filter(Boolean);
     compLines.forEach((line, i) => {
-      doc.text(line, W - M, 20 + i * 4, { align: 'right' });
+      doc.text(line, nameX, 20 + i * 4);
     });
     y = Math.max(30, 20 + compLines.length * 4 + 4);
 
@@ -759,48 +761,28 @@ const JOSKA_INVOICES = (() => {
     doc.setLineWidth(0.2);
     y += 10;
 
-    // ── Addresses: From / Bill To ─────────────────────────────
-    const addrTop = y;
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(6.5);
-    doc.setTextColor(148, 163, 184);
-    doc.text(t('pdf.from'), M, y);
-    y += 5;
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(9);
-    doc.setTextColor(15, 23, 42);
-    doc.text(companySettings.companyName || 'JOSKA', M, y);
-    y += 4.5;
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(7.5);
-    doc.setTextColor(100, 116, 139);
-    if (companySettings.address) { doc.text(companySettings.address, M, y); y += 4; }
-    if (companySettings.email) { doc.text(companySettings.email, M, y); y += 4; }
-    if (companySettings.phone) { doc.text(companySettings.phone, M, y); y += 4; }
-
-    let y2 = addrTop;
+    // ── Customer Info (right side) ────────────────────────────
     const billToX = W / 2 + 4;
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(6.5);
     doc.setTextColor(148, 163, 184);
-    doc.text(t('pdf.billTo'), billToX, y2);
-    y2 += 5;
+    doc.text(t('pdf.billTo'), billToX, y);
+    y += 5;
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(9);
     doc.setTextColor(15, 23, 42);
-    doc.text(inv.clientName || '—', billToX, y2);
-    y2 += 4.5;
+    doc.text(inv.clientName || '—', billToX, y);
+    y += 4.5;
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7.5);
     doc.setTextColor(100, 116, 139);
-    if (inv.cin) { doc.text(`${t('pdf.cin')}: ${inv.cin}`, billToX, y2); y2 += 4; }
-    if (inv.phone) { doc.text(`${t('pdf.tel')}: ${inv.phone}`, billToX, y2); y2 += 4; }
-    doc.text(`${inv.vehicleBrand || ''} ${inv.vehicleModel || ''}`.trim() || '—', billToX, y2); y2 += 4;
-    if (inv.plate) { doc.text(`${t('pdf.plate')}: ${inv.plate}`, billToX, y2); y2 += 4; }
+    if (inv.cin) { doc.text(`${t('pdf.cin')}: ${inv.cin}`, billToX, y); y += 4; }
+    if (inv.phone) { doc.text(`${t('pdf.tel')}: ${inv.phone}`, billToX, y); y += 4; }
+    doc.text(`${inv.vehicleBrand || ''} ${inv.vehicleModel || ''}`.trim() || '—', billToX, y); y += 4;
+    if (inv.plate) { doc.text(`${t('pdf.plate')}: ${inv.plate}`, billToX, y); y += 4; }
+    y += 8;
 
-    y = Math.max(y, y2) + 8;
-
-    // ── Rental info line (between addresses and table) ────────
+    // ── Rental info line ──────────────────────────────────────
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7.5);
     doc.setTextColor(100, 116, 139);
@@ -856,84 +838,75 @@ const JOSKA_INVOICES = (() => {
       drawRow(e.label, 1, e.val, e.val, i + 1);
     });
 
-    y += 2;
+    y += 4;
 
-    // ── Summary box (right-aligned) ───────────────────────────
-    const sumW = 65;
-    const sumX = W - M - sumW;
-    const subtotal = rental;
-    const extrasTotal = activeExtras.reduce((a, e) => a + e.val, 0);
-    const sumLines = [];
-    sumLines.push({ label: t('pdf.subtotal'), value: fmt(subtotal), bold: false });
-    if (extrasTotal > 0) {
-      sumLines.push({ label: t('pdf.extras'), value: fmt(extrasTotal), bold: false });
-    }
-
-    sumLines.forEach((sl) => {
-      doc.setFont('helvetica', sl.bold ? 'bold' : 'normal');
-      doc.setFontSize(8);
-      doc.setTextColor(100, 116, 139);
-      doc.text(sl.label, sumX, y + 4);
-      doc.text(sl.value, sumX + sumW, y + 4, { align: 'right' });
-      y += 5.5;
-    });
-
-    y += 1;
-    fillAccent();
-    doc.roundedRect(sumX, y, sumW, 11, 2, 2, 'F');
+    // ── Grand Total row ───────────────────────────────────────
+    doc.setDrawColor(accent.r, accent.g, accent.b);
+    doc.setLineWidth(0.5);
+    doc.line(M, y, W - M, y);
+    y += 3;
     doc.setFont('helvetica', 'bold');
-    doc.setFontSize(7);
-    doc.setTextColor(180, 210, 255);
-    doc.text(t('pdf.grandTotal'), sumX + 4, y + 4.5);
+    doc.setFontSize(9);
+    setAccent();
+    doc.text(t('pdf.grandTotal'), M, y + 4);
+    doc.setFont('helvetica', 'bold');
     doc.setFontSize(10);
-    doc.setTextColor(255, 255, 255);
-    doc.text(fmt(parseFloat(inv.total || 0)), sumX + sumW - 4, y + 8.5, { align: 'right' });
-    y += 16;
+    doc.setTextColor(15, 23, 42);
+    doc.text(fmt(parseFloat(inv.total || 0)), W - M, y + 4, { align: 'right' });
+    y += 10;
 
     // ── Status badge ──────────────────────────────────────────
     const status = inv.status || 'draft';
     const statusColors = { paid: [16, 185, 129], pending: [245, 158, 11], overdue: [239, 68, 68], draft: [107, 114, 128] };
     const [r, g, b] = statusColors[status] || statusColors.draft;
     doc.setFillColor(r, g, b);
-    doc.roundedRect(M, y - 10, 30, 8, 2, 2, 'F');
+    doc.roundedRect(M, y, 28, 8, 2, 2, 'F');
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(6.5);
     doc.setTextColor(255, 255, 255);
-    doc.text(t(`dash.${status}`).toUpperCase(), M + 15, y - 4.5, { align: 'center' });
+    doc.text(t(`dash.${status}`).toUpperCase(), M + 14, y + 5.5, { align: 'center' });
+    y += 14;
 
-    // ── Footer ────────────────────────────────────────────────
-    const footerY = 248;
-    doc.setDrawColor(226, 232, 240);
-    doc.line(M, footerY, W - M, footerY);
+    // ── Notes ─────────────────────────────────────────────────
     if (inv.notes) {
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(6.5);
       doc.setTextColor(148, 163, 184);
-      doc.text(t('pdf.notes'), M, footerY + 6);
+      doc.text(t('pdf.notes'), M, y);
+      y += 4;
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(7);
       doc.setTextColor(100, 116, 139);
-      doc.text(String(inv.notes), M, footerY + 11);
+      doc.text(String(inv.notes), M, y);
+      y += 8;
     }
+
+    // ── Footer ────────────────────────────────────────────────
     if (companySettings.sealBase64) {
-      doc.addImage(companySettings.sealBase64, 'PNG', W - M - 28, footerY - 28, 28, 28);
+      doc.addImage(companySettings.sealBase64, 'PNG', W - M - 28, 240 - 28, 28, 28);
     }
+    doc.setDrawColor(226, 232, 240);
+    doc.line(M, 255, W - M, 255);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(6.5);
     doc.setTextColor(148, 163, 184);
-    doc.text(t('pdf.generatedBy'), W / 2, 285, { align: 'center' });
-    if (companySettings.email) doc.text(companySettings.email, W / 2, 289, { align: 'center' });
+    doc.text(t('pdf.generatedBy'), W / 2, 282, { align: 'center' });
+    if (companySettings.email) doc.text(companySettings.email, W / 2, 286, { align: 'center' });
   }
 
   function buildPDFPageModern(doc, inv) {
-    const t2 = JOSKA_I18N.t;
+    const t2 = tl;
     const currency = t2('common.currency');
     const W = 210, M = 18;
     let y = 0;
     const lang = getPDFLang();
     const fmt = (amt) => formatCurrency(amt, currency, lang);
+    const accent = getAccentColor();
 
-    doc.setFillColor(15, 23, 42);
+    const fillAccent = () => doc.setFillColor(accent.r, accent.g, accent.b);
+    const setAccent = () => doc.setTextColor(accent.r, accent.g, accent.b);
+
+    fillAccent();
     doc.rect(0, 0, 8, 297, 'F');
 
     let nameX2 = M + 4;
@@ -948,12 +921,12 @@ const JOSKA_INVOICES = (() => {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7.5);
     doc.setTextColor(100, 116, 139);
-    doc.text(JOSKA_I18N.t('brand.tagline'), nameX2, 27);
+    doc.text(t2('brand.tagline'), nameX2, 27);
 
     const numY = 20;
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(11);
-    doc.setTextColor(37, 99, 235);
+    setAccent();
     doc.text(`#${inv.invoiceNumber || inv.id.slice(-6).toUpperCase()}`, W - M, numY, { align: 'right' });
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7);
@@ -969,8 +942,8 @@ const JOSKA_INVOICES = (() => {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(7);
     doc.setTextColor(148, 163, 184);
-    doc.text('CUSTOMER', col1, y);
-    doc.text('VEHICLE', col2, y);
+    doc.text(t2('pdf.billTo').toUpperCase(), col1, y);
+    doc.text(t2('inv.field.vehicle').toUpperCase(), col2, y);
     y += 5;
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(9.5);
@@ -981,9 +954,9 @@ const JOSKA_INVOICES = (() => {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
     doc.setTextColor(100, 116, 139);
-    doc.text(`CIN: ${inv.cin || '—'}`, col1, y); y += 4;
-    doc.text(`Plate: ${inv.plate || '—'}`, col2, y - 4);
-    if (inv.phone) { doc.text(`Tel: ${inv.phone}`, col1, y); }
+    doc.text(`${t2('pdf.cin')}: ${inv.cin || '—'}`, col1, y); y += 4;
+    doc.text(`${t2('pdf.plate')}: ${inv.plate || '—'}`, col2, y - 4);
+    if (inv.phone) { doc.text(`${t2('pdf.tel')}: ${inv.phone}`, col1, y); }
     y += 10;
 
     doc.setFillColor(248, 250, 252);
@@ -994,8 +967,8 @@ const JOSKA_INVOICES = (() => {
     doc.text(`${inv.startDate || '—'}  →  ${inv.endDate || '—'}`, M + 10, y + 8);
     const daysN = inv.days ?? calcDays(inv.startDate, inv.endDate);
     doc.setFont('helvetica', 'bold');
-    doc.setTextColor(37, 99, 235);
-    doc.text(`${daysN} ${JOSKA_I18N.t('inv.days')}`, W - M - 8, y + 8, { align: 'right' });
+    setAccent();
+    doc.text(`${daysN} ${t2('inv.days')}`, W - M - 8, y + 8, { align: 'right' });
     y += 20;
 
     const tW = W - M * 2 - 4, descW = tW * 0.5, amtW = tW * 0.25;
@@ -1005,20 +978,20 @@ const JOSKA_INVOICES = (() => {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(6.5);
     doc.setTextColor(100, 116, 139);
-    doc.text('DESCRIPTION', M + 8, y + 4.5);
-    doc.text('DAYS', M + descW + 4, y + 4.5);
-    doc.text('UNIT PRICE', M + descW + amtW / 2, y + 4.5, { align: 'center' });
-    doc.text('AMOUNT', W - M - 6, y + 4.5, { align: 'right' });
+    doc.text(t2('pdf.description'), M + 8, y + 4.5);
+    doc.text(t2('pdf.qty'), M + descW + 4, y + 4.5);
+    doc.text(t2('pdf.unitPrice'), M + descW + amtW / 2, y + 4.5, { align: 'center' });
+    doc.text(t2('pdf.amount'), W - M - 6, y + 4.5, { align: 'right' });
     y += 7;
 
     const dp = parseFloat(inv.dailyPrice || 0);
     const rental = daysN * dp;
     const items = [
-      { desc: JOSKA_I18N.t('inv.field.rentalSubtotal'), qty: daysN, unit: dp, total: rental },
-      ...(parseFloat(inv.insurance || 0) > 0 ? [{ desc: JOSKA_I18N.t('inv.field.insurance'), qty: 1, unit: parseFloat(inv.insurance), total: parseFloat(inv.insurance) }] : []),
-      ...(parseFloat(inv.fuel || 0) > 0 ? [{ desc: JOSKA_I18N.t('inv.field.fuel'), qty: 1, unit: parseFloat(inv.fuel), total: parseFloat(inv.fuel) }] : []),
-      ...(parseFloat(inv.extraDriver || 0) > 0 ? [{ desc: JOSKA_I18N.t('inv.field.extraDriver'), qty: 1, unit: parseFloat(inv.extraDriver), total: parseFloat(inv.extraDriver) }] : []),
-      ...(parseFloat(inv.other || 0) > 0 ? [{ desc: JOSKA_I18N.t('inv.field.other'), qty: 1, unit: parseFloat(inv.other), total: parseFloat(inv.other) }] : []),
+      { desc: t2('inv.field.rentalSubtotal'), qty: daysN, unit: dp, total: rental },
+      ...(parseFloat(inv.insurance || 0) > 0 ? [{ desc: t2('inv.field.insurance'), qty: 1, unit: parseFloat(inv.insurance), total: parseFloat(inv.insurance) }] : []),
+      ...(parseFloat(inv.fuel || 0) > 0 ? [{ desc: t2('inv.field.fuel'), qty: 1, unit: parseFloat(inv.fuel), total: parseFloat(inv.fuel) }] : []),
+      ...(parseFloat(inv.extraDriver || 0) > 0 ? [{ desc: t2('inv.field.extraDriver'), qty: 1, unit: parseFloat(inv.extraDriver), total: parseFloat(inv.extraDriver) }] : []),
+      ...(parseFloat(inv.other || 0) > 0 ? [{ desc: t2('inv.field.other'), qty: 1, unit: parseFloat(inv.other), total: parseFloat(inv.other) }] : []),
     ];
     items.forEach((row) => {
       doc.setDrawColor(241, 245, 249);
@@ -1034,12 +1007,12 @@ const JOSKA_INVOICES = (() => {
     });
     y += 4;
 
-    doc.setFillColor(15, 23, 42);
+    fillAccent();
     doc.roundedRect(W - M - 55, y, 55, 14, 2, 2, 'F');
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(7);
-    doc.setTextColor(148, 163, 184);
-    doc.text('TOTAL', W - M - 51, y + 5);
+    doc.setTextColor(180, 210, 255);
+    doc.text(t2('pdf.grandTotal'), W - M - 51, y + 5);
     doc.setFontSize(10);
     doc.setTextColor(255, 255, 255);
     doc.text(fmt(parseFloat(inv.total || 0)), W - M - 4, y + 10.5, { align: 'right' });
@@ -1052,14 +1025,14 @@ const JOSKA_INVOICES = (() => {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(7);
     doc.setTextColor(255, 255, 255);
-    doc.text(JOSKA_I18N.t(`dash.${s}`).toUpperCase(), M + 16, y + 7, { align: 'center' });
+    doc.text(t2(`dash.${s}`).toUpperCase(), M + 16, y + 7, { align: 'center' });
     y += 22;
 
     if (inv.notes) {
       doc.setFont('helvetica', 'italic');
       doc.setFontSize(7.5);
       doc.setTextColor(148, 163, 184);
-      doc.text(`Notes: ${inv.notes}`, M + 4, y);
+      doc.text(`${t2('pdf.notes')}: ${inv.notes}`, M + 4, y);
       y += 6;
     }
 
@@ -1072,18 +1045,22 @@ const JOSKA_INVOICES = (() => {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(6.5);
     doc.setTextColor(148, 163, 184);
-    doc.text('JOSKA — Invoice & Revenue Management', W / 2 + 2, 283, { align: 'center' });
+    doc.text(t2('pdf.generatedBy'), W / 2 + 2, 283, { align: 'center' });
   }
 
   function buildPDFPageCompact(doc, inv) {
-    const t3 = JOSKA_I18N.t;
+    const t3 = tl;
     const currency = t3('common.currency');
     const W = 210, M = 14;
     let y = 0;
     const lang = getPDFLang();
     const fmt = (amt) => formatCurrency(amt, currency, lang);
+    const accent = getAccentColor();
 
-    doc.setFillColor(30, 41, 59);
+    const fillAccent = () => doc.setFillColor(accent.r, accent.g, accent.b);
+    const setAccent = () => doc.setTextColor(accent.r, accent.g, accent.b);
+
+    fillAccent();
     doc.rect(0, 0, W, 20, 'F');
     let nameX3 = M;
     if (companySettings.logoBase64) {
@@ -1104,12 +1081,12 @@ const JOSKA_INVOICES = (() => {
     doc.setFontSize(7);
     doc.setTextColor(100, 116, 139);
     const info = [`${inv.clientName || '—'}  |  ${inv.cin || '—'}`];
-    if (inv.phone) info.push(`Tel: ${inv.phone}`);
+    if (inv.phone) info.push(`${t3('pdf.tel')}: ${inv.phone}`);
     info.forEach(line => { doc.text(line, M, y); y += 4; });
     doc.text(`${inv.vehicleBrand || ''} ${inv.vehicleModel || ''}`.trim() || '—', W - M, y - 4, { align: 'right' });
-    if (inv.plate) doc.text(`Plate: ${inv.plate}`, W - M, y, { align: 'right' });
+    if (inv.plate) doc.text(`${t3('pdf.plate')}: ${inv.plate}`, W - M, y, { align: 'right' });
     y += 4;
-    doc.text(`${inv.startDate || '—'} → ${inv.endDate || '—'}  (${inv.days ?? calcDays(inv.startDate, inv.endDate)} ${JOSKA_I18N.t('inv.days')})`, M, y);
+    doc.text(`${inv.startDate || '—'} → ${inv.endDate || '—'}  (${inv.days ?? calcDays(inv.startDate, inv.endDate)} ${t3('inv.days')})`, M, y);
     y += 8;
 
     doc.setDrawColor(203, 213, 225);
@@ -1129,14 +1106,14 @@ const JOSKA_INVOICES = (() => {
       });
     };
 
-    drawRow([JOSKA_I18N.t('inv.field.rentalSubtotal'), `${inv.days ?? calcDays(inv.startDate, inv.endDate)} ${JOSKA_I18N.t('inv.days')}`, fmt(parseFloat(inv.dailyPrice || 0)), fmt((inv.days ?? calcDays(inv.startDate, inv.endDate)) * parseFloat(inv.dailyPrice || 0))], false, [71, 85, 105], 6.5);
+    drawRow([t3('inv.field.rentalSubtotal'), `${inv.days ?? calcDays(inv.startDate, inv.endDate)} ${t3('inv.days')}`, fmt(parseFloat(inv.dailyPrice || 0)), fmt((inv.days ?? calcDays(inv.startDate, inv.endDate)) * parseFloat(inv.dailyPrice || 0))], false, [71, 85, 105], 6.5);
     y += 5;
 
     const extras = [
-      [JOSKA_I18N.t('inv.field.insurance'), parseFloat(inv.insurance || 0)],
-      [JOSKA_I18N.t('inv.field.fuel'), parseFloat(inv.fuel || 0)],
-      [JOSKA_I18N.t('inv.field.extraDriver'), parseFloat(inv.extraDriver || 0)],
-      [JOSKA_I18N.t('inv.field.other'), parseFloat(inv.other || 0)],
+      [t3('inv.field.insurance'), parseFloat(inv.insurance || 0)],
+      [t3('inv.field.fuel'), parseFloat(inv.fuel || 0)],
+      [t3('inv.field.extraDriver'), parseFloat(inv.extraDriver || 0)],
+      [t3('inv.field.other'), parseFloat(inv.other || 0)],
     ];
     extras.forEach(([label, val]) => {
       if (val > 0) {
@@ -1150,7 +1127,7 @@ const JOSKA_INVOICES = (() => {
     doc.line(M, y, W - M, y);
     y += 3;
 
-    drawRow(['', '', 'Total', fmt(parseFloat(inv.total || 0))], true, [15, 23, 42], 8);
+    drawRow(['', '', t3('pdf.grandTotal'), fmt(parseFloat(inv.total || 0))], true, [15, 23, 42], 8);
     y += 7;
 
     const s = inv.status || 'draft';
@@ -1161,7 +1138,7 @@ const JOSKA_INVOICES = (() => {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(6);
     doc.setTextColor(255, 255, 255);
-    doc.text(JOSKA_I18N.t(`dash.${s}`).toUpperCase(), M + 11, y - 1.5, { align: 'center' });
+    doc.text(t3(`dash.${s}`).toUpperCase(), M + 11, y - 1.5, { align: 'center' });
     y += 6;
     if (inv.notes) {
       doc.setFont('helvetica', 'italic');
@@ -1177,7 +1154,7 @@ const JOSKA_INVOICES = (() => {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(6);
     doc.setTextColor(203, 213, 225);
-    doc.text('JOSKA', W / 2, 288, { align: 'center' });
+    doc.text(t3('pdf.generatedBy'), W / 2, 288, { align: 'center' });
   }
 
   // ── Theme toggle ──────────────────────────────────────────

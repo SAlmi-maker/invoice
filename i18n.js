@@ -175,7 +175,7 @@ const JOSKA_I18N = (() => {
       'pdf.billTo':        'Customer Information',
       'pdf.rentalPeriod':  'RENTAL PERIOD',
       'pdf.description':   'DESCRIPTION',
-      'pdf.qty':           'Number of days',
+      'pdf.qty':           'Days',
       'pdf.unitPrice':     'Rate per day',
       'pdf.amount':        'AMOUNT',
       'pdf.subtotal':      'Subtotal',
