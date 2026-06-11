@@ -311,8 +311,7 @@ const JOSKA_I18N = (() => {
 
       'pdf.invoice':       'FACTURE',
       'pdf.from':          'DE',
-      'pdf.billTo':        'Customer Information',
-      'pdf.rentalPeriod':  'PÉRIODE DE LOCATION',
+      'pdf.billTo':        'Informations Client',
       'pdf.description':   'DESCRIPTION',
       'pdf.qty':           'Jours',
       'pdf.unitPrice':     'Tarif par jour',
@@ -488,8 +487,7 @@ const JOSKA_I18N = (() => {
 
       'pdf.invoice':       'فاتورة',
       'pdf.from':          'من',
-      'pdf.billTo':        'Customer Information',
-      'pdf.rentalPeriod':  'فترة الإيجار',
+      'pdf.billTo':        'معلومات العميل',
       'pdf.description':   'الوصف',
       'pdf.qty':           'عدد الأيام',
       'pdf.unitPrice':     'السعر اليومي',

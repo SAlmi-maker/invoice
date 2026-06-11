@@ -628,7 +628,7 @@ const JOSKA_INVOICES = (() => {
     s('preview_issueDate', inv.startDate || '—');
     s('preview_dueLabel', t('pdf.due'));
     s('preview_dueDate', inv.endDate || '—');
-    s('preview_billToLabel', 'Customer Information');
+    s('preview_billToLabel', t('pdf.billTo'));
     s('preview_clientName', inv.clientName || '—');
     s('preview_clientCIN', inv.cin ? `${t('pdf.cin')}: ${inv.cin}` : '');
     s('preview_clientPhone', inv.phone ? `${t('pdf.tel')}: ${inv.phone}` : '');
