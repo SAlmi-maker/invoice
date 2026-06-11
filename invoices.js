@@ -636,19 +636,20 @@ const JOSKA_INVOICES = (() => {
     s('preview_clientPlate', inv.plate ? `${t('pdf.plate')}: ${inv.plate}` : '');
     s('preview_descLabel', t('pdf.description'));
     s('preview_qtyLabel', t('pdf.qty'));
-    s('preview_unitLabel', t('pdf.unitPrice'));
+    s('preview_unitLabel', t('pdf.ratePerDay'));
     s('preview_amtLabel', t('pdf.amount'));
 
     const tbody = document.getElementById('preview_itemsBody');
     if (tbody) {
       tbody.innerHTML = '';
-      const addRow = (desc, qty, unit, amt) => {
+      const dash = '—';
+      const addRow = (desc, daysVal, unit, amt) => {
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${escHtml(desc)}</td><td>${qty}</td><td>${fmt(unit)}</td><td>${fmt(amt)}</td>`;
+        tr.innerHTML = `<td>${escHtml(desc)}</td><td>${daysVal}</td><td>${fmt(unit)}</td><td>${fmt(amt)}</td>`;
         tbody.appendChild(tr);
       };
       addRow(`${t('inv.field.rentalSubtotal')} (${inv.vehicleBrand || ''} ${inv.vehicleModel || ''})`, days, dp, rental);
-      extras.forEach(e => addRow(e.label, 1, e.val, e.val));
+      extras.forEach(e => addRow(e.label, dash, e.val, e.val));
     }
 
     s('preview_grandLabel', t('pdf.grandTotal'));
@@ -802,7 +803,7 @@ const JOSKA_INVOICES = (() => {
     doc.setTextColor(255, 255, 255);
     doc.text(t('pdf.description'), colX[0] + 4, y + 5.5);
     doc.text(t('pdf.qty'), colX[1] + 2, y + 5.5);
-    doc.text(t('pdf.unitPrice'), colX[2] + 2, y + 5.5);
+    doc.text(t('pdf.ratePerDay'), colX[2] + 2, y + 5.5);
     doc.text(t('pdf.amount'), colX[3] + 8, y + 5.5);
     y += 8;
 
@@ -980,7 +981,7 @@ const JOSKA_INVOICES = (() => {
     doc.setTextColor(100, 116, 139);
     doc.text(t2('pdf.description'), M + 8, y + 4.5);
     doc.text(t2('pdf.qty'), M + descW + 4, y + 4.5);
-    doc.text(t2('pdf.unitPrice'), M + descW + amtW / 2, y + 4.5, { align: 'center' });
+    doc.text(t2('pdf.ratePerDay'), M + descW + amtW / 2, y + 4.5, { align: 'center' });
     doc.text(t2('pdf.amount'), W - M - 6, y + 4.5, { align: 'right' });
     y += 7;
 
