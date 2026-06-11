@@ -451,18 +451,12 @@
 
 /* Modal side-by-side layout */
 #invoiceModal.open {
+  display: grid;
+  grid-template-columns: minmax(0, 600px) 420px;
   gap: 20px;
-  align-items: stretch;
   padding: 20px;
-}
-#invoiceModal.open .modal-panel {
-  max-width: 600px;
-  flex: 1;
-}
-#invoiceModal.open .inv-preview-wrap {
-  flex: 0 0 420px;
-  min-height: 0;
-  height: auto;
+  justify-content: center;
+  align-content: center;
 }
 
 /* default: modal panel only (no preview on small screens) */
@@ -470,12 +464,13 @@
 
 /* ── Responsive ─────────────────────────────────────────── */
 @media (max-width: 1100px) {
+  #invoiceModal.open { grid-template-columns: minmax(0, 1fr) 340px; }
   .inv-preview-wrap { width: 340px; }
   .inv-preview-body .ip-invoice { transform: scale(0.39); margin-bottom: calc((1123px * 0.39 - 1123px)); }
   .ip-invoice { min-height: unset; padding: 22px 18px; }
 }
 @media (max-width: 900px) {
-  #invoiceModal.open { flex-direction: column; align-items: center; }
+  #invoiceModal.open { display: flex; flex-direction: column; align-items: center; }
   .inv-preview-wrap { width: 100%; max-width: 500px; max-height: 60vh; }
   .inv-preview-body .ip-invoice { transform: scale(0.57); margin-bottom: calc((1123px * 0.57 - 1123px)); }
   .ip-invoice { min-height: unset; }
