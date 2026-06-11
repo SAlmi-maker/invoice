@@ -51,13 +51,8 @@ const JOSKA_INVOICES = (() => {
     const viewId = params.get('view');
     if (viewId) pendingViewId = viewId;
 
-    const clientName = params.get('clientName');
-    if (clientName) {
-      openNew();
-      document.getElementById('inv_clientName').value = clientName;
-      if (params.get('cin'))   document.getElementById('inv_cin').value   = params.get('cin');
-      if (params.get('phone')) document.getElementById('inv_phone').value = params.get('phone');
-      renderHTMLPreview();
+    if (params.get('clientName')) {
+      openNewWithClient(params.get('clientName'), params.get('cin'), params.get('phone'));
     }
   }
 
@@ -265,6 +260,23 @@ const JOSKA_INVOICES = (() => {
     editingId = null;
     resetForm();
     setTodayAsDefault();
+    recalculate();
+    document.getElementById('modalTitle').setAttribute('data-i18n', 'inv.newInvoice');
+    document.getElementById('modalTitle').textContent = JOSKA_I18N.t('inv.newInvoice');
+    document.getElementById('invoiceModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    document.getElementById('invPreviewWrap')?.classList.add('open');
+    setTimeout(() => { document.getElementById('inv_clientName')?.focus(); renderHTMLPreview(); }, 100);
+  }
+
+  function openNewWithClient(clientName, cin, phone) {
+    editingId = null;
+    resetForm();
+    setTodayAsDefault();
+    const set = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
+    set('inv_clientName', clientName);
+    set('inv_cin', cin);
+    set('inv_phone', phone);
     recalculate();
     document.getElementById('modalTitle').setAttribute('data-i18n', 'inv.newInvoice');
     document.getElementById('modalTitle').textContent = JOSKA_I18N.t('inv.newInvoice');
