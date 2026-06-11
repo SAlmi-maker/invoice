@@ -483,23 +483,13 @@ const JOSKA_INVOICES = (() => {
     const rental = days * data.dailyPrice;
     const total  = rental + data.insurance + data.fuel + data.extraDriver + data.other;
 
-    // Print NOW — must be synchronous within the click handler (user gesture)
     const invNumber = editingId
       ? (allInvoices.find(i => i.id === editingId)?.invoiceNumber || editingId.slice(-6).toUpperCase())
       : `INV-${new Date().getFullYear()}${String(new Date().getMonth()+1).padStart(2,'0')}-${String(allInvoices.length+1).padStart(4,'0')}`;
     const tempInv = { id: editingId || 'new', invoiceNumber: invNumber, days, rentalSubtotal: rental, total, ...data };
-
-    // Populate preview and open print dialog
-    const pdfBtn = document.getElementById('modalPDF');
-    populatePreview(tempInv);
-    const wrap = document.getElementById('invPreviewWrap');
-    if (wrap) wrap.classList.add('open');
-    const emptyEl = document.getElementById('invPreviewEmpty');
-    if (emptyEl) emptyEl.classList.add('hidden');
-    window.print();
+    printInvoice(tempInv);
 
     // Save to Firestore (async — happens after print dialog closes)
-    setLoading(pdfBtn, true);
     try {
       const col = db.collection('users').doc(currentUser.uid).collection('invoices');
       let docId;
@@ -515,8 +505,6 @@ const JOSKA_INVOICES = (() => {
     } catch (err) {
       console.error(err);
       showToast('error', JOSKA_I18N.t('settings.error'));
-    } finally {
-      setLoading(pdfBtn, false);
     }
   }
 
@@ -648,7 +636,6 @@ const JOSKA_INVOICES = (() => {
     s('preview_grandLabel', t('pdf.grandTotal'));
     s('preview_grandTotal', fmt(total));
 
-    // Status label
     const statusLabel = document.getElementById('preview_statusLabel');
     if (statusLabel) statusLabel.textContent = t('pdf.status');
 
