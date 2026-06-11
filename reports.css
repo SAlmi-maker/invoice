@@ -387,3 +387,10 @@
   .top-clients-header   { padding: 14px 16px; }
   .top-client-row       { padding: 10px 16px; }
 }
+
+@media (hover: none) and (pointer: coarse) {
+  .chart-card:hover { box-shadow: var(--shadow-sm); }
+  .monthly-table-card:hover { box-shadow: var(--shadow-sm); }
+  .monthly-table tbody tr:hover { background: transparent; }
+  .top-client-row:hover { background: transparent; }
+}

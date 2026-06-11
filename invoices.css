@@ -484,11 +484,26 @@
   .extras-grid { grid-template-columns: 1fr; }
   .modal-footer { flex-direction: column-reverse; }
   .modal-footer-left { width: 100%; justify-content: flex-end; }
+  .inv-action-btn { width: 40px; height: 40px; }
+  .inv-action-btn svg { width: 16px; height: 16px; }
+  .modal-close { width: 40px; height: 40px; }
 }
 
 @media (max-width: 480px) {
   .modal-panel { border-radius: var(--radius-xl); }
+  .modal-backdrop { padding: 10px; }
   .inv-total-value { font-size: 1.25rem; }
+  .modal-header { padding: 16px 18px 14px; }
+  .modal-body { padding: 18px; }
+  .modal-footer { padding: 14px 18px; }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .inv-tab:hover:not(.active) { background: transparent; }
+  .inv-action-btn:hover { border-color: var(--border-color); color: var(--text-secondary); background: transparent; }
+  .inv-action-btn.danger:hover { border-color: var(--border-color); color: var(--text-secondary); background: transparent; }
+  .modal-close:hover { background: var(--bg-subtle); color: var(--text-secondary); border-color: var(--border-color); }
+  .inv-preview-close:hover { color: var(--text-secondary); }
 }
 
 /* ══════════════════════════════════════════════════════════

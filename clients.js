@@ -5,6 +5,9 @@ const JOSKA_CLIENTS = (() => {
   let unsubscribe = null;
   let searchQuery = '';
 
+  function lockScroll() { const y=window.scrollY; document.body.dataset.sy=y; document.documentElement.style.overflow='hidden'; document.body.style.position='fixed'; document.body.style.top=`-${y}px`; document.body.style.left='0'; document.body.style.right='0'; }
+  function unlockScroll() { const y=parseInt(document.body.dataset.sy||'0'); document.documentElement.style.overflow=''; document.body.style.position=''; document.body.style.top=''; document.body.style.left=''; document.body.style.right=''; window.scrollTo(0,y); delete document.body.dataset.sy; }
+
   const $ = id => document.getElementById(id);
   const toast = $('clientToast');
   const tbody = $('clientTableBody');
@@ -94,12 +97,12 @@ const JOSKA_CLIENTS = (() => {
     $('client_notes').value = client ? client.notes : '';
     $('clientModalTitle').textContent = client ? JOSKA_I18N.t('clients.editClient') : JOSKA_I18N.t('clients.newClient');
     modal.classList.add('open');
-    document.body.style.overflow = 'hidden';
+    lockScroll();
   }
 
   function closeModal() {
     $('clientModal').classList.remove('open');
-    document.body.style.overflow = '';
+    unlockScroll();
     $('clientForm').reset();
     $('client_id').value = '';
   }
@@ -167,7 +170,7 @@ const JOSKA_CLIENTS = (() => {
 
   function closeDeleteModal() {
     $('deleteModal').classList.remove('open');
-    document.body.style.overflow = '';
+    unlockScroll();
     deleteTargetId = null;
   }
 
@@ -227,7 +230,7 @@ const JOSKA_CLIENTS = (() => {
       el.addEventListener('click', e => {
         if (e.target === el) {
           el.classList.remove('open');
-          document.body.style.overflow = '';
+          unlockScroll();
         }
       });
     });
@@ -238,7 +241,7 @@ const JOSKA_CLIENTS = (() => {
     if (client) openModal(client);
   }
 
-  return { init, openEdit, openDelete: id => { deleteTargetId = id; $('deleteModal').classList.add('open'); document.body.style.overflow = 'hidden'; } };
+  return { init, openEdit, openDelete: id => { deleteTargetId = id; $('deleteModal').classList.add('open'); lockScroll(); } };
 })();
 
 document.addEventListener('DOMContentLoaded', () => {

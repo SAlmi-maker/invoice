@@ -143,8 +143,9 @@ body.rtl {
 
 img { max-width: 100%; display: block; }
 a   { color: var(--primary); text-decoration: none; }
-button { cursor: pointer; font-family: inherit; }
-input, textarea, select { font-family: inherit; }
+button { cursor: pointer; font-family: inherit; touch-action: manipulation; }
+a { touch-action: manipulation; }
+input, textarea, select { font-family: inherit; touch-action: manipulation; }
 ul, ol { list-style: none; }
 
 /* ── Typography ─────────────────────────────────────────── */
@@ -443,4 +444,25 @@ p  { color: var(--text-secondary); }
   .lang-switcher { gap: 2px; }
   .lang-btn { padding: 3px 8px; font-size: 0.72rem; }
   .toast { bottom: 16px; inset-inline-end: 16px; max-width: calc(100vw - 32px); }
+  .topbar-actions { gap: 6px; }
+}
+
+@media (max-width: 480px) {
+  .hide-xs { display: none; }
+  .topbar-actions .btn-sm span { display: none; }
+  .topbar-actions .btn-sm { padding: 7px 10px; }
+  .year-selector label { display: none; }
+  .monthly-table-wrap { overflow-x: auto; }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .btn-icon:hover, .btn-icon:active { background: transparent; color: var(--text-tertiary); }
+  .nav-item:hover { background: transparent; color: var(--sidebar-text); }
+  .nav-item:hover svg { opacity: 0.7; }
+  .glass-card:hover { transform: none; box-shadow: var(--shadow-md); }
+  .section-card:hover { box-shadow: none; }
+  .btn:hover::after { background: transparent; }
+  .btn-primary:hover { background: var(--primary); }
+  .btn-secondary:hover { background: var(--bg-subtle); }
+  .btn-ghost:hover { background: transparent; }
 }

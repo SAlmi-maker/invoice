@@ -549,9 +549,10 @@ tbody td {
   z-index: 199;
   backdrop-filter: blur(2px);
   opacity: 0;
+  pointer-events: none;
   transition: opacity var(--t-base);
 }
-.sidebar-overlay.show { opacity: 1; }
+.sidebar-overlay.show { opacity: 1; pointer-events: all; }
 
 /* ── Settings Page ───────────────────────────────────────── */
 .settings-layout {
@@ -708,7 +709,8 @@ tbody td {
     transform: translateX(0);
     box-shadow: var(--shadow-xl);
   }
-  .sidebar-overlay { display: block; }
+  .sidebar-overlay { display: block; pointer-events: none; }
+  .sidebar-overlay.show { pointer-events: all; }
 
   .main-content  { margin-inline-start: 0; }
   .topbar-hamburger { display: flex; }
@@ -724,6 +726,12 @@ tbody td {
 
   thead th:nth-child(2),
   tbody td:nth-child(2) { display: none; }
+
+  .btn-icon { width: 40px; height: 40px; }
+  .btn-icon svg { width: 18px; height: 18px; }
+  .theme-toggle-btn { width: 40px; height: 40px; }
+  .inv-action-btn { width: 40px; height: 40px; }
+  .modal-close { width: 40px; height: 40px; }
 }
 
 @media (max-width: 480px) {
@@ -732,6 +740,6 @@ tbody td {
   .stat-value { font-size: 1.15rem; }
   .stat-icon  { width: 34px; height: 34px; }
   .stat-icon svg { width: 17px; height: 17px; }
-  .topbar { padding: 0 14px; }
-  .topbar-title { font-size: 0.95rem; }
+  .topbar { padding: 0 10px; gap: 8px; }
+  .topbar-title { font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 }

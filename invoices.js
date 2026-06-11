@@ -22,6 +22,10 @@ const JOSKA_INVOICES = (() => {
   let invoiceLanguage  = '';
   let pendingViewId    = null;
 
+  // ── Helpers ────────────────────────────────────────────────
+  function lockScroll() { const y=window.scrollY; document.body.dataset.sy=y; document.documentElement.style.overflow='hidden'; document.body.style.position='fixed'; document.body.style.top=`-${y}px`; document.body.style.left='0'; document.body.style.right='0'; }
+  function unlockScroll() { const y=parseInt(document.body.dataset.sy||'0'); document.documentElement.style.overflow=''; document.body.style.position=''; document.body.style.top=''; document.body.style.left=''; document.body.style.right=''; window.scrollTo(0,y); delete document.body.dataset.sy; }
+
   // ── Init ─────────────────────────────────────────────────
   async function init(user) {
     if (!user) return;
@@ -264,7 +268,7 @@ const JOSKA_INVOICES = (() => {
     document.getElementById('modalTitle').setAttribute('data-i18n', 'inv.newInvoice');
     document.getElementById('modalTitle').textContent = JOSKA_I18N.t('inv.newInvoice');
     document.getElementById('invoiceModal').classList.add('open');
-    document.body.style.overflow = 'hidden';
+    lockScroll();
     document.getElementById('invPreviewWrap')?.classList.add('open');
     setTimeout(() => { document.getElementById('inv_clientName')?.focus(); renderHTMLPreview(); }, 100);
   }
@@ -281,7 +285,7 @@ const JOSKA_INVOICES = (() => {
     document.getElementById('modalTitle').setAttribute('data-i18n', 'inv.newInvoice');
     document.getElementById('modalTitle').textContent = JOSKA_I18N.t('inv.newInvoice');
     document.getElementById('invoiceModal').classList.add('open');
-    document.body.style.overflow = 'hidden';
+    lockScroll();
     document.getElementById('invPreviewWrap')?.classList.add('open');
     setTimeout(() => { document.getElementById('inv_clientName')?.focus(); renderHTMLPreview(); }, 100);
   }
@@ -294,7 +298,7 @@ const JOSKA_INVOICES = (() => {
     recalculate();
     document.getElementById('modalTitle').textContent = `${JOSKA_I18N.t('common.edit')} #${inv.invoiceNumber || id.slice(-6).toUpperCase()}`;
     document.getElementById('invoiceModal').classList.add('open');
-    document.body.style.overflow = 'hidden';
+    lockScroll();
     document.getElementById('invPreviewWrap')?.classList.add('open');
     setTimeout(() => renderHTMLPreview(), 100);
   }
@@ -310,7 +314,7 @@ const JOSKA_INVOICES = (() => {
       if (panel) panel.style.display = 'none';
     }
     document.getElementById('invPreviewWrap')?.classList.add('open');
-    document.body.style.overflow = 'hidden';
+    lockScroll();
   }
 
   function closeModal() {
@@ -318,7 +322,7 @@ const JOSKA_INVOICES = (() => {
     const modalPanel = document.querySelector('#invoiceModal .modal-panel');
     if (modalPanel) modalPanel.style.display = '';
     document.getElementById('invPreviewWrap')?.classList.remove('open');
-    document.body.style.overflow = '';
+    unlockScroll();
     editingId = null;
   }
 
@@ -326,12 +330,12 @@ const JOSKA_INVOICES = (() => {
   function openDelete(id) {
     deleteTargetId = id;
     document.getElementById('deleteModal').classList.add('open');
-    document.body.style.overflow = 'hidden';
+    lockScroll();
   }
 
   function closeDeleteModal() {
     document.getElementById('deleteModal').classList.remove('open');
-    document.body.style.overflow = '';
+    unlockScroll();
     deleteTargetId = null;
   }
 
@@ -603,7 +607,7 @@ const JOSKA_INVOICES = (() => {
     const wrap = document.getElementById('invPreviewWrap');
     if (wrap) wrap.classList.add('open');
     if (modal) modal.classList.add('open');
-    document.body.style.overflow = 'hidden';
+    lockScroll();
     const emptyEl = document.getElementById('invPreviewEmpty');
     if (emptyEl) emptyEl.classList.add('hidden');
 
@@ -627,7 +631,7 @@ const JOSKA_INVOICES = (() => {
     if (!wasOpen) {
       if (wrap) wrap.classList.remove('open');
       if (modal) modal.classList.remove('open');
-      document.body.style.overflow = '';
+      unlockScroll();
     }
   }
 

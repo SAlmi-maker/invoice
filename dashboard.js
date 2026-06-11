@@ -259,19 +259,22 @@ const JOSKA_DASHBOARD = (() => {
     });
   }
 
+  function lockScroll() { const y=window.scrollY; document.body.dataset.sy=y; document.documentElement.style.overflow='hidden'; document.body.style.position='fixed'; document.body.style.top=`-${y}px`; document.body.style.left='0'; document.body.style.right='0'; }
+  function unlockScroll() { const y=parseInt(document.body.dataset.sy||'0'); document.documentElement.style.overflow=''; document.body.style.position=''; document.body.style.top=''; document.body.style.left=''; document.body.style.right=''; window.scrollTo(0,y); delete document.body.dataset.sy; }
+
   function viewInvoice(id) {
     const inv = allInvoices.find(i => i.id === id);
     if (!inv) return;
     populateDashboardPreview(inv);
     document.getElementById('dashPreviewBackdrop')?.classList.add('open');
     document.getElementById('invPreviewWrap')?.classList.add('open');
-    document.body.style.overflow = 'hidden';
+    lockScroll();
   }
 
   function closePreview() {
     document.getElementById('dashPreviewBackdrop')?.classList.remove('open');
     document.getElementById('invPreviewWrap')?.classList.remove('open');
-    document.body.style.overflow = '';
+    unlockScroll();
   }
 
   function wirePreviewClose() {
