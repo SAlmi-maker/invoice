@@ -461,12 +461,12 @@
 }
 #invoiceModal.open .inv-preview-wrap {
   flex: 0 0 420px;
+  min-height: 0;
+  height: auto;
 }
 
-/* ── Modal side-by-side layout ─────────────────────────── */
 /* default: modal panel only (no preview on small screens) */
 #invoiceModal { gap: 0; justify-content: center; }
-#invoiceModal.open .modal-panel { align-self: center; }
 
 /* ── Responsive ─────────────────────────────────────────── */
 @media (max-width: 1100px) {
