@@ -20,6 +20,7 @@ const JOSKA_INVOICES = (() => {
   let invoiceColorMode = 'bw';
   let invoiceColor     = '#2563EB';
   let invoiceLanguage  = '';
+  let pendingViewId    = null;
 
   // ── Init ─────────────────────────────────────────────────
   async function init(user) {
@@ -44,6 +45,10 @@ const JOSKA_INVOICES = (() => {
     initThemeToggle();
     initSidebar();
     setTodayAsDefault();
+
+    const params = new URLSearchParams(window.location.search);
+    const viewId = params.get('view');
+    if (viewId) pendingViewId = viewId;
   }
 
   // ── User info in sidebar ──────────────────────────────────
@@ -73,6 +78,11 @@ const JOSKA_INVOICES = (() => {
 
         const badge = document.getElementById('navInvoiceCount');
         if (badge) badge.textContent = allInvoices.length;
+
+        if (pendingViewId) {
+          openPreview(pendingViewId);
+          pendingViewId = null;
+        }
       }, err => {
         console.error('Invoice subscription error:', err);
         showLoading(false);
@@ -265,6 +275,14 @@ const JOSKA_INVOICES = (() => {
     document.body.style.overflow = 'hidden';
     document.getElementById('invPreviewWrap')?.classList.add('open');
     setTimeout(() => renderHTMLPreview(), 100);
+  }
+
+  function openPreview(id) {
+    const inv = allInvoices.find(i => i.id === id);
+    if (!inv) return;
+    populatePreview(inv);
+    document.getElementById('invPreviewWrap')?.classList.add('open');
+    document.body.style.overflow = 'hidden';
   }
 
   function closeModal() {
@@ -1279,7 +1297,7 @@ const JOSKA_INVOICES = (() => {
     return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
-  return { init, openEdit, openDelete, exportSingle };
+  return { init, openEdit, openPreview, openDelete, exportSingle };
 })();
 
 

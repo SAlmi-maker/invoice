@@ -256,8 +256,7 @@ const JOSKA_DASHBOARD = (() => {
   }
 
   function viewInvoice(id) {
-    // Placeholder: will navigate to invoice detail page
-    console.log('View invoice:', id);
+    window.location.href = `invoices.html?view=${id}`;
   }
 
   // ── Theme Toggle ─────────────────────────────────────────
