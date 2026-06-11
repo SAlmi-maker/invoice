@@ -542,7 +542,7 @@
   object-fit: contain;
   border-radius: 6px;
 }
-.ip-invoice-company { text-align: right; }
+.ip-invoice-company { text-align: left; }
 .ip-invoice-company h2 {
   font-family: var(--ip-font-heading);
   font-size: 14pt;
@@ -613,11 +613,53 @@
   margin: 0;
 }
 
-/* ── Pricing table ── */
+/* ── Description table ── */
 .ip-invoice-table {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 0;
+}
+
+/* ── Summary table (grand total + status) — separated from description ── */
+.ip-summary-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 24px;
+}
+.ip-summary-table td {
+  padding: 7px 10px;
+  font-size: 8pt;
+  color: var(--ip-text);
+}
+.ip-summary-grand td {
+  border-top: 2px solid var(--ip-primary);
+  font-weight: 700;
+}
+.ip-summary-grand td:nth-child(3) {
+  font-size: 7pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ip-text-secondary);
+}
+.ip-summary-grand td:last-child {
+  font-size: 11pt;
+  font-weight: 800;
+  color: var(--ip-primary);
+  text-align: right;
+}
+.ip-summary-status td {
+  border-top: 1px solid var(--ip-border);
+}
+.ip-summary-status td:nth-child(3) {
+  font-size: 7pt;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ip-text-secondary);
+}
+.ip-summary-status td:last-child {
+  text-align: right;
 }
 .ip-invoice-table thead th {
   background: var(--ip-primary);
@@ -644,52 +686,7 @@
   background: var(--ip-bg);
 }
 
-/* ── Subtotal rows — removed (no longer shown in invoice) ── */
-
-/* ── Summary table (grand total + status) ── */
-.ip-summary-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 0;
-}
-.ip-summary-table td {
-  padding: 7px 10px;
-  font-size: 8pt;
-  color: var(--ip-text);
-}
-.ip-summary-grand td {
-  border-top: 2px solid var(--ip-primary);
-  font-weight: 700;
-  font-size: 9pt;
-  color: var(--ip-text);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-.ip-summary-grand td:last-child {
-  font-size: 11pt;
-  font-weight: 800;
-  color: var(--ip-primary);
-  text-align: right;
-}
-.ip-summary-grand td:nth-child(3) {
-  color: var(--ip-text-secondary);
-  font-size: 7pt;
-}
-.ip-summary-status td {
-  border-top: 1px solid var(--ip-border);
-  padding-top: 6px;
-  padding-bottom: 6px;
-}
-.ip-summary-status td:nth-child(3) {
-  font-size: 7pt;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--ip-text-secondary);
-}
-.ip-summary-status td:last-child {
-  text-align: right;
-}
+/* ── Subtotal rows — removed ── */
 
 .ip-status-badge {
   display: inline-block;
