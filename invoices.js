@@ -818,6 +818,7 @@ const JOSKA_INVOICES = (() => {
     ];
     const activeExtras = extras.filter(e => e.val > 0);
 
+    const dash2 = '—';
     const drawRow = (desc, qty, unit, total, idx) => {
       if (idx % 2 === 0) {
         doc.setFillColor(248, 250, 252);
@@ -837,7 +838,7 @@ const JOSKA_INVOICES = (() => {
 
     drawRow(`${t('inv.field.rentalSubtotal')} (${inv.vehicleBrand || ''} ${inv.vehicleModel || ''})`, daysN, dailyPrice, rental, 0);
     activeExtras.forEach((e, i) => {
-      drawRow(e.label, 1, e.val, e.val, i + 1);
+      drawRow(e.label, dash2, e.val, e.val, i + 1);
     });
 
     y += 4;
@@ -986,14 +987,15 @@ const JOSKA_INVOICES = (() => {
     doc.text(t2('pdf.amount'), W - M - 6, y + 4.5, { align: 'right' });
     y += 7;
 
+    const dash3 = '—';
     const dp = parseFloat(inv.dailyPrice || 0);
     const rental = daysN * dp;
     const items = [
       { desc: t2('inv.field.rentalSubtotal'), qty: daysN, unit: dp, total: rental },
-      ...(parseFloat(inv.insurance || 0) > 0 ? [{ desc: t2('inv.field.insurance'), qty: 1, unit: parseFloat(inv.insurance), total: parseFloat(inv.insurance) }] : []),
-      ...(parseFloat(inv.fuel || 0) > 0 ? [{ desc: t2('inv.field.fuel'), qty: 1, unit: parseFloat(inv.fuel), total: parseFloat(inv.fuel) }] : []),
-      ...(parseFloat(inv.extraDriver || 0) > 0 ? [{ desc: t2('inv.field.extraDriver'), qty: 1, unit: parseFloat(inv.extraDriver), total: parseFloat(inv.extraDriver) }] : []),
-      ...(parseFloat(inv.other || 0) > 0 ? [{ desc: t2('inv.field.other'), qty: 1, unit: parseFloat(inv.other), total: parseFloat(inv.other) }] : []),
+      ...(parseFloat(inv.insurance || 0) > 0 ? [{ desc: t2('inv.field.insurance'), qty: dash3, unit: parseFloat(inv.insurance), total: parseFloat(inv.insurance) }] : []),
+      ...(parseFloat(inv.fuel || 0) > 0 ? [{ desc: t2('inv.field.fuel'), qty: dash3, unit: parseFloat(inv.fuel), total: parseFloat(inv.fuel) }] : []),
+      ...(parseFloat(inv.extraDriver || 0) > 0 ? [{ desc: t2('inv.field.extraDriver'), qty: dash3, unit: parseFloat(inv.extraDriver), total: parseFloat(inv.extraDriver) }] : []),
+      ...(parseFloat(inv.other || 0) > 0 ? [{ desc: t2('inv.field.other'), qty: dash3, unit: parseFloat(inv.other), total: parseFloat(inv.other) }] : []),
     ];
     items.forEach((row) => {
       doc.setDrawColor(241, 245, 249);
@@ -1096,21 +1098,42 @@ const JOSKA_INVOICES = (() => {
     doc.line(M, y, W - M, y);
     y += 3;
 
-    const cols = [M, M + 70, M + 110, W - M];
-    const colW = [66, 40, 38, 42];
+    const tW = W - M * 2;
+    const colW2 = [tW * 0.50, tW * 0.12, tW * 0.18, tW * 0.20];
+    const colX = [M, M + colW2[0], M + colW2[0] + colW2[1], M + colW2[0] + colW2[1] + colW2[2]];
+
     const drawRow = (cells, bold = false, color = [15, 23, 42], size = 7) => {
       cells.forEach((text, i) => {
         const align = i < 2 ? 'left' : (i === 2 ? 'center' : 'right');
         doc.setFont('helvetica', bold ? 'bold' : 'normal');
         doc.setFontSize(size);
         doc.setTextColor(color[0], color[1], color[2]);
-        doc.text(text, cols[i] + (align === 'right' ? colW[i] : 0), y, { align });
+        if (align === 'right') {
+          doc.text(text, colX[i] + colW2[i], y, { align: 'right' });
+        } else if (align === 'center') {
+          doc.text(text, colX[i] + colW2[i] / 2, y, { align: 'center' });
+        } else {
+          doc.text(text, colX[i] + 4, y);
+        }
       });
     };
 
-    drawRow([t3('inv.field.rentalSubtotal'), `${inv.days ?? calcDays(inv.startDate, inv.endDate)} ${t3('inv.days')}`, fmt(parseFloat(inv.dailyPrice || 0)), fmt((inv.days ?? calcDays(inv.startDate, inv.endDate)) * parseFloat(inv.dailyPrice || 0))], false, [71, 85, 105], 6.5);
+    // Header row
+    fillAccent();
+    doc.rect(M, y, tW, 7, 'F');
+    drawRow([t3('pdf.description'), t3('pdf.qty'), t3('pdf.ratePerDay'), t3('pdf.amount')], true, [255, 255, 255], 6);
+    y += 7;
+
+    const daysN = inv.days ?? calcDays(inv.startDate, inv.endDate);
+    const dp2 = parseFloat(inv.dailyPrice || 0);
+    const rental = daysN * dp2;
+    const dash = '—';
+
+    // Rental subtotal row
+    drawRow([t3('inv.field.rentalSubtotal'), String(daysN), fmt(dp2), fmt(rental)], false, [71, 85, 105], 6.5);
     y += 5;
 
+    // Extras rows
     const extras = [
       [t3('inv.field.insurance'), parseFloat(inv.insurance || 0)],
       [t3('inv.field.fuel'), parseFloat(inv.fuel || 0)],
@@ -1119,7 +1142,7 @@ const JOSKA_INVOICES = (() => {
     ];
     extras.forEach(([label, val]) => {
       if (val > 0) {
-        drawRow([label, '', fmt(val), fmt(val)], false, [71, 85, 105], 6.5);
+        drawRow([label, dash, fmt(val), fmt(val)], false, [71, 85, 105], 6.5);
         y += 4.5;
       }
     });
