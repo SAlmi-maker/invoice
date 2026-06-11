@@ -462,6 +462,7 @@ const JOSKA_REPORTS = (() => {
 
   // ── Helpers ───────────────────────────────────────────────
   function getDate(inv) {
+    if (inv.startDate)         return new Date(inv.startDate);
     if (inv.createdAt?.toDate) return inv.createdAt.toDate();
     if (inv.date)              return new Date(inv.date);
     return null;
