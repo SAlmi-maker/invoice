@@ -5,17 +5,7 @@
 const JOSKA_AUTH = (() => {
   const PROTECTED_PAGES = ['dashboard.html', 'settings.html', 'invoices.html'];
   const LOGIN_PAGE      = 'login.html';
-  const HOME_PAGE       = 'dashboard.html';
-
-  // ── Action Code Settings (custom reset-password page) ────
-  // Builds the URL dynamically so it works on any host
-  // (localhost, GitHub Pages, custom domain — no hardcoding needed).
-  function getActionCodeSettings() {
-    return {
-      url: 'https://joska.store/login.html',
-      handleCodeInApp: true
-    };
-  }
+  const HOME_PAGE       = 'invoices.html';
 
   // ── Route Guard ──────────────────────────────────────────
   function guardRoute() {
@@ -49,10 +39,8 @@ const JOSKA_AUTH = (() => {
   }
 
   // ── Forgot Password ───────────────────────────────────────
-  // Passes actionCodeSettings so Firebase redirects the user
-  // to reset-password.html instead of the default Firebase page.
   async function sendPasswordReset(email) {
-    return auth.sendPasswordResetEmail(email, getActionCodeSettings());
+    return auth.sendPasswordResetEmail(email);
   }
 
   // ── Current User ─────────────────────────────────────────

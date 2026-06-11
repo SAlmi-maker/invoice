@@ -9,15 +9,16 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <!-- FIX: was css/style.css — files are in root -->
   <link rel="stylesheet" href="style.css" />
   <style>
-    /* ── Login Page Styles ─────────────────────────── */
     body { min-height: 100vh; display: flex; }
 
-    .login-wrapper { display: flex; min-height: 100vh; width: 100%; }
+    .login-wrapper {
+      display: flex;
+      min-height: 100vh;
+      width: 100%;
+    }
 
-    /* Left Panel — Branding */
     .login-panel-left {
       flex: 1;
       background: linear-gradient(145deg, #0f172a 0%, #1e3a8a 50%, #1d4ed8 100%);
@@ -106,9 +107,12 @@
       flex-shrink: 0;
     }
     .brand-feature-icon svg { width: 16px; height: 16px; color: #fff; }
-    .brand-feature-text { font-size: 0.82rem; color: rgba(255,255,255,0.75); font-weight: 500; }
+    .brand-feature-text {
+      font-size: 0.82rem;
+      color: rgba(255,255,255,0.75);
+      font-weight: 500;
+    }
 
-    /* Right Panel — Form */
     .login-panel-right {
       width: 480px;
       display: flex;
@@ -124,7 +128,12 @@
       justify-content: space-between;
       margin-bottom: 48px;
     }
-    .login-logo { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .login-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
     .login-logo-icon {
       width: 34px; height: 34px;
       background: var(--primary);
@@ -134,7 +143,12 @@
       justify-content: center;
     }
     .login-logo-icon svg { width: 18px; height: 18px; color: #fff; }
-    .login-logo-text { font-size: 1.1rem; font-weight: 800; color: var(--text-primary); letter-spacing: 0.06em; }
+    .login-logo-text {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: 0.06em;
+    }
 
     .login-form-container { flex: 1; display: flex; flex-direction: column; justify-content: center; }
 
@@ -154,8 +168,12 @@
     }
     .login-error.show { display: block; }
 
-    .input-icon-wrap { position: relative; }
-    .input-icon-wrap .form-input { padding-inline-start: 40px; }
+    .input-icon-wrap {
+      position: relative;
+    }
+    .input-icon-wrap .form-input {
+      padding-inline-start: 40px;
+    }
     .input-icon {
       position: absolute;
       inset-inline-start: 13px;
@@ -200,9 +218,13 @@
     }
     .forgot-link:hover { color: var(--primary-hover); }
 
-    .login-footer { margin-top: 32px; text-align: center; font-size: 0.78rem; color: var(--text-tertiary); }
+    .login-footer {
+      margin-top: 32px;
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--text-tertiary);
+    }
 
-    /* Forgot Password Panel */
     .forgot-panel { display: none; animation: fadeInUp 0.35s ease both; }
     .forgot-panel.active { display: block; }
     .login-panel-main { animation: fadeInUp 0.35s ease both; }
@@ -241,7 +263,7 @@
     .login-theme-toggle svg   { width: 15px; height: 15px; }
 
     @media (max-width: 900px) {
-      .login-panel-left  { display: none; }
+      .login-panel-left { display: none; }
       .login-panel-right { width: 100%; padding: 32px 24px; }
     }
     @media (max-width: 480px) {
@@ -254,7 +276,6 @@
 
 <div class="login-wrapper">
 
-  <!-- ── Left Panel (Branding) ───────────────────────────── -->
   <div class="login-panel-left">
     <div class="brand-block">
       <div class="brand-icon">
@@ -292,7 +313,6 @@
     </div>
   </div>
 
-  <!-- ── Right Panel (Form) ─────────────────────────────── -->
   <div class="login-panel-right">
     <div class="login-topbar">
       <a class="login-logo" href="#">
@@ -320,7 +340,6 @@
 
     <div class="login-form-container">
 
-      <!-- Login Form -->
       <div class="login-panel-main" id="loginPanel">
         <h1 class="login-heading" data-i18n="auth.loginTitle">Welcome Back</h1>
         <p class="login-subheading" data-i18n="auth.loginSubtitle">Sign in to your JOSKA account</p>
@@ -383,7 +402,6 @@
         </form>
       </div>
 
-      <!-- Forgot Password Panel -->
       <div class="forgot-panel" id="forgotPanel">
         <button type="button" class="back-btn" id="backToLogin">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
@@ -427,97 +445,59 @@
   </div>
 </div>
 
-<!-- Firebase SDKs (compat v9) -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 
-<!-- FIX: all paths changed from js/xxx.js → xxx.js (root-level deployment) -->
 <script src="firebase.js"></script>
 <script src="i18n.js"></script>
 <script src="auth.js"></script>
 
 <script>
-  // ── Login Page Boot ──────────────────────────────────────
-  // FIX: scripts load synchronously before DOMContentLoaded fires when placed
-  // at end of <body>, so we guard with readyState as well.
-  function loginPageInit() {
-    // Apply saved theme before anything renders
-    var saved = localStorage.getItem('joska_theme') || 'light';
-    applyLoginTheme(saved);
-
-    // Init i18n first so auth.js error messages are translated
+  document.addEventListener('DOMContentLoaded', () => {
     JOSKA_I18N.init();
-    // Init auth (wires form submit + route guard)
     JOSKA_AUTH.init();
 
-    // Theme toggle button
-    var themeToggle = document.getElementById('themeToggle');
-    if (themeToggle) {
-      themeToggle.addEventListener('click', function() {
-        var cur  = document.documentElement.getAttribute('data-theme') || 'light';
-        var next = cur === 'dark' ? 'light' : 'dark';
-        applyLoginTheme(next);
-        localStorage.setItem('joska_theme', next);
-      });
+    const themeToggle = document.getElementById('themeToggle');
+    const saved = localStorage.getItem('joska_theme') || 'light';
+    applyLoginTheme(saved);
+    themeToggle?.addEventListener('click', () => {
+      const cur  = document.documentElement.getAttribute('data-theme') || 'light';
+      const next = cur === 'dark' ? 'light' : 'dark';
+      applyLoginTheme(next);
+      localStorage.setItem('joska_theme', next);
+    });
+
+    function applyLoginTheme(theme) {
+      document.documentElement.setAttribute('data-theme', theme);
+      document.getElementById('themeToggle')?.querySelector('.theme-icon-sun')?.classList.toggle('hidden', theme === 'light');
+      document.getElementById('themeToggle')?.querySelector('.theme-icon-moon')?.classList.toggle('hidden', theme === 'dark');
     }
 
-    // Password show/hide toggle
-    var pwInput  = document.getElementById('password');
-    var pwToggle = document.getElementById('pwToggle');
-    var pwEye    = document.getElementById('pwEye');
-    var pwEyeOff = document.getElementById('pwEyeOff');
+    const pwInput  = document.getElementById('password');
+    const pwToggle = document.getElementById('pwToggle');
+    const pwEye    = document.getElementById('pwEye');
+    const pwEyeOff = document.getElementById('pwEyeOff');
 
-    if (pwToggle && pwInput) {
-      pwToggle.addEventListener('click', function() {
-        var show = pwInput.type === 'password';
-        pwInput.type = show ? 'text' : 'password';
-        if (pwEye)    pwEye.classList.toggle('hidden', show);
-        if (pwEyeOff) pwEyeOff.classList.toggle('hidden', !show);
-      });
-    }
+    pwToggle?.addEventListener('click', () => {
+      const show = pwInput.type === 'password';
+      pwInput.type = show ? 'text' : 'password';
+      pwEye?.classList.toggle('hidden', show);
+      pwEyeOff?.classList.toggle('hidden', !show);
+    });
 
-    // Forgot / Back panel toggles
-    var showForgot  = document.getElementById('showForgot');
-    var backToLogin = document.getElementById('backToLogin');
-    var loginPanel  = document.getElementById('loginPanel');
-    var forgotPanel = document.getElementById('forgotPanel');
-    var resetMsg    = document.getElementById('resetMessage');
-
-    if (showForgot) {
-      showForgot.addEventListener('click', function() {
-        loginPanel.classList.add('hidden');
-        forgotPanel.classList.add('active');
-      });
-    }
-    if (backToLogin) {
-      backToLogin.addEventListener('click', function() {
-        forgotPanel.classList.remove('active');
-        loginPanel.classList.remove('hidden');
-        if (resetMsg) { resetMsg.className = 'form-message'; resetMsg.textContent = ''; }
-      });
-    }
-  }
-
-  function applyLoginTheme(theme) {
-    document.documentElement.setAttribute('data-theme', theme);
-    var btn = document.getElementById('themeToggle');
-    if (btn) {
-      var sun  = btn.querySelector('.theme-icon-sun');
-      var moon = btn.querySelector('.theme-icon-moon');
-      if (sun)  sun.classList.toggle('hidden',  theme === 'light');
-      if (moon) moon.classList.toggle('hidden', theme === 'dark');
-    }
-  }
-
-  // FIX: run immediately if DOM already parsed (scripts are at end of body),
-  // otherwise wait for DOMContentLoaded
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', loginPageInit);
-  } else {
-    loginPageInit();
-  }
+    document.getElementById('showForgot')?.addEventListener('click', () => {
+      document.getElementById('loginPanel').classList.add('hidden');
+      document.getElementById('forgotPanel').classList.add('active');
+    });
+    document.getElementById('backToLogin')?.addEventListener('click', () => {
+      document.getElementById('forgotPanel').classList.remove('active');
+      document.getElementById('loginPanel').classList.remove('hidden');
+      document.getElementById('resetMessage').className = 'form-message';
+      document.getElementById('resetMessage').textContent = '';
+    });
+  });
 </script>
 </body>
 </html>
