@@ -233,7 +233,12 @@ const JOSKA_CLIENTS = (() => {
     });
   }
 
-  return { init, openEdit: openModal, openDelete: id => { deleteTargetId = id; $('deleteModal').classList.add('open'); document.body.style.overflow = 'hidden'; } };
+  function openEdit(id) {
+    const client = allClients.find(c => c.id === id);
+    if (client) openModal(client);
+  }
+
+  return { init, openEdit, openDelete: id => { deleteTargetId = id; $('deleteModal').classList.add('open'); document.body.style.overflow = 'hidden'; } };
 })();
 
 document.addEventListener('DOMContentLoaded', () => {
