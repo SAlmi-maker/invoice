@@ -82,7 +82,7 @@ const JOSKA_I18N = (() => {
       'settings.logoHint':     'Recommended: 200×200px, PNG or SVG',
       'settings.dragDrop':     'Drag & drop or click to upload',
       'settings.currency':     'Invoice Currency',
-      'settings.currencyDesc': 'Choose the currency for invoices and reports',
+      'settings.currencyDesc': 'Choose the currency tag for invoices and reports — only the label changes, numeric values stay the same',
       'settings.currencyLabel':'Currency',
 
       // Invoices / PDF
@@ -266,7 +266,7 @@ const JOSKA_I18N = (() => {
       'settings.logoHint':     'Recommandé : 200×200px, PNG ou SVG',
       'settings.dragDrop':     'Glisser-déposer ou cliquer pour télécharger',
       'settings.currency':     'Devise de Facture',
-      'settings.currencyDesc': 'Choisissez la devise pour les factures et rapports',
+      'settings.currencyDesc': 'Choisissez l\'étiquette de devise — seul le libellé change, les valeurs restent identiques',
       'settings.currencyLabel':'Devise',
 
       // Invoices / PDF
@@ -448,7 +448,7 @@ const JOSKA_I18N = (() => {
       'settings.logoHint':     'موصى به: 200×200 بكسل، PNG أو SVG',
       'settings.dragDrop':     'اسحب وأفلت أو انقر للرفع',
       'settings.currency':     'عملة الفاتورة',
-      'settings.currencyDesc': 'اختر العملة للفواتير والتقارير',
+      'settings.currencyDesc': 'اختر تسمية العملة — يتغير التصنيف فقط، وتبقى القيم كما هي',
       'settings.currencyLabel':'العملة',
 
       // Invoices / PDF
@@ -592,6 +592,7 @@ const JOSKA_I18N = (() => {
     ['en', 'fr', 'ar'].forEach(lang => {
       if (translations[lang]) translations[lang]['common.currency'] = code;
     });
+    applyToDOM();
   }
 
   function isRTL() { return RTL_LANGS.includes(currentLang); }
