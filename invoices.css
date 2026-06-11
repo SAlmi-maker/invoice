@@ -542,7 +542,7 @@
   object-fit: contain;
   border-radius: 6px;
 }
-.ip-invoice-company { text-align: left; }
+.ip-invoice-company { text-align: right; }
 .ip-invoice-company h2 {
   font-family: var(--ip-font-heading);
   font-size: 14pt;
@@ -613,53 +613,11 @@
   margin: 0;
 }
 
-/* ── Description table ── */
+/* ── Pricing table ── */
 .ip-invoice-table {
   width: 100%;
   border-collapse: collapse;
-  margin-bottom: 0;
-}
-
-/* ── Summary table (grand total + status) — separated from description ── */
-.ip-summary-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 80px;
-}
-.ip-summary-table td {
-  padding: 7px 10px;
-  font-size: 8pt;
-  color: var(--ip-text);
-}
-.ip-summary-grand td {
-  border-top: 2px solid var(--ip-primary);
-  font-weight: 700;
-}
-.ip-summary-grand td:nth-child(3) {
-  font-size: 7pt;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--ip-text-secondary);
-}
-.ip-summary-grand td:last-child {
-  font-size: 11pt;
-  font-weight: 800;
-  color: var(--ip-primary);
-  text-align: right;
-}
-.ip-summary-status td {
-  border-top: 1px solid var(--ip-border);
-}
-.ip-summary-status td:nth-child(3) {
-  font-size: 7pt;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--ip-text-secondary);
-}
-.ip-summary-status td:last-child {
-  text-align: right;
+  margin-bottom: 36px;
 }
 .ip-invoice-table thead th {
   background: var(--ip-primary);
@@ -686,7 +644,73 @@
   background: var(--ip-bg);
 }
 
-/* ── Subtotal rows — removed ── */
+/* ── Subtotal rows — removed (no longer shown in invoice) ── */
+
+/* ── Status row — same size/font as grand total, sits directly below ── */
+.ip-status-row {
+  display: flex;
+  align-items: center;
+  padding: 14px 10px;
+  background: var(--ip-primary-dark);
+  border-radius: 0 0 6px 6px;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 0;
+  font-weight: 700;
+  font-size: 10pt;
+  color: #FFFFFF;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.ip-status-label {
+  font-size: 10pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #FFFFFF;
+  flex: 1;
+}
+
+/* ── Grand total ── */
+.ip-summary-total {
+  display: flex;
+  align-items: center;
+  padding: 14px 10px;
+  background: var(--ip-primary);
+  color: #FFFFFF;
+  font-weight: 800;
+  font-size: 18pt;
+  border-radius: 6px 6px 0 0;
+  margin-top: 36px;
+  width: 100%;
+  box-sizing: border-box;
+}
+.ip-summary-total span:first-child {
+  font-size: 10pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  flex: 1;
+}
+.ip-summary-total span:last-child {
+  width: 20%;
+  text-align: right;
+  box-sizing: border-box;
+}
+
+.ip-status-row .ip-status-badge {
+  font-size: 10pt;
+  font-weight: 700;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #FFFFFF;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  width: 20%;
+  text-align: right;
+  box-sizing: border-box;
+}
 
 .ip-status-badge {
   display: inline-block;
@@ -729,6 +753,13 @@
   body > *:not(#joska-print-container) { display: none !important; }
   #joska-print-container { display: block !important; }
 
+  /* Force background colors and images to print */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
   #joska-print-container {
     position: fixed;
     top: 0;
@@ -744,14 +775,22 @@
     box-sizing: border-box;
     box-shadow: none;
     font-size: 11pt;
+    /* Reset the preview scale transform */
+    transform: none !important;
+    margin-bottom: 0 !important;
   }
   #joska-print-container .ip-invoice table.ip-invoice-table thead th {
     font-size: 8pt;
     padding: 7px 10px;
+    background: #2563EB !important;
+    color: #ffffff !important;
   }
   #joska-print-container .ip-invoice table.ip-invoice-table tbody td {
     font-size: 10pt;
     padding: 6px 10px;
+  }
+  #joska-print-container .ip-invoice table.ip-invoice-table tbody tr:nth-child(even) td {
+    background: #F8FAFC !important;
   }
   #joska-print-container .ip-invoice .ip-invoice-title-bar h1 { font-size: 30pt; }
   #joska-print-container .ip-invoice .ip-invoice-company h2  { font-size: 18pt; }
