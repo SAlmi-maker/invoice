@@ -489,6 +489,13 @@
   .modal-close { width: 40px; height: 40px; }
 }
 
+@media (max-width: 600px) {
+  #invoiceModal.open:not(.preview-only) .inv-preview-wrap { display: none; }
+  #invoiceModal.open .modal-panel { max-width: 100%; }
+  #invoiceModal.open.preview-only .inv-preview-wrap { width: 100% !important; max-width: 100%; }
+  #dashPreviewBackdrop .inv-preview-wrap { width: 100% !important; max-width: 100%; }
+}
+
 @media (max-width: 480px) {
   .modal-panel { border-radius: var(--radius-xl); }
   .modal-backdrop { padding: 10px; }

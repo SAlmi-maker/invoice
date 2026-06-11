@@ -310,6 +310,7 @@ const JOSKA_INVOICES = (() => {
     const backdrop = document.getElementById('invoiceModal');
     if (backdrop) {
       backdrop.classList.add('open');
+      backdrop.classList.add('preview-only');
       const panel = backdrop.querySelector('.modal-panel');
       if (panel) panel.style.display = 'none';
     }
@@ -319,6 +320,7 @@ const JOSKA_INVOICES = (() => {
 
   function closeModal() {
     document.getElementById('invoiceModal').classList.remove('open');
+    document.getElementById('invoiceModal').classList.remove('preview-only');
     const modalPanel = document.querySelector('#invoiceModal .modal-panel');
     if (modalPanel) modalPanel.style.display = '';
     document.getElementById('invPreviewWrap')?.classList.remove('open');
