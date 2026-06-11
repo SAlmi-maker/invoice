@@ -371,13 +371,13 @@
       <!-- Invoice document (preview + print target) -->
       <div class="ip-invoice" id="ip_invoicePreview">
         <div class="ip-invoice-header">
+          <img class="ip-invoice-logo" id="preview_logo" src="" alt="Logo" style="display:none;" />
           <div class="ip-invoice-company">
             <h2 id="preview_companyName">JOSKA</h2>
             <p id="preview_companyAddr"></p>
             <p id="preview_companyEmail"></p>
             <p id="preview_companyPhone"></p>
           </div>
-          <img class="ip-invoice-logo" id="preview_logo" src="" alt="Logo" style="display:none;" />
         </div>
         <div class="ip-invoice-title-row">
           <div class="ip-invoice-title-bar">
@@ -408,14 +408,22 @@
           </thead>
           <tbody id="preview_itemsBody"></tbody>
         </table>
-        <div class="ip-summary-total">
-          <span id="preview_grandLabel">GRAND TOTAL</span>
-          <span id="preview_grandTotal">0.00 MAD</span>
-        </div>
-        <div class="ip-status-row">
-          <span id="preview_statusLabel" class="ip-status-label">STATUS</span>
-          <span class="ip-status-badge ip-status-draft" id="preview_status">Draft</span>
-        </div>
+        <table class="ip-summary-table">
+          <tbody>
+            <tr class="ip-summary-grand">
+              <td style="width:50%;"></td>
+              <td style="width:12%;"></td>
+              <td style="width:18%;" id="preview_grandLabel">GRAND TOTAL</td>
+              <td style="width:20%;" id="preview_grandTotal">0.00 MAD</td>
+            </tr>
+            <tr class="ip-summary-status">
+              <td></td>
+              <td></td>
+              <td id="preview_statusLabel">STATUS</td>
+              <td><span class="ip-status-badge ip-status-draft" id="preview_status">Draft</span></td>
+            </tr>
+          </tbody>
+        </table>
         <div class="ip-invoice-footer">
           <div id="preview_notesWrap" style="display:none;">
             <h5 id="preview_notesLabel">NOTES</h5>
