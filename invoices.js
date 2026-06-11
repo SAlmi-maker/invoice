@@ -562,6 +562,7 @@ const JOSKA_INVOICES = (() => {
     void modal?.offsetHeight;
 
     const invoiceEl = document.querySelector('.ip-invoice');
+    void invoiceEl?.offsetHeight; // force layout so table columns are computed before clone
     if (invoiceEl) {
       const clone = invoiceEl.cloneNode(true);
       const pc = document.createElement('div');

@@ -616,6 +616,7 @@
 /* ── Pricing table ── */
 .ip-invoice-table {
   width: 100%;
+  table-layout: fixed;
   border-collapse: collapse;
   margin-bottom: 36px;
 }
@@ -762,11 +763,15 @@
     transform: none !important;
     margin-bottom: 0 !important;
   }
+  #joska-print-container .ip-invoice table.ip-invoice-table {
+    table-layout: auto;
+  }
   #joska-print-container .ip-invoice table.ip-invoice-table thead th {
     font-size: 8pt;
     padding: 7px 10px;
     background: var(--ip-primary, #2563EB) !important;
     color: #ffffff !important;
+    white-space: nowrap;
   }
   #joska-print-container .ip-invoice table.ip-invoice-table tbody td {
     font-size: 10pt;
