@@ -50,6 +50,15 @@ const JOSKA_INVOICES = (() => {
     const params = new URLSearchParams(window.location.search);
     const viewId = params.get('view');
     if (viewId) pendingViewId = viewId;
+
+    const clientName = params.get('clientName');
+    if (clientName) {
+      openNew();
+      document.getElementById('inv_clientName').value = clientName;
+      if (params.get('cin'))   document.getElementById('inv_cin').value   = params.get('cin');
+      if (params.get('phone')) document.getElementById('inv_phone').value = params.get('phone');
+      renderHTMLPreview();
+    }
   }
 
   // ── User info in sidebar ──────────────────────────────────
