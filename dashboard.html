@@ -11,6 +11,24 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Arabic:wght@400;500;600;700&family=Playfair+Display:wght@600;700;800&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="dashboard.css" />
+  <link rel="stylesheet" href="invoices.css" />
+  <style>
+    #invPreviewWrap {
+      position: fixed;
+      top: 0; right: 0;
+      height: 100vh;
+      z-index: 1000;
+      border-radius: 0;
+      border-top: none;
+      border-bottom: none;
+      border-right: none;
+      box-shadow: -4px 0 24px rgba(0,0,0,0.15);
+    }
+    [dir="rtl"] #invPreviewWrap {
+      right: auto; left: 0;
+      box-shadow: 4px 0 24px rgba(0,0,0,0.15);
+    }
+  </style>
 </head>
 <body>
 <div class="app-layout">
@@ -244,6 +262,83 @@
 </div>
 
 <div class="toast" id="dashToast"></div>
+
+<!-- ═══ Live Preview Panel ═══ -->
+<div class="inv-preview-wrap" id="invPreviewWrap">
+  <div class="inv-preview-header">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+    <span data-i18n="inv.preview">Preview</span>
+    <button class="inv-preview-close" id="previewCloseBtn">&times;</button>
+  </div>
+  <div class="inv-preview-body">
+    <div class="ip-invoice" id="ip_invoicePreview">
+      <div class="ip-invoice-header">
+        <div class="ip-invoice-company">
+          <h2 id="preview_companyName">JOSKA</h2>
+          <p id="preview_companyAddr"></p>
+          <p id="preview_companyEmail"></p>
+          <p id="preview_companyPhone"></p>
+        </div>
+        <img class="ip-invoice-logo" id="preview_logo" src="" alt="Logo" style="display:none;" />
+      </div>
+      <div class="ip-invoice-title-row">
+        <div class="ip-invoice-title-bar">
+          <h1 id="preview_title">INVOICE</h1>
+          <div class="ip-invoice-meta">
+            <strong id="preview_invNumber">#—</strong><br />
+            <span id="preview_issueLabel">Issue</span>: <span id="preview_issueDate">—</span><br />
+            <span id="preview_dueLabel">Due</span>: <span id="preview_dueDate">—</span>
+          </div>
+        </div>
+        <div class="ip-address-block ip-customer-block">
+          <h4 id="preview_billToLabel">Customer Information</h4>
+          <h3 id="preview_clientName">—</h3>
+          <p id="preview_clientCIN"></p>
+          <p id="preview_clientPhone"></p>
+          <p id="preview_clientVehicle"></p>
+          <p id="preview_clientPlate"></p>
+        </div>
+      </div>
+      <table class="ip-invoice-table">
+        <thead>
+          <tr>
+            <th style="width:50%;" id="preview_descLabel" data-i18n="pdf.description">DESCRIPTION</th>
+            <th style="width:12%;" id="preview_qtyLabel" data-i18n="pdf.qty">DAYS</th>
+            <th style="width:18%;" id="preview_unitLabel" data-i18n="pdf.ratePerDay">RATE PER DAY</th>
+            <th style="width:20%;" id="preview_amtLabel" data-i18n="pdf.amount">AMOUNT</th>
+          </tr>
+        </thead>
+        <tbody id="preview_itemsBody"></tbody>
+      </table>
+      <table class="ip-summary-table">
+        <tbody>
+          <tr class="ip-summary-grand">
+            <td style="width:50%;"></td>
+            <td style="width:12%;"></td>
+            <td style="width:18%;" id="preview_grandLabel">GRAND TOTAL</td>
+            <td style="width:20%;" id="preview_grandTotal">0.00 MAD</td>
+          </tr>
+          <tr class="ip-summary-status">
+            <td></td>
+            <td></td>
+            <td id="preview_statusLabel">STATUS</td>
+            <td><span class="ip-status-badge ip-status-draft" id="preview_status">Draft</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="ip-invoice-footer">
+        <div id="preview_notesWrap" style="display:none;">
+          <h5 id="preview_notesLabel">NOTES</h5>
+          <p id="preview_notes"></p>
+        </div>
+      </div>
+    </div>
+    <div class="inv-preview-empty" id="invPreviewEmpty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32"><rect x="2" y="3" width="20" height="18" rx="2"/><line x1="6" y1="8" x2="18" y2="8"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="6" y1="16" x2="12" y2="16"/></svg>
+      <p data-i18n="inv.previewEmpty">Select an invoice to preview</p>
+    </div>
+  </div>
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>

@@ -7,6 +7,7 @@ const JOSKA_DASHBOARD = (() => {
   // ── State ─────────────────────────────────────────────────
   let companySettings = null;
   let unsubscribeInvoices = null;
+  let allInvoices = [];
 
   // ── Init ─────────────────────────────────────────────────
   async function init(user) {
@@ -17,6 +18,7 @@ const JOSKA_DASHBOARD = (() => {
     initThemeToggle();
     initSidebar();
     initAnimations();
+    wirePreviewClose();
   }
 
   // ── User Info ─────────────────────────────────────────────
@@ -87,6 +89,7 @@ const JOSKA_DASHBOARD = (() => {
       .orderBy('createdAt', 'desc')
       .onSnapshot(snapshot => {
         const invoices = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        allInvoices = invoices;
         renderStats(invoices);
         renderRecentInvoices(invoices.slice(0, 6));
         setStatsLoading(false);
@@ -256,7 +259,122 @@ const JOSKA_DASHBOARD = (() => {
   }
 
   function viewInvoice(id) {
-    window.location.href = `invoices.html?view=${id}`;
+    const inv = allInvoices.find(i => i.id === id);
+    if (!inv) return;
+    populateDashboardPreview(inv);
+    document.getElementById('invPreviewWrap')?.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closePreview() {
+    document.getElementById('invPreviewWrap')?.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function wirePreviewClose() {
+    document.getElementById('previewCloseBtn')?.addEventListener('click', closePreview);
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') closePreview();
+    });
+  }
+
+  function populateDashboardPreview(inv) {
+    const emptyEl = document.getElementById('invPreviewEmpty');
+    if (emptyEl) emptyEl.classList.add('hidden');
+
+    const s = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val ?? ''; };
+    const t = JOSKA_I18N.t;
+    const currency = t('common.currency');
+    const fmt = (n) => formatCurrency(n, currency);
+    const cs = companySettings || {};
+    const startDate = inv.startDate || '';
+    const endDate = inv.endDate || '';
+    let days = inv.days;
+    if (days === undefined && startDate && endDate) {
+      const d1 = new Date(startDate);
+      const d2 = new Date(endDate);
+      days = Math.max(1, Math.round((d2 - d1) / (1000 * 60 * 60 * 24)) + 1);
+    }
+    days = days || 0;
+    const dp = parseFloat(inv.dailyPrice || 0);
+    const rental = days * dp;
+    const total = parseFloat(inv.total || 0);
+    const status = inv.status || 'draft';
+
+    const extras = [
+      { label: t('inv.field.insurance'), val: parseFloat(inv.insurance || 0) },
+      { label: t('inv.field.fuel'), val: parseFloat(inv.fuel || 0) },
+      { label: t('inv.field.extraDriver'), val: parseFloat(inv.extraDriver || 0) },
+      { label: t('inv.field.other'), val: parseFloat(inv.other || 0) },
+    ].filter(e => e.val > 0);
+
+    const colorMode = cs.invoiceColorMode || 'bw';
+    const accentHex = colorMode === 'bw' ? '#1e293b' : (cs.invoiceColor || '#2563EB');
+    const invoiceEl = document.getElementById('ip_invoicePreview');
+    if (invoiceEl) invoiceEl.style.setProperty('--ip-primary', accentHex);
+
+    const logoEl = document.getElementById('preview_logo');
+    if (cs.logoBase64 && logoEl) {
+      logoEl.src = cs.logoBase64;
+      logoEl.style.display = 'block';
+    } else if (logoEl) {
+      logoEl.style.display = 'none';
+    }
+
+    s('preview_companyName', cs.companyName || 'JOSKA');
+    s('preview_companyAddr', cs.address || '');
+    s('preview_companyEmail', cs.email || '');
+    s('preview_companyPhone', cs.phone || '');
+    s('preview_title', t('pdf.invoice'));
+    s('preview_invNumber', `#${inv.invoiceNumber || inv.id?.slice(-6) || '—'}`);
+    s('preview_issueLabel', t('pdf.issue'));
+    s('preview_issueDate', startDate || '—');
+    s('preview_dueLabel', t('pdf.due'));
+    s('preview_dueDate', endDate || '—');
+    s('preview_billToLabel', t('pdf.billTo'));
+    s('preview_clientName', inv.clientName || '—');
+    s('preview_clientCIN', inv.cin ? `${t('pdf.cin')}: ${inv.cin}` : '');
+    s('preview_clientPhone', inv.phone ? `${t('pdf.tel')}: ${inv.phone}` : '');
+    s('preview_clientVehicle', `${inv.vehicleBrand || ''} ${inv.vehicleModel || ''}`.trim() || '');
+    s('preview_clientPlate', inv.plate ? `${t('pdf.plate')}: ${inv.plate}` : '');
+    s('preview_descLabel', t('pdf.description'));
+    s('preview_qtyLabel', t('pdf.qty'));
+    s('preview_unitLabel', t('pdf.ratePerDay'));
+    s('preview_amtLabel', t('pdf.amount'));
+
+    const tbody = document.getElementById('preview_itemsBody');
+    if (tbody) {
+      tbody.innerHTML = '';
+      const dash = '—';
+      const addRow = (desc, daysVal, unit, amt) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${escHtml(desc)}</td><td>${daysVal}</td><td>${fmt(unit)}</td><td>${fmt(amt)}</td>`;
+        tbody.appendChild(tr);
+      };
+      addRow(`${t('inv.field.rentalSubtotal')} (${inv.vehicleBrand || ''} ${inv.vehicleModel || ''})`, days, dp, rental);
+      extras.forEach(e => addRow(e.label, dash, e.val, e.val));
+    }
+
+    s('preview_grandLabel', t('pdf.grandTotal'));
+    s('preview_grandTotal', fmt(total));
+
+    const statusLabel = document.getElementById('preview_statusLabel');
+    if (statusLabel) statusLabel.textContent = t('pdf.status');
+
+    const badge = document.getElementById('preview_status');
+    if (badge) {
+      badge.textContent = t('dash.' + status);
+      badge.className = 'ip-status-badge ip-status-' + status;
+    }
+
+    const notesWrap = document.getElementById('preview_notesWrap');
+    if (inv.notes) {
+      s('preview_notesLabel', t('pdf.notes'));
+      s('preview_notes', inv.notes);
+      if (notesWrap) notesWrap.style.display = 'block';
+    } else if (notesWrap) {
+      notesWrap.style.display = 'none';
+    }
   }
 
   // ── Theme Toggle ─────────────────────────────────────────
