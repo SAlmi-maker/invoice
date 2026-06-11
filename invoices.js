@@ -281,12 +281,20 @@ const JOSKA_INVOICES = (() => {
     const inv = allInvoices.find(i => i.id === id);
     if (!inv) return;
     populatePreview(inv);
+    const backdrop = document.getElementById('invoiceModal');
+    if (backdrop) {
+      backdrop.classList.add('open');
+      const panel = backdrop.querySelector('.modal-panel');
+      if (panel) panel.style.display = 'none';
+    }
     document.getElementById('invPreviewWrap')?.classList.add('open');
     document.body.style.overflow = 'hidden';
   }
 
   function closeModal() {
     document.getElementById('invoiceModal').classList.remove('open');
+    const modalPanel = document.querySelector('#invoiceModal .modal-panel');
+    if (modalPanel) modalPanel.style.display = '';
     document.getElementById('invPreviewWrap')?.classList.remove('open');
     document.body.style.overflow = '';
     editingId = null;
