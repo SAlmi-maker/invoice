@@ -639,9 +639,8 @@
 /* ── Status row — same size/font as grand total, sits directly below ── */
 .ip-status-row {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 14px 20px;
+  padding: 14px 10px;
   background: var(--ip-primary-dark);
   border-radius: 0 0 6px 6px;
   width: 100%;
@@ -659,14 +658,14 @@
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: #FFFFFF;
+  flex: 1;
 }
 
 /* ── Grand total ── */
 .ip-summary-total {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 14px 20px;
+  padding: 14px 10px;
   background: var(--ip-primary);
   color: #FFFFFF;
   font-weight: 800;
@@ -681,6 +680,12 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
+  flex: 1;
+}
+.ip-summary-total span:last-child {
+  width: 20%;
+  text-align: right;
+  box-sizing: border-box;
 }
 
 .ip-status-row .ip-status-badge {
@@ -692,6 +697,9 @@
   color: #FFFFFF;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  width: 20%;
+  text-align: right;
+  box-sizing: border-box;
 }
 
 .ip-status-badge {
