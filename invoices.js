@@ -1311,7 +1311,7 @@ const JOSKA_INVOICES = (() => {
   function formatCurrency(amount, currency, locale) {
     if (isNaN(amount)) amount = 0;
     return new Intl.NumberFormat(locale || JOSKA_I18N.getLang(), {
-      minimumFractionDigits: 2,
+      minimumFractionDigits: 0,
       maximumFractionDigits: 2,
     }).format(amount) + ' ' + currency;
   }
