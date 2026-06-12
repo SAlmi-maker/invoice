@@ -428,7 +428,8 @@ const JOSKA_REPORTS = (() => {
     XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(summaryRows), `Summary ${selectedYear}`);
     XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(invoiceRows), `Invoices ${selectedYear}`);
 
-    XLSX.writeFile(wb, `JOSKA_Report_${selectedYear}.xlsx`);
+    const companyName = (companySettings.companyName || 'JOSKA').replace(/[<>:"/\\|?*]/g, '');
+    XLSX.writeFile(wb, `${companyName}_Report_${selectedYear}.xlsx`);
     showToast('success', `Report exported for ${selectedYear}`);
   }
 
