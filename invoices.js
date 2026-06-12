@@ -641,7 +641,9 @@ const JOSKA_INVOICES = (() => {
     });
 
     printDoc.write('</head><body>');
+    printDoc.write('<div id="joska-print-container">');
     printDoc.write(clone.outerHTML);
+    printDoc.write('</div>');
     printDoc.write('</body></html>');
     printDoc.close();
 
