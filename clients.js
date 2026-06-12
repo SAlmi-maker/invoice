@@ -205,10 +205,26 @@ const JOSKA_CLIENTS = (() => {
     }).catch(() => {});
   }
 
+  function initSidebar() {
+    const hamburger = document.getElementById('hamburger');
+    const sidebar   = document.getElementById('sidebar');
+    const overlay   = document.getElementById('sidebarOverlay');
+    hamburger?.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+      overlay?.classList.toggle('show');
+    });
+    overlay?.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('show');
+    });
+  }
+
   function init(user) {
     if (!user) return;
     currentUser = user;
     subscribe();
+
+    initSidebar();
 
     $('btnNewClient').addEventListener('click', () => openModal());
     $('clientModalClose').addEventListener('click', closeModal);

@@ -375,7 +375,7 @@ const JOSKA_REPORTS = (() => {
 
     const xl = companySettings.excelLang || JOSKA_I18N.getLang();
     const currency = JOSKA_I18N.t('common.currency');
-    const months   = getMonthLabels();
+    const months   = getMonthLabels(xl);
 
     const yearInvoices = allInvoices.filter(inv => {
       const d = getDate(inv);
@@ -486,10 +486,10 @@ const JOSKA_REPORTS = (() => {
     return null;
   }
 
-  function getMonthLabels() {
-    const lang = companySettings.excelLang || JOSKA_I18N.getLang();
-    if (lang === 'fr') return MONTHS_FR;
-    if (lang === 'ar') return MONTHS_AR;
+  function getMonthLabels(lang) {
+    const l = lang || JOSKA_I18N.getLang();
+    if (l === 'fr') return MONTHS_FR;
+    if (l === 'ar') return MONTHS_AR;
     return MONTHS_EN;
   }
 
