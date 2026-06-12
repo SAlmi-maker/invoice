@@ -68,6 +68,8 @@ const JOSKA_SETTINGS = (() => {
     toggleColorPicker(colorMode === 'custom');
     const langSel = document.getElementById('invoiceLanguage');
     if (langSel) langSel.value = data.invoiceLanguage || '';
+    const excelSel = document.getElementById('excelLang');
+    if (excelSel) excelSel.value = data.excelLang || '';
   }
 
   function toggleColorPicker(show) {
@@ -112,6 +114,7 @@ const JOSKA_SETTINGS = (() => {
           invoiceColorMode: document.querySelector('input[name="invoiceColorMode"]:checked')?.value || 'bw',
           invoiceColor: document.getElementById('invoiceColorInput')?.value || '#2563EB',
           invoiceLanguage: document.getElementById('invoiceLanguage')?.value || '',
+          excelLang: document.getElementById('excelLang')?.value || '',
           currency: document.getElementById('field_currency')?.value || 'MAD',
           updatedAt:   firebase.firestore.FieldValue.serverTimestamp()
         };

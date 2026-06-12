@@ -485,7 +485,7 @@ const JOSKA_REPORTS = (() => {
   }
 
   function getMonthLabels() {
-    const lang = JOSKA_I18N.getLang();
+    const lang = companySettings.excelLang || JOSKA_I18N.getLang();
     if (lang === 'fr') return MONTHS_FR;
     if (lang === 'ar') return MONTHS_AR;
     return MONTHS_EN;
