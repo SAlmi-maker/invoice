@@ -64,6 +64,11 @@ const JOSKA_I18N = (() => {
       'dash.vsLastMonth':     'vs last month',
       'dash.vsLastYear':      'vs last year',
       'dash.invoicesThisMonth': 'This month',
+      'dash.createSend':     'Create &amp; send',
+      'dash.addCustomer':    'Add customer',
+      'dash.viewAnalytics':  'View analytics',
+      'dash.configureApp':   'Configure app',
+      'dash.noDataDesc':     'Your invoices will appear here once created.',
 
       // Settings
       'settings.title':        'Company Settings',
@@ -271,6 +276,11 @@ const JOSKA_I18N = (() => {
       'dash.vsLastMonth':     'vs mois dernier',
       'dash.vsLastYear':      'vs année dernière',
       'dash.invoicesThisMonth': 'Ce mois',
+      'dash.createSend':     'Créer &amp; envoyer',
+      'dash.addCustomer':    'Ajouter client',
+      'dash.viewAnalytics':  'Voir analyses',
+      'dash.configureApp':   'Configurer app',
+      'dash.noDataDesc':     'Vos factures apparaîtront ici une fois créées.',
 
       'settings.title':        'Paramètres Entreprise',
       'settings.subtitle':     'Gérez le profil et l\'image de votre entreprise',
@@ -475,6 +485,11 @@ const JOSKA_I18N = (() => {
       'dash.vsLastMonth':     'مقارنة بالشهر الماضي',
       'dash.vsLastYear':      'مقارنة بالعام الماضي',
       'dash.invoicesThisMonth': 'هذا الشهر',
+      'dash.createSend':     'إنشاء وإرسال',
+      'dash.addCustomer':    'إضافة عميل',
+      'dash.viewAnalytics':  'عرض التحليلات',
+      'dash.configureApp':   'تكوين التطبيق',
+      'dash.noDataDesc':     'ستظهر فواتيرك هنا بمجرد إنشائها.',
 
       'settings.title':        'إعدادات الشركة',
       'settings.subtitle':     'إدارة ملف الشركة والعلامة التجارية',
