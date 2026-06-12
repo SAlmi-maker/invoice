@@ -465,6 +465,11 @@ const JOSKA_DASHBOARD = (() => {
   }
 
   // ── Helpers ───────────────────────────────────────────────
+  function s(id, text) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = text;
+  }
+
   function formatCurrency(amount, currency) {
     if (isNaN(amount)) amount = 0;
     return new Intl.NumberFormat(JOSKA_I18N.getLang(), {

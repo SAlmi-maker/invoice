@@ -256,7 +256,7 @@ const JOSKA_CLIENTS = (() => {
     if (client) openModal(client);
   }
 
-  return { init, openEdit, openDelete: id => { deleteTargetId = id; $('deleteModal').classList.add('open'); lockScroll(); } };
+  return { init, openEdit, refresh: () => render(), openDelete: id => { deleteTargetId = id; $('deleteModal').classList.add('open'); lockScroll(); } };
 })();
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -269,6 +269,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.addEventListener('joska:langChanged', () => {
     JOSKA_I18N.applyToDOM();
-    render();
+    JOSKA_CLIENTS.refresh();
   });
 });
