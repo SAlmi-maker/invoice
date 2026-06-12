@@ -677,6 +677,7 @@ const JOSKA_INVOICES = (() => {
     s('preview_companyAddr', coAddr);
     s('preview_companyEmail', coEmail);
     s('preview_companyPhone', coPhone);
+    s('preview_companyWebsite', companySettings.website || '');
     s('preview_title', t('pdf.invoice'));
     s('preview_invNumber', `#${inv.invoiceNumber || inv.id?.slice(-6) || '—'}`);
     s('preview_issueLabel', t('pdf.issue'));
@@ -782,7 +783,7 @@ const JOSKA_INVOICES = (() => {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7.5);
     doc.setTextColor(100, 116, 139);
-    const compLines = [companySettings.address || '', companySettings.email || '', companySettings.phone || ''].filter(Boolean);
+    const compLines = [companySettings.address || '', companySettings.email || '', companySettings.phone || '', companySettings.website || ''].filter(Boolean);
     compLines.forEach((line, i) => {
       doc.text(line, nameX, 20 + i * 4);
     });
@@ -948,7 +949,8 @@ const JOSKA_INVOICES = (() => {
     doc.setFontSize(6.5);
     doc.setTextColor(148, 163, 184);
     doc.text(t('pdf.generatedBy'), W / 2, 282, { align: 'center' });
-    if (companySettings.email) doc.text(companySettings.email, W / 2, 286, { align: 'center' });
+    const footerLines = [companySettings.email || '', companySettings.website || ''].filter(Boolean);
+    footerLines.forEach((line, i) => doc.text(line, W / 2, 286 + i * 4, { align: 'center' }));
   }
 
   function buildPDFPageModern(doc, inv) {

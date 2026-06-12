@@ -188,12 +188,17 @@ const JOSKA_DASHBOARD = (() => {
     if (subEl && subtitle) subEl.textContent = subtitle;
 
     if (trendEl && prev !== null && curr !== null) {
-      const diff = prev === 0 ? (curr > 0 ? 100 : 0) : ((curr - prev) / prev * 100);
-      const sign = diff >= 0 ? '+' : '';
-      const cls  = diff >= 0 ? 'up' : 'down';
-      const icon = diff >= 0 ? '↑' : '↓';
-      trendEl.textContent = `${icon} ${sign}${diff.toFixed(1)}%`;
-      trendEl.className   = `stat-trend ${cls}`;
+      if (prev === 0) {
+        trendEl.textContent = curr > 0 ? '—' : '0.0%';
+        trendEl.className   = `stat-trend ${curr > 0 ? 'up' : ''}`;
+      } else {
+        const diff = (curr - prev) / prev * 100;
+        const sign = diff >= 0 ? '+' : '';
+        const cls  = diff >= 0 ? 'up' : 'down';
+        const icon = diff >= 0 ? '↑' : '↓';
+        trendEl.textContent = `${icon} ${sign}${diff.toFixed(1)}%`;
+        trendEl.className   = `stat-trend ${cls}`;
+      }
     }
   }
 
@@ -334,6 +339,7 @@ const JOSKA_DASHBOARD = (() => {
     s('preview_companyAddr', cs.address || '');
     s('preview_companyEmail', cs.email || '');
     s('preview_companyPhone', cs.phone || '');
+    s('preview_companyWebsite', cs.website || '');
     s('preview_title', t('pdf.invoice'));
     s('preview_invNumber', `#${inv.invoiceNumber || inv.id?.slice(-6) || '—'}`);
     s('preview_issueLabel', t('pdf.issue'));
