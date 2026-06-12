@@ -304,7 +304,7 @@ const JOSKA_DASHBOARD = (() => {
         minimumFractionDigits: 0, maximumFractionDigits: 2
       }).format(n);
     };
-    const fmt = (n) => fmtNum(n) + ' ' + currency;
+    const fmt = (n) => (invLang === 'ar' || JOSKA_I18N.getLang() === 'ar' ? '\u200E' : '') + fmtNum(n) + ' ' + currency;
     const startDate = inv.startDate || '';
     const endDate = inv.endDate || '';
     let days = inv.days;
@@ -472,10 +472,12 @@ const JOSKA_DASHBOARD = (() => {
 
   function formatCurrency(amount, currency) {
     if (isNaN(amount)) amount = 0;
-    return new Intl.NumberFormat(JOSKA_I18N.getLang(), {
+    const lang = JOSKA_I18N.getLang();
+    const num = new Intl.NumberFormat(lang, {
       minimumFractionDigits: 0,
       maximumFractionDigits: 2
-    }).format(amount) + ' ' + currency;
+    }).format(amount);
+    return (lang === 'ar' ? '\u200E' : '') + num + ' ' + currency;
   }
 
   function escHtml(str) {

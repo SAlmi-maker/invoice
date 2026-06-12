@@ -495,16 +495,19 @@ const JOSKA_REPORTS = (() => {
 
   function formatCurrency(amount, currency) {
     if (isNaN(amount)) amount = 0;
-    return new Intl.NumberFormat(JOSKA_I18N.getLang(), {
+    const lang = JOSKA_I18N.getLang();
+    const num = new Intl.NumberFormat(lang, {
       minimumFractionDigits: 0,
       maximumFractionDigits: 2
-    }).format(amount) + ' ' + currency;
+    }).format(amount);
+    return (lang === 'ar' ? '\u200E' : '') + num + ' ' + currency;
   }
 
   function formatCurrencyShort(val, currency) {
-    if (val >= 1000000) return (val / 1000000).toFixed(1) + 'M ' + currency;
-    if (val >= 1000)    return (val / 1000).toFixed(0) + 'K ' + currency;
-    return val + ' ' + currency;
+    const lrm = JOSKA_I18N.getLang() === 'ar' ? '\u200E' : '';
+    if (val >= 1000000) return lrm + (val / 1000000).toFixed(1) + 'M ' + currency;
+    if (val >= 1000)    return lrm + (val / 1000).toFixed(0) + 'K ' + currency;
+    return lrm + val + ' ' + currency;
   }
 
   function setText(id, val) {

@@ -1,17 +1,17 @@
-// ── Sidebar toggle (wired early so mobile hamburger works immediately) ──
-(function() {
-  const ready = () => {
-    const h = document.getElementById('hamburger');
-    const s = document.getElementById('sidebar');
-    const o = document.getElementById('sidebarOverlay');
-    if (h && s) {
-      h.addEventListener('click', () => { s.classList.toggle('open'); o?.classList.toggle('show'); });
-      o?.addEventListener('click', () => { s.classList.remove('open'); o?.classList.remove('show'); });
-    }
-  };
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ready);
-  else ready();
-})();
+// ── Sidebar toggle (event delegation — never blocks) ──
+document.addEventListener('click', e => {
+  const hamburger = e.target.closest('#hamburger');
+  const overlay   = e.target.closest('#sidebarOverlay');
+  const sidebar   = document.getElementById('sidebar');
+  if (hamburger && sidebar) {
+    sidebar.classList.toggle('open');
+    document.getElementById('sidebarOverlay')?.classList.toggle('show');
+  }
+  if (overlay && sidebar) {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('show');
+  }
+});
 
 const JOSKA_CLIENTS = (() => {
   let currentUser = null;
