@@ -1,17 +1,4 @@
-// ── Sidebar toggle (event delegation — never blocks) ──
-document.addEventListener('click', e => {
-  const hamburger = e.target.closest('#hamburger');
-  const overlay   = e.target.closest('#sidebarOverlay');
-  const sidebar   = document.getElementById('sidebar');
-  if (hamburger && sidebar) {
-    sidebar.classList.toggle('open');
-    document.getElementById('sidebarOverlay')?.classList.toggle('show');
-  }
-  if (overlay && sidebar) {
-    sidebar.classList.remove('open');
-    overlay.classList.remove('show');
-  }
-});
+
 
 const JOSKA_CLIENTS = (() => {
   let currentUser = null;
@@ -220,10 +207,29 @@ const JOSKA_CLIENTS = (() => {
     }).catch(() => {});
   }
 
+  function initSidebar() {
+    const hamburger = document.getElementById('hamburger');
+    const sidebar   = document.getElementById('sidebar');
+    const overlay   = document.getElementById('sidebarOverlay');
+    if (hamburger && sidebar) {
+      hamburger.addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+        overlay?.classList.toggle('show');
+      });
+    }
+    if (overlay) {
+      overlay.addEventListener('click', () => {
+        sidebar?.classList.remove('open');
+        overlay.classList.remove('show');
+      });
+    }
+  }
+
   function init(user) {
     if (!user) return;
     currentUser = user;
     subscribe();
+    initSidebar();
 
     $('btnNewClient').addEventListener('click', () => openModal());
     $('clientModalClose').addEventListener('click', closeModal);
