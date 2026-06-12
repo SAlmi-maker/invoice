@@ -619,6 +619,7 @@ const JOSKA_INVOICES = (() => {
     void invoiceEl?.offsetHeight; // force layout so table columns are computed before clone
     if (invoiceEl) {
       const clone = invoiceEl.cloneNode(true);
+      if (getPDFLang() === 'ar') clone.setAttribute('dir', 'rtl');
       const pc = document.createElement('div');
       pc.id = 'joska-print-container';
       pc.appendChild(clone);

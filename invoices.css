@@ -571,7 +571,7 @@
   object-fit: contain;
   border-radius: 6px;
 }
-.ip-invoice-company { text-align: left; }
+.ip-invoice-company { text-align: start; }
 .ip-invoice-company h2 {
   font-family: var(--ip-font-heading);
   font-size: 14pt;
@@ -617,8 +617,8 @@
 .ip-customer-block {
   width: 220px;
   flex-shrink: 0;
-  border-left: 2px solid var(--ip-border);
-  padding-left: 20px;
+  border-inline-start: 2px solid var(--ip-border);
+  padding-inline-start: 20px;
 }
 
 .ip-address-block h4 {
@@ -657,9 +657,9 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
   padding: 7px 10px;
-  text-align: left;
+  text-align: start;
 }
-.ip-invoice-table thead th:last-child { text-align: right; }
+.ip-invoice-table thead th:last-child { text-align: end; }
 .ip-invoice-table tbody td {
   padding: 6px 10px;
   font-size: 8pt;
@@ -667,7 +667,7 @@
   color: var(--ip-text);
 }
 .ip-invoice-table tbody td:last-child {
-  text-align: right;
+  text-align: end;
   font-weight: 600;
 }
 .ip-invoice-table tbody tr:nth-child(even) td {
@@ -700,7 +700,7 @@
   letter-spacing: 0.06em;
 }
 .ip-summary-grand td:last-child {
-  text-align: right;
+  text-align: end;
   font-size: 12pt;
   font-weight: 800;
 }
@@ -714,7 +714,7 @@
   font-size: 7.5pt;
 }
 .ip-summary-status td:last-child {
-  text-align: right;
+  text-align: end;
 }
 .ip-summary-status td:last-child .ip-status-badge {
   background: transparent;
