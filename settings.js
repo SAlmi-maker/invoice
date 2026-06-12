@@ -66,9 +66,6 @@ const JOSKA_SETTINGS = (() => {
     if (colorInput) colorInput.value = colorVal;
     if (colorText) colorText.value = colorVal;
     toggleColorPicker(colorMode === 'custom');
-    const tmpl = data.invoiceTemplate || 'classic';
-    const tmplRadio = document.querySelector(`input[name="invoiceTemplate"][value="${tmpl}"]`);
-    if (tmplRadio) tmplRadio.checked = true;
     const langSel = document.getElementById('invoiceLanguage');
     if (langSel) langSel.value = data.invoiceLanguage || '';
     const excelSel = document.getElementById('excelLang');
@@ -113,7 +110,7 @@ const JOSKA_SETTINGS = (() => {
           phone:       document.getElementById('field_phone')?.value.trim()       || '',
           email:       document.getElementById('field_email')?.value.trim()       || '',
           website:     document.getElementById('field_website')?.value.trim()     || '',
-          invoiceTemplate: document.querySelector('input[name="invoiceTemplate"]:checked')?.value || 'classic',
+          invoiceTemplate: 'classic',
           invoiceColorMode: document.querySelector('input[name="invoiceColorMode"]:checked')?.value || 'bw',
           invoiceColor: document.getElementById('invoiceColorInput')?.value || '#2563EB',
           invoiceLanguage: document.getElementById('invoiceLanguage')?.value || '',
