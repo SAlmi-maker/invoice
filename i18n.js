@@ -193,6 +193,10 @@ const JOSKA_I18N = (() => {
       'reports.subtitle':        'View revenue reports and trends for your rental business.',
       'reports.revenueTrend':    'Revenue Trend',
       'reports.monthlyBreakdown':'Monthly Breakdown',
+      'reports.month':           'Month',
+      'reports.revenue':         'Revenue',
+      'reports.invoiceNumber':   'Invoice #',
+      'reports.date':            'Date',
 
       // Template / Color settings
       'template.colorMode':   'Invoice Color',
@@ -391,6 +395,10 @@ const JOSKA_I18N = (() => {
       'reports.subtitle':        'Consultez les rapports de revenus et les tendances de votre activité de location.',
       'reports.revenueTrend':    'Tendance des Revenus',
       'reports.monthlyBreakdown':'Répartition Mensuelle',
+      'reports.month':           'Mois',
+      'reports.revenue':         'Revenu',
+      'reports.invoiceNumber':   'N° Facture',
+      'reports.date':            'Date',
 
       // Template / Color settings
       'template.colorMode':   'Couleur de la Facture',
@@ -588,6 +596,10 @@ const JOSKA_I18N = (() => {
       'reports.subtitle':        'عرض تقارير الإيرادات والاتجاهات لنشاط التأجير الخاص بك.',
       'reports.revenueTrend':    'اتجاه الإيرادات',
       'reports.monthlyBreakdown':'التفصيل الشهري',
+      'reports.month':           'الشهر',
+      'reports.revenue':         'الإيرادات',
+      'reports.invoiceNumber':   'رقم الفاتورة',
+      'reports.date':            'التاريخ',
 
       // Template / Color settings
       'template.colorMode':   'لون الفاتورة',

@@ -373,6 +373,7 @@ const JOSKA_REPORTS = (() => {
       return;
     }
 
+    const xl = companySettings.excelLang || JOSKA_I18N.getLang();
     const currency = JOSKA_I18N.t('common.currency');
     const months   = getMonthLabels();
 
@@ -397,7 +398,7 @@ const JOSKA_REPORTS = (() => {
     });
 
     const summaryRows = [
-      ['Month', 'Total Invoices', 'Paid', 'Pending', 'Overdue', `Revenue (${currency})`],
+      [JOSKA_I18N.tLang('reports.month', xl), JOSKA_I18N.tLang('dash.totalInvoices', xl), JOSKA_I18N.tLang('dash.paid', xl), JOSKA_I18N.tLang('dash.pending', xl), JOSKA_I18N.tLang('dash.overdue', xl), `${JOSKA_I18N.tLang('reports.revenue', xl)} (${currency})`],
       ...months.map((m, i) => [
         m,
         monthData[i].invoices,
@@ -410,7 +411,7 @@ const JOSKA_REPORTS = (() => {
 
     // Sheet 2 — Raw Invoices
     const invoiceRows = [
-      ['Invoice #', 'Client', 'Date', 'Status', `Amount (${currency})`],
+      [JOSKA_I18N.tLang('reports.invoiceNumber', xl), JOSKA_I18N.tLang('inv.col.client', xl), JOSKA_I18N.tLang('reports.date', xl), JOSKA_I18N.tLang('inv.col.status', xl), `${JOSKA_I18N.tLang('pdf.amount', xl)} (${currency})`],
       ...yearInvoices.map(inv => {
         const d = getDate(inv);
         return [
