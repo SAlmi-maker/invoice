@@ -590,6 +590,8 @@ tbody td {
 
 .settings-content { display: flex; flex-direction: column; gap: 22px; }
 
+.settings-row { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+
 .settings-section {
   background: var(--bg-surface);
   border: 1px solid var(--border-color);
@@ -721,6 +723,7 @@ tbody td {
   .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
   .stat-value { font-size: 1.3rem; }
 
+  .settings-row { grid-template-columns: 1fr; }
   .upload-pair { grid-template-columns: 1fr; }
   .form-row    { grid-template-columns: 1fr; }
 
