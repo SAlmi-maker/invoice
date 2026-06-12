@@ -11,12 +11,7 @@ const JOSKA_CLIENTS = (() => {
   function unlockScroll() { const y=parseInt(document.body.dataset.sy||'0'); document.documentElement.style.overflow=''; document.body.style.position=''; document.body.style.top=''; document.body.style.left=''; document.body.style.right=''; window.scrollTo(0,y); delete document.body.dataset.sy; }
 
   const $ = id => document.getElementById(id);
-  const toast = $('clientToast');
-  const tbody = $('clientTableBody');
-  const loading = $('clientLoading');
-  const empty = $('clientEmpty');
-  const search = $('clientSearch');
-  const countBadge = $('clientCount');
+  let toast, tbody, loading, empty, search, countBadge;
 
   function showToast(msg, type = 'success') {
     toast.textContent = msg;
@@ -228,6 +223,15 @@ const JOSKA_CLIENTS = (() => {
   function init(user) {
     if (!user) return;
     currentUser = user;
+
+    // Resolve DOM refs here — guaranteed ready (avoids null refs on mobile)
+    toast      = $('clientToast');
+    tbody      = $('clientTableBody');
+    loading    = $('clientLoading');
+    empty      = $('clientEmpty');
+    search     = $('clientSearch');
+    countBadge = $('clientCount');
+
     subscribe();
     initSidebar();
 
