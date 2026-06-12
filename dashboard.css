@@ -724,8 +724,8 @@ tbody td {
   .upload-pair { grid-template-columns: 1fr; }
   .form-row    { grid-template-columns: 1fr; }
 
-  thead th:nth-child(2),
-  tbody td:nth-child(2) { display: none; }
+  .recent-invoices-table thead th:nth-child(2),
+  .recent-invoices-table tbody td:nth-child(2) { display: none; }
 
   .btn-icon { width: 40px; height: 40px; }
   .btn-icon svg { width: 18px; height: 18px; }

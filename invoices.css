@@ -793,7 +793,8 @@
     margin-bottom: 0 !important;
   }
   #joska-print-container .ip-invoice table.ip-invoice-table {
-    table-layout: auto;
+    table-layout: fixed;
+    width: 100%;
   }
   #joska-print-container .ip-invoice table.ip-invoice-table thead th {
     font-size: 8pt;
@@ -801,10 +802,16 @@
     background: var(--ip-primary, #2563EB) !important;
     color: #ffffff !important;
     white-space: nowrap;
+    overflow: visible;
   }
+  #joska-print-container .ip-invoice table.ip-invoice-table thead th:nth-child(1) { width: 50%; }
+  #joska-print-container .ip-invoice table.ip-invoice-table thead th:nth-child(2) { width: 12%; }
+  #joska-print-container .ip-invoice table.ip-invoice-table thead th:nth-child(3) { width: 18%; }
+  #joska-print-container .ip-invoice table.ip-invoice-table thead th:nth-child(4) { width: 20%; }
   #joska-print-container .ip-invoice table.ip-invoice-table tbody td {
     font-size: 10pt;
     padding: 6px 10px;
+    overflow: visible;
   }
   #joska-print-container .ip-invoice table.ip-invoice-table tbody tr:nth-child(even) td {
     background: #F8FAFC !important;
