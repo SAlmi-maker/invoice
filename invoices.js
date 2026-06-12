@@ -773,8 +773,8 @@ const JOSKA_INVOICES = (() => {
     // ── Header: Logo left, Company left ───────────────────────
     let nameX = M;
     if (companySettings.logoBase64) {
-      doc.addImage(companySettings.logoBase64, 'PNG', M, 6, 18, 18);
-      nameX = M + 22;
+      doc.addImage(companySettings.logoBase64, 'PNG', M, 6, 24, 24);
+      nameX = M + 28;
     }
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(16);
@@ -970,8 +970,8 @@ const JOSKA_INVOICES = (() => {
 
     let nameX2 = M + 4;
     if (companySettings.logoBase64) {
-      doc.addImage(companySettings.logoBase64, 'PNG', M + 4, 4, 14, 14);
-      nameX2 = M + 22;
+      doc.addImage(companySettings.logoBase64, 'PNG', M + 4, 4, 20, 20);
+      nameX2 = M + 28;
     }
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(20);
@@ -1124,8 +1124,8 @@ const JOSKA_INVOICES = (() => {
     doc.rect(0, 0, W, 20, 'F');
     let nameX3 = M;
     if (companySettings.logoBase64) {
-      doc.addImage(companySettings.logoBase64, 'PNG', M, 2, 12, 12);
-      nameX3 = M + 15;
+      doc.addImage(companySettings.logoBase64, 'PNG', M, 2, 18, 18);
+      nameX3 = M + 22;
     }
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(11);
