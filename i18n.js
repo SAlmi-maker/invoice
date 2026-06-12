@@ -100,7 +100,7 @@ const JOSKA_I18N = (() => {
       'settings.nav.contact':      'Contact',
       'settings.section.companyInfo':    'Company Information',
       'settings.section.companyInfoDesc':'Basic details about your car rental agency',
-      'settings.section.branding':       'Branding & Visuals',
+      'settings.section.branding':       'Company Logo',
       'settings.section.brandingDesc':   'Your company logo appears on invoices',
       'settings.section.contact':        'Contact Details',
       'settings.section.contactDesc':    'Shown on invoices and client communications',
