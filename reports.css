@@ -378,7 +378,8 @@
   .monthly-table td:nth-child(3),
   .monthly-table th:nth-child(4),
   .monthly-table td:nth-child(4) { display: none; }
-  .export-group { display: none; }
+  .export-group .btn { font-size: 0; gap: 0; }
+  .export-group .btn svg { width: 16px; height: 16px; }
   .year-selector select { font-size: 0.82rem; padding: 6px 28px 6px 10px; }
 }
 @media (max-width: 480px) {

@@ -292,11 +292,19 @@ const JOSKA_DASHBOARD = (() => {
     const emptyEl = document.getElementById('invPreviewEmpty');
     if (emptyEl) emptyEl.classList.add('hidden');
 
-    const s = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val ?? ''; };
-    const t = JOSKA_I18N.t;
-    const currency = t('common.currency');
-    const fmt = (n) => formatCurrency(n, currency);
     const cs = companySettings || {};
+    const invLang = cs.invoiceLanguage || '';
+    const t = invLang && invLang !== JOSKA_I18N.getLang()
+      ? (key) => JOSKA_I18N.tLang(key, invLang)
+      : JOSKA_I18N.t;
+    const currency = JOSKA_I18N.t('common.currency');
+    const fmtNum = (n) => {
+      if (isNaN(n)) n = 0;
+      return new Intl.NumberFormat(invLang || JOSKA_I18N.getLang(), {
+        minimumFractionDigits: 0, maximumFractionDigits: 2
+      }).format(n);
+    };
+    const fmt = (n) => fmtNum(n) + ' ' + currency;
     const startDate = inv.startDate || '';
     const endDate = inv.endDate || '';
     let days = inv.days;
@@ -321,7 +329,10 @@ const JOSKA_DASHBOARD = (() => {
     const colorMode = cs.invoiceColorMode || 'bw';
     const accentHex = colorMode === 'bw' ? '#1e293b' : (cs.invoiceColor || '#2563EB');
     const invoiceEl = document.getElementById('ip_invoicePreview');
-    if (invoiceEl) invoiceEl.style.setProperty('--ip-primary', accentHex);
+    if (invoiceEl) {
+      invoiceEl.setAttribute('dir', invLang === 'ar' ? 'rtl' : 'ltr');
+      invoiceEl.style.setProperty('--ip-primary', accentHex);
+    }
 
     const logoEl = document.getElementById('preview_logo');
     if (cs.logoBase64 && logoEl) {
@@ -359,11 +370,11 @@ const JOSKA_DASHBOARD = (() => {
       const dash = '—';
       const addRow = (desc, daysVal, unit, amt) => {
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${escHtml(desc)}</td><td>${daysVal}</td><td>${fmt(unit)}</td><td>${fmt(amt)}</td>`;
+        tr.innerHTML = `<td>${escHtml(desc)}</td><td>${daysVal}</td><td>${typeof unit === 'number' ? fmt(unit) : unit}</td><td>${fmt(amt)}</td>`;
         tbody.appendChild(tr);
       };
       addRow(`${t('inv.field.rentalSubtotal')} (${inv.vehicleBrand || ''} ${inv.vehicleModel || ''})`, days, dp, rental);
-      extras.forEach(e => addRow(e.label, dash, e.val, e.val));
+      extras.forEach(e => addRow(e.label, dash, dash, e.val));
     }
 
     s('preview_grandLabel', t('pdf.grandTotal'));
