@@ -492,8 +492,18 @@
 @media (max-width: 600px) {
   #invoiceModal.open:not(.preview-only) .inv-preview-wrap { display: none; }
   #invoiceModal.open .modal-panel { max-width: 100%; }
-  #invoiceModal.open.preview-only .inv-preview-wrap { width: 100% !important; max-width: 100%; }
-  #dashPreviewBackdrop .inv-preview-wrap { width: 100% !important; max-width: 100%; }
+  #invoiceModal.open.preview-only { padding: 0; }
+  #invoiceModal.open.preview-only .inv-preview-wrap { width: 100% !important; max-width: 100%; max-height: 100vh; border-radius: 0; border: none; }
+  #invoiceModal.open.preview-only .inv-preview-header { padding: 10px 14px; }
+  #invoiceModal.open.preview-only .inv-preview-body { padding: 8px; }
+  #invoiceModal.open.preview-only .inv-preview-body .ip-invoice { transform: scale(0.44); margin-bottom: calc((1123px * 0.44 - 1123px)); }
+  #invoiceModal.open.preview-only .inv-preview-close { font-size: 1.6rem; padding: 8px; min-width: 44px; min-height: 44px; }
+  #dashPreviewBackdrop { padding: 0; }
+  #dashPreviewBackdrop .inv-preview-wrap { width: 100% !important; max-width: 100%; max-height: 100vh; border-radius: 0; border: none; }
+  #dashPreviewBackdrop .inv-preview-header { padding: 10px 14px; }
+  #dashPreviewBackdrop .inv-preview-body { padding: 8px; }
+  #dashPreviewBackdrop .inv-preview-body .ip-invoice { transform: scale(0.44); margin-bottom: calc((1123px * 0.44 - 1123px)); }
+  #dashPreviewBackdrop .inv-preview-close { font-size: 1.6rem; padding: 8px; min-width: 44px; min-height: 44px; }
 }
 
 @media (max-width: 480px) {
