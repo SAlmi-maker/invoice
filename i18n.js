@@ -207,6 +207,11 @@ const JOSKA_I18N = (() => {
       'template.bw':          'Black & White',
       'template.custom':      'Custom Color',
       'template.chooseColor': 'Choose color',
+      'template.invoiceTemplate':'Invoice Template',
+      'template.templateDesc':   'Choose the layout style for your PDF invoices',
+      'template.classic':        'Classic',
+      'template.modern':         'Modern',
+      'template.compact':        'Compact',
 
       // Common
       'common.loading':  'Loading...',
@@ -412,6 +417,11 @@ const JOSKA_I18N = (() => {
       'template.bw':          'Noir & Blanc',
       'template.custom':      'Couleur Personnalisée',
       'template.chooseColor': 'Choisir la couleur',
+      'template.invoiceTemplate':'Modèle de Facture',
+      'template.templateDesc':   'Choisissez la disposition de vos factures PDF',
+      'template.classic':        'Classique',
+      'template.modern':         'Moderne',
+      'template.compact':        'Compact',
 
       'common.loading':  'Chargement...',
       'common.saving':   'Enregistrement...',
@@ -616,6 +626,11 @@ const JOSKA_I18N = (() => {
       'template.bw':          'أبيض وأسود',
       'template.custom':      'لون مخصص',
       'template.chooseColor': 'اختيار لون',
+      'template.invoiceTemplate':'قالب الفاتورة',
+      'template.templateDesc':   'اختر تخطيط فواتير PDF الخاصة بك',
+      'template.classic':        'كلاسيكي',
+      'template.modern':         'حديث',
+      'template.compact':        'مضغوط',
 
       'common.loading':  'جارٍ التحميل...',
       'common.saving':   'جارٍ الحفظ...',
