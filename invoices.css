@@ -719,8 +719,8 @@
 .ip-summary-status td:last-child .ip-status-badge {
   background: transparent;
   padding: 0;
-  font-size: 7.5pt;
-  font-weight: 700;
+  font-size: 12pt;
+  font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.06em;
 }
@@ -825,6 +825,7 @@
   #joska-print-container .ip-invoice .ip-invoice-meta       { font-size: 9pt; }
   #joska-print-container .ip-invoice .ip-summary-table td   { font-size: 11pt; padding: 10px 10px; }
   #joska-print-container .ip-invoice .ip-summary-grand td:last-child { font-size: 14pt; }
+  #joska-print-container .ip-invoice .ip-summary-status td:last-child .ip-status-badge { font-size: 14pt; font-weight: 800; }
   #joska-print-container .ip-invoice .ip-invoice-footer h5  { font-size: 8pt; }
   #joska-print-container .ip-invoice .ip-invoice-footer p   { font-size: 9pt; }
   @page { size: A4 portrait; margin: 0; }

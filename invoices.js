@@ -701,11 +701,11 @@ const JOSKA_INVOICES = (() => {
       const dash = '—';
       const addRow = (desc, daysVal, unit, amt) => {
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td>${escHtml(desc)}</td><td>${daysVal}</td><td>${fmt(unit)}</td><td>${fmt(amt)}</td>`;
+        tr.innerHTML = `<td>${escHtml(desc)}</td><td>${daysVal}</td><td>${typeof unit === 'number' ? fmt(unit) : unit}</td><td>${fmt(amt)}</td>`;
         tbody.appendChild(tr);
       };
       addRow(`${t('inv.field.rentalSubtotal')} (${inv.vehicleBrand || ''} ${inv.vehicleModel || ''})`, days, dp, rental);
-      extras.forEach(e => addRow(e.label, dash, e.val, e.val));
+      extras.forEach(e => addRow(e.label, dash, dash, e.val));
     }
 
     s('preview_grandLabel', t('pdf.grandTotal'));
