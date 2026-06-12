@@ -606,41 +606,52 @@ const JOSKA_INVOICES = (() => {
 
     populatePreview(inv);
 
-    const wrap = document.getElementById('invPreviewWrap');
-    if (wrap) wrap.classList.add('open');
-    if (modal) modal.classList.add('open');
-    lockScroll();
-    const emptyEl = document.getElementById('invPreviewEmpty');
-    if (emptyEl) emptyEl.classList.add('hidden');
+    // Ensure the preview is rendered so table columns are computed
+    void document.querySelector('.ip-invoice')?.offsetHeight;
 
-    void modal?.offsetHeight;
+    // Close preview if it wasn't already open
+    if (!wasOpen) {
+      const wrap = document.getElementById('invPreviewWrap');
+      if (wrap) wrap.classList.remove('open');
+      if (modal) modal.classList.remove('open');
+      unlockScroll();
+    }
 
     const invoiceEl = document.querySelector('.ip-invoice');
-    void invoiceEl?.offsetHeight; // force layout so table columns are computed before clone
-    const doPrint = () => {
-      if (invoiceEl) {
-        const clone = invoiceEl.cloneNode(true);
-        if (getPDFLang() === 'ar') clone.setAttribute('dir', 'rtl');
-        const pc = document.createElement('div');
-        pc.id = 'joska-print-container';
-        pc.appendChild(clone);
-        document.body.appendChild(pc);
-        window.print();
-        document.body.removeChild(pc);
-      } else {
-        window.print();
-      }
+    if (!invoiceEl) { window.print(); return; }
 
-      if (!wasOpen) {
-        if (wrap) wrap.classList.remove('open');
-        if (modal) modal.classList.remove('open');
-        unlockScroll();
-      }
-    };
+    const clone = invoiceEl.cloneNode(true);
+    if (getPDFLang() === 'ar') clone.setAttribute('dir', 'rtl');
 
-    // Unlock scroll so body isn't fixed — mobile print engines need it
-    unlockScroll();
-    setTimeout(doPrint, 200);
+    // Build a standalone print document in an off-screen iframe
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:210mm;height:297mm;border:none;';
+    document.body.appendChild(iframe);
+
+    const printDoc = iframe.contentWindow.document;
+    printDoc.open();
+    printDoc.write('<!DOCTYPE html><html><head><meta charset="utf-8">');
+
+    // Copy all stylesheet links and inline styles
+    document.querySelectorAll('link[rel="stylesheet"]').forEach(el => {
+      if (el.href) printDoc.write(`<link rel="stylesheet" href="${el.href}">`);
+    });
+    document.querySelectorAll('style').forEach(el => {
+      printDoc.write(`<style>${el.textContent}</style>`);
+    });
+
+    printDoc.write('</head><body>');
+    printDoc.write(clone.outerHTML);
+    printDoc.write('</body></html>');
+    printDoc.close();
+
+    // Wait for fonts/styles to load, then print
+    setTimeout(() => {
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+      // Cleanup after print dialog closes
+      setTimeout(() => { document.body.removeChild(iframe); }, 1000);
+    }, 500);
   }
 
   // ── Populate InvoicePro preview elements ────────────────
