@@ -617,25 +617,30 @@ const JOSKA_INVOICES = (() => {
 
     const invoiceEl = document.querySelector('.ip-invoice');
     void invoiceEl?.offsetHeight; // force layout so table columns are computed before clone
-    if (invoiceEl) {
-      const clone = invoiceEl.cloneNode(true);
-      if (getPDFLang() === 'ar') clone.setAttribute('dir', 'rtl');
-      const pc = document.createElement('div');
-      pc.id = 'joska-print-container';
-      pc.appendChild(clone);
-      document.body.appendChild(pc);
-      void pc.offsetHeight;
-      window.print();
-      document.body.removeChild(pc);
-    } else {
-      window.print();
-    }
+    const doPrint = () => {
+      if (invoiceEl) {
+        const clone = invoiceEl.cloneNode(true);
+        if (getPDFLang() === 'ar') clone.setAttribute('dir', 'rtl');
+        const pc = document.createElement('div');
+        pc.id = 'joska-print-container';
+        pc.appendChild(clone);
+        document.body.appendChild(pc);
+        window.print();
+        document.body.removeChild(pc);
+      } else {
+        window.print();
+      }
 
-    if (!wasOpen) {
-      if (wrap) wrap.classList.remove('open');
-      if (modal) modal.classList.remove('open');
-      unlockScroll();
-    }
+      if (!wasOpen) {
+        if (wrap) wrap.classList.remove('open');
+        if (modal) modal.classList.remove('open');
+        unlockScroll();
+      }
+    };
+
+    // Unlock scroll so body isn't fixed — mobile print engines need it
+    unlockScroll();
+    setTimeout(doPrint, 200);
   }
 
   // ── Populate InvoicePro preview elements ────────────────
