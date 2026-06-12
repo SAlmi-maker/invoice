@@ -665,7 +665,10 @@ const JOSKA_INVOICES = (() => {
 
     const accentHex = invoiceColorMode === 'bw' ? '#1e293b' : (invoiceColor || '#2563EB');
     const invoiceEl = document.getElementById('ip_invoicePreview');
-    if (invoiceEl) invoiceEl.style.setProperty('--ip-primary', accentHex);
+    if (invoiceEl) {
+      invoiceEl.setAttribute('dir', lang === 'ar' ? 'rtl' : 'ltr');
+      invoiceEl.style.setProperty('--ip-primary', accentHex);
+    }
 
     const logoEl = document.getElementById('preview_logo');
     if (companySettings.logoBase64 && logoEl) {
