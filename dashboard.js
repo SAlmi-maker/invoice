@@ -168,8 +168,9 @@ const JOSKA_DASHBOARD = (() => {
   }
 
   function getInvoiceDate(inv) {
-    if (inv.createdAt && inv.createdAt.toDate) return inv.createdAt.toDate();
-    if (inv.date) return new Date(inv.date);
+    if (inv.startDate)         return new Date(inv.startDate);
+    if (inv.createdAt?.toDate) return inv.createdAt.toDate();
+    if (inv.date)              return new Date(inv.date);
     return null;
   }
 
@@ -188,17 +189,12 @@ const JOSKA_DASHBOARD = (() => {
     if (subEl && subtitle) subEl.textContent = subtitle;
 
     if (trendEl && prev !== null && curr !== null) {
-      if (prev === 0) {
-        trendEl.textContent = curr > 0 ? '—' : '0.0%';
-        trendEl.className   = `stat-trend ${curr > 0 ? 'up' : ''}`;
-      } else {
-        const diff = (curr - prev) / prev * 100;
-        const sign = diff >= 0 ? '+' : '';
-        const cls  = diff >= 0 ? 'up' : 'down';
-        const icon = diff >= 0 ? '↑' : '↓';
-        trendEl.textContent = `${icon} ${sign}${diff.toFixed(1)}%`;
-        trendEl.className   = `stat-trend ${cls}`;
-      }
+      const diff = prev === 0 ? (curr > 0 ? 100 : 0) : ((curr - prev) / prev * 100);
+      const sign = diff >= 0 ? '+' : '';
+      const cls  = diff >= 0 ? 'up' : 'down';
+      const icon = diff >= 0 ? '↑' : '↓';
+      trendEl.textContent = `${icon} ${sign}${diff.toFixed(1)}%`;
+      trendEl.className   = `stat-trend ${cls}`;
     }
   }
 
