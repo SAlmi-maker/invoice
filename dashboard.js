@@ -57,6 +57,9 @@ const JOSKA_DASHBOARD = (() => {
   function applyCompanyBranding(settings) {
     const nameEls = document.querySelectorAll('.company-name');
     nameEls.forEach(el => el.textContent = settings.companyName || 'JOSKA');
+    const u = JOSKA_AUTH.currentUser();
+    const fallback = u ? (u.displayName || u.email.split('@')[0]) : 'User';
+    document.querySelectorAll('.user-name').forEach(el => el.textContent = settings.companyName || fallback);
 
     if (settings.logoUrl) {
       const logoEls = document.querySelectorAll('.company-logo-img');

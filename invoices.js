@@ -50,8 +50,7 @@ const JOSKA_INVOICES = (() => {
     initThemeToggle();
     initSidebar();
     setTodayAsDefault();
-    populateMonthSelect();
-    populateYearSelect();
+    populateExportModal();
 
     const params = new URLSearchParams(window.location.search);
     const viewId = params.get('view');
@@ -66,11 +65,13 @@ const JOSKA_INVOICES = (() => {
   function renderUserInfo(user) {
     const display = user.displayName || user.email.split('@')[0];
     const initials = display.slice(0, 2).toUpperCase();
-    document.querySelectorAll('.user-name').forEach(el => el.textContent = display);
     document.querySelectorAll('.user-email').forEach(el => el.textContent = user.email);
     document.querySelectorAll('.user-avatar-text').forEach(el => el.textContent = initials);
     if (companySettings.companyName) {
       document.querySelectorAll('.company-name').forEach(el => el.textContent = companySettings.companyName);
+      document.querySelectorAll('.user-name').forEach(el => el.textContent = companySettings.companyName);
+    } else {
+      document.querySelectorAll('.user-name').forEach(el => el.textContent = display);
     }
   }
 
@@ -216,6 +217,12 @@ const JOSKA_INVOICES = (() => {
       if (e.target === document.getElementById('deleteModal')) closeDeleteModal();
     });
     document.getElementById('btnExportAll')?.addEventListener('click', exportFiltered);
+    document.getElementById('exportModalClose')?.addEventListener('click', closeExportModal);
+    document.getElementById('exportCancelBtn')?.addEventListener('click', closeExportModal);
+    document.getElementById('exportConfirmBtn')?.addEventListener('click', doExportPDF);
+    document.getElementById('exportModal')?.addEventListener('click', e => {
+      if (e.target === document.getElementById('exportModal')) closeExportModal();
+    });
     document.getElementById('invSearch')?.addEventListener('input', e => {
       searchQuery = e.target.value;
       applyFilters();
@@ -246,6 +253,7 @@ const JOSKA_INVOICES = (() => {
     document.getElementById('inv_status')?.addEventListener('change', renderHTMLPreview);
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape') {
+        if (document.getElementById('exportModal')?.classList.contains('open')) closeExportModal();
         if (document.getElementById('invoiceModal')?.classList.contains('open')) closeModal();
         if (document.getElementById('deleteModal')?.classList.contains('open')) closeDeleteModal();
       }
@@ -484,7 +492,7 @@ const JOSKA_INVOICES = (() => {
     return diff < 0 ? 0 : diff + 1;
   }
 
-  // ── Month/year selectors ──────────────────────────────────
+  // ── Export modal helpers ──────────────────────────────────
   const MONTHS_EN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const MONTHS_FR = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
   const MONTHS_AR = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
@@ -496,32 +504,30 @@ const JOSKA_INVOICES = (() => {
     return MONTHS_EN;
   }
 
-  function populateMonthSelect() {
-    const sel = document.getElementById('exportMonth');
-    if (!sel) return;
-    const months = getMonthLabels();
-    const cur = new Date().getMonth(); // 0-based
-    sel.innerHTML = '';
-    months.forEach((name, i) => {
-      const opt = document.createElement('option');
-      opt.value = i + 1;
-      opt.textContent = name;
-      if (i === cur) opt.selected = true;
-      sel.appendChild(opt);
-    });
-  }
-
-  function populateYearSelect() {
-    const sel = document.getElementById('exportYear');
-    if (!sel) return;
-    const cur = new Date().getFullYear();
-    for (let y = cur; y >= cur - 5; y--) {
-      const opt = document.createElement('option');
-      opt.value = y;
-      opt.textContent = y;
-      if (y === cur) opt.selected = true;
-      sel.appendChild(opt);
+  function populateExportModal() {
+    const yearSel = document.getElementById('exportYear');
+    if (yearSel) {
+      const cur = new Date().getFullYear();
+      yearSel.innerHTML = '';
+      for (let y = cur; y >= cur - 5; y--) {
+        const opt = document.createElement('option');
+        opt.value = y;
+        opt.textContent = y;
+        if (y === cur) opt.selected = true;
+        yearSel.appendChild(opt);
+      }
     }
+    const grid = document.getElementById('exportMonthGrid');
+    if (!grid) return;
+    const months = getMonthLabels();
+    const curMonth = new Date().getMonth();
+    grid.innerHTML = '';
+    months.forEach((name, i) => {
+      const label = document.createElement('label');
+      label.style.cssText = 'display:flex;align-items:center;gap:4px;font-size:0.82rem;cursor:pointer;padding:4px 6px;border-radius:6px;border:1px solid var(--border-color);transition:all .15s;';
+      label.innerHTML = `<input type="checkbox" value="${i+1}" ${i === curMonth ? 'checked' : ''} style="accent-color:var(--primary);"> ${name}`;
+      grid.appendChild(label);
+    });
   }
 
   // ── Save invoice ──────────────────────────────────────────
@@ -619,18 +625,26 @@ const JOSKA_INVOICES = (() => {
     printInvoice(inv);
   }
 
-  // ── Export all invoices for selected month as XLSX ────────
+  // ── Export selection modal ────────────────────────────────
   function exportFiltered() {
-    if (!window.XLSX) {
-      showToast('error', 'SheetJS not loaded. Please refresh the page.');
-      return;
-    }
+    populateExportModal();
+    const modal = document.getElementById('exportModal');
+    if (modal) { modal.classList.add('open'); lockScroll(); }
+  }
 
-    const monthEl = document.getElementById('exportMonth');
+  function closeExportModal() {
+    const modal = document.getElementById('exportModal');
+    if (modal) modal.classList.remove('open');
+    unlockScroll();
+  }
+
+  function doExportPDF() {
+    const checked = document.querySelectorAll('#exportMonthGrid input[type="checkbox"]:checked');
     const yearEl  = document.getElementById('exportYear');
-    const month   = parseInt(monthEl?.value || '12');
-    const year    = parseInt(yearEl?.value || new Date().getFullYear());
-    const currency = JOSKA_I18N.t('common.currency');
+    if (!checked.length) { showToast('error', 'Select at least one month'); return; }
+
+    const months = Array.from(checked).map(cb => parseInt(cb.value));
+    const year   = parseInt(yearEl?.value || new Date().getFullYear());
 
     const matched = allInvoices.filter(inv => {
       let d = null;
@@ -638,46 +652,61 @@ const JOSKA_INVOICES = (() => {
       else if (inv.createdAt?.toDate) d = inv.createdAt.toDate();
       else if (inv.date)         d = new Date(inv.date);
       if (!d) return false;
-      return d.getMonth() + 1 === month && d.getFullYear() === year;
+      return months.includes(d.getMonth() + 1) && d.getFullYear() === year;
     });
 
-    if (!matched.length) {
-      showToast('error', 'No invoices found for ' + month + '/' + year);
-      return;
-    }
+    if (!matched.length) { showToast('error', 'No invoices found for the selected period'); return; }
 
-    const rows = [
-      ['Invoice#', 'Client', 'ID/Passport', 'Phone', 'Vehicle', 'Plate',
-       'Start Date', 'End Date', 'Days', 'Daily Price', 'Total', 'Status']
-    ];
+    closeExportModal();
 
-    matched.forEach(inv => {
-      const days = inv.days ?? calcDays(inv.startDate, inv.endDate);
-      const total = parseFloat(inv.total || 0);
-      const daily = parseFloat(inv.dailyPrice || 0);
-      const status = inv.status || 'draft';
-      const vehicle = [inv.vehicleBrand, inv.vehicleModel].filter(Boolean).join(' ');
-      rows.push([
-        inv.invoiceNumber || inv.id.slice(-6).toUpperCase(),
-        inv.clientName || '—',
-        inv.cin || '',
-        inv.phone || '',
-        vehicle || '—',
-        inv.plate || '—',
-        inv.startDate || '—',
-        inv.endDate || '—',
-        days,
-        daily,
-        total + ' ' + currency,
-        status.charAt(0).toUpperCase() + status.slice(1)
-      ]);
+    // Generate combined PDF — collect clones of each invoice preview
+    const clones = [];
+    matched.forEach((inv, idx) => {
+      populatePreview(inv);
+      const el = document.querySelector('.ip-invoice');
+      if (!el) return;
+      const clone = el.cloneNode(true);
+      if (idx > 0) {
+        const pageBreak = document.createElement('div');
+        pageBreak.style.cssText = 'page-break-before:always;break-before:page;height:0;';
+        clones.push(pageBreak);
+      }
+      clones.push(clone);
     });
 
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows), 'Invoices');
-    const companyName = companySettings.companyName || 'JOSKA';
-    XLSX.writeFile(wb, `${companyName}_Invoices_${month}_${year}.xlsx`);
-    showToast('success', `Exported ${matched.length} invoice(s) for ${month}/${year}`);
+    if (!clones.length) { showToast('error', 'Failed to generate invoices'); return; }
+
+    const lang = getPDFLang();
+    const isRTL = lang === 'ar';
+
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:210mm;height:297mm;border:none;';
+    document.body.appendChild(iframe);
+
+    const printDoc = iframe.contentWindow.document;
+    printDoc.open();
+    printDoc.write('<!DOCTYPE html><html><head><meta charset="utf-8">');
+    document.querySelectorAll('link[rel="stylesheet"]').forEach(el => {
+      if (el.href) printDoc.write(`<link rel="stylesheet" href="${el.href}">`);
+    });
+    document.querySelectorAll('style').forEach(el => {
+      printDoc.write(`<style>${el.textContent}</style>`);
+    });
+    printDoc.write(isRTL ? '<style>body{direction:rtl}</style>' : '');
+    printDoc.write('</head><body>');
+    printDoc.write('<div id="joska-print-container">');
+    clones.forEach(c => printDoc.write(c.outerHTML));
+    printDoc.write('</div>');
+    printDoc.write('</body></html>');
+    printDoc.close();
+
+    setTimeout(() => {
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+      setTimeout(() => { document.body.removeChild(iframe); }, 1000);
+    }, 500);
+
+    showToast('success', `Exporting ${matched.length} invoice(s) as PDF`);
   }
 
   // ── Print / PDF via browser ─────────────────────────────
@@ -1451,7 +1480,7 @@ const JOSKA_INVOICES = (() => {
     return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
-  return { init, openEdit, openPreview, openDelete, exportSingle, populateMonthSelect };
+  return { init, openEdit, openPreview, openDelete, exportSingle, populateExportModal };
 })();
 
 
@@ -1466,6 +1495,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.addEventListener('joska:langChanged', () => {
     JOSKA_I18N.applyToDOM();
-    JOSKA_INVOICES.populateMonthSelect();
+    JOSKA_INVOICES.populateExportModal();
   });
 });

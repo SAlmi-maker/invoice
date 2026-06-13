@@ -46,6 +46,9 @@ const JOSKA_REPORTS = (() => {
       if (doc.exists) {
         companySettings = doc.data();
         JOSKA_I18N.setCurrency(companySettings.currency || 'MAD');
+        if (companySettings.companyName) {
+          document.querySelectorAll('.user-name').forEach(el => el.textContent = companySettings.companyName);
+        }
       }
     } catch (err) {
       console.error('Error loading settings:', err);

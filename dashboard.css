@@ -718,6 +718,7 @@ tbody td {
   }
   .sidebar-overlay { display: block; pointer-events: none; }
   .sidebar-overlay.show { pointer-events: all; }
+  .sidebar .user-email { display: none; }
 
   .main-content  { margin-inline-start: 0; }
   .topbar-hamburger { display: flex; }
