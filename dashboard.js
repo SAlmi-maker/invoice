@@ -23,16 +23,9 @@ const JOSKA_DASHBOARD = (() => {
 
   // ── User Info ─────────────────────────────────────────────
   function renderUserInfo(user) {
-    const nameEls = document.querySelectorAll('.user-name');
-    const emailEls = document.querySelectorAll('.user-email');
-    const avatarEls = document.querySelectorAll('.user-avatar-text');
-
-    const displayName = user.displayName || user.email.split('@')[0];
-    const initials    = displayName.slice(0, 2).toUpperCase();
-
-    nameEls.forEach(el  => el.textContent = displayName);
-    emailEls.forEach(el => el.textContent = user.email);
-    avatarEls.forEach(el => el.textContent = initials);
+    const initials = (user.displayName || user.email.split('@')[0]).slice(0, 2).toUpperCase();
+    document.querySelectorAll('.user-email').forEach(el => el.textContent = user.email);
+    document.querySelectorAll('.user-avatar-text').forEach(el => el.textContent = initials);
   }
 
   // ── Company Settings ──────────────────────────────────────
@@ -57,9 +50,7 @@ const JOSKA_DASHBOARD = (() => {
   function applyCompanyBranding(settings) {
     const nameEls = document.querySelectorAll('.company-name');
     nameEls.forEach(el => el.textContent = settings.companyName || 'JOSKA');
-    const u = JOSKA_AUTH.currentUser();
-    const fallback = u ? (u.displayName || u.email.split('@')[0]) : 'User';
-    document.querySelectorAll('.user-name').forEach(el => el.textContent = settings.companyName || fallback);
+
 
     if (settings.logoUrl) {
       const logoEls = document.querySelectorAll('.company-logo-img');

@@ -63,15 +63,11 @@ const JOSKA_INVOICES = (() => {
 
   // ── User info in sidebar ──────────────────────────────────
   function renderUserInfo(user) {
-    const display = user.displayName || user.email.split('@')[0];
-    const initials = display.slice(0, 2).toUpperCase();
+    const initials = (user.displayName || user.email.split('@')[0]).slice(0, 2).toUpperCase();
     document.querySelectorAll('.user-email').forEach(el => el.textContent = user.email);
     document.querySelectorAll('.user-avatar-text').forEach(el => el.textContent = initials);
     if (companySettings.companyName) {
       document.querySelectorAll('.company-name').forEach(el => el.textContent = companySettings.companyName);
-      document.querySelectorAll('.user-name').forEach(el => el.textContent = companySettings.companyName);
-    } else {
-      document.querySelectorAll('.user-name').forEach(el => el.textContent = display);
     }
   }
 

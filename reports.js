@@ -46,9 +46,7 @@ const JOSKA_REPORTS = (() => {
       if (doc.exists) {
         companySettings = doc.data();
         JOSKA_I18N.setCurrency(companySettings.currency || 'MAD');
-        if (companySettings.companyName) {
-          document.querySelectorAll('.user-name').forEach(el => el.textContent = companySettings.companyName);
-        }
+
       }
     } catch (err) {
       console.error('Error loading settings:', err);
@@ -57,9 +55,7 @@ const JOSKA_REPORTS = (() => {
 
   // ── User Info ─────────────────────────────────────────────
   function renderUserInfo(user) {
-    const displayName = user.displayName || user.email.split('@')[0];
-    const initials    = displayName.slice(0, 2).toUpperCase();
-    document.querySelectorAll('.user-name').forEach(el  => el.textContent = displayName);
+    const initials = (user.displayName || user.email.split('@')[0]).slice(0, 2).toUpperCase();
     document.querySelectorAll('.user-email').forEach(el => el.textContent = user.email);
     document.querySelectorAll('.user-avatar-text').forEach(el => el.textContent = initials);
   }
