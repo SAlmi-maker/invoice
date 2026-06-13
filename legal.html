@@ -161,22 +161,25 @@
 
     /* ── INFO BOX ── */
     .info-box {
-      background: var(--primary-light); border-left: 3px solid var(--primary);
+      background: var(--primary-light); border-inline-start: 3px solid var(--primary);
       border-radius: 0 8px 8px 0; padding: 14px 16px; margin: 16px 0;
     }
+    body.rtl .info-box { border-radius: 8px 0 0 8px; }
     .info-box p { font-size: 0.83rem; color: var(--text-primary); margin: 0; }
     .info-box strong { color: var(--primary); }
 
     .warn-box {
-      background: var(--amber-light); border-left: 3px solid var(--amber);
+      background: var(--amber-light); border-inline-start: 3px solid var(--amber);
       border-radius: 0 8px 8px 0; padding: 14px 16px; margin: 16px 0;
     }
+    body.rtl .warn-box { border-radius: 8px 0 0 8px; }
     .warn-box p { font-size: 0.83rem; color: var(--text-primary); margin: 0; }
 
     /* ── DATA TABLE ── */
-    .data-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.82rem; }
+    .table-wrap { overflow-x: auto; margin: 16px 0; }
+    .data-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
     .data-table th {
-      text-align: left; padding: 9px 12px;
+      text-align: start; padding: 9px 12px;
       background: var(--bg-muted); color: var(--text-muted);
       font-size: 0.7rem; font-weight: 700; letter-spacing: .06em;
       text-transform: uppercase; border-bottom: 1px solid var(--border-color);
@@ -325,6 +328,7 @@
         <h3 data-i18n="legal.privacy.dataTitle">1. Information We Collect</h3>
         <p data-i18n="legal.privacy.dataTableIntro">We collect the minimum data necessary to provide our service. Here's a detailed breakdown:</p>
 
+        <div class="table-wrap">
         <table class="data-table">
           <thead>
             <tr>
@@ -336,52 +340,53 @@
           </thead>
           <tbody>
             <tr>
-              <td><strong>Account</strong></td>
+              <td><strong data-i18n="legal.privacy.dataTable.categoryAccount">Account</strong></td>
               <td data-i18n="legal.privacy.dataTable.emailHashedPwd">Email address, hashed password</td>
               <td data-i18n="legal.privacy.dataTable.authAccess">Authentication &amp; access control</td>
-              <td><span class="tag tag-blue">You provide it</span></td>
+              <td><span class="tag tag-blue" data-i18n="legal.privacy.dataTable.youProvide">You provide it</span></td>
             </tr>
             <tr>
-              <td><strong>Company Profile</strong></td>
+              <td><strong data-i18n="legal.privacy.dataTable.categoryCompany">Company Profile</strong></td>
               <td data-i18n="legal.privacy.dataTable.companyInfo">Company name, logo, address, phone, email, website</td>
               <td data-i18n="legal.privacy.dataTable.displayInvoices">Display on invoices &amp; reports</td>
-              <td><span class="tag tag-blue">You provide it</span></td>
+              <td><span class="tag tag-blue" data-i18n="legal.privacy.dataTable.youProvide">You provide it</span></td>
             </tr>
             <tr>
-              <td><strong>Client Records</strong></td>
+              <td><strong data-i18n="legal.privacy.dataTable.categoryClient">Client Records</strong></td>
               <td data-i18n="legal.privacy.dataTable.clientInfoFields">Client name, CIN/passport number, phone number</td>
               <td data-i18n="legal.privacy.dataTable.invoiceGen">Invoice generation, client management</td>
-              <td><span class="tag tag-blue">You enter it</span></td>
+              <td><span class="tag tag-blue" data-i18n="legal.privacy.dataTable.youEnter">You enter it</span></td>
             </tr>
             <tr>
-              <td><strong>Vehicle Data</strong></td>
+              <td><strong data-i18n="legal.privacy.dataTable.categoryVehicle">Vehicle Data</strong></td>
               <td data-i18n="legal.privacy.dataTable.vehicleFields">Brand, model, plate number, daily rate</td>
               <td data-i18n="legal.privacy.dataTable.invoiceReportGen">Invoice and report generation</td>
-              <td><span class="tag tag-blue">You enter it</span></td>
+              <td><span class="tag tag-blue" data-i18n="legal.privacy.dataTable.youEnter">You enter it</span></td>
             </tr>
             <tr>
-              <td><strong>Invoice Data</strong></td>
+              <td><strong data-i18n="legal.privacy.dataTable.categoryInvoice">Invoice Data</strong></td>
               <td data-i18n="legal.privacy.dataTable.invoiceFields">Rental dates, amounts, discounts, notes, signatures</td>
               <td data-i18n="legal.privacy.dataTable.invoiceCreation">Invoice creation, revenue reports</td>
-              <td><span class="tag tag-blue">You enter it</span></td>
+              <td><span class="tag tag-blue" data-i18n="legal.privacy.dataTable.youEnter">You enter it</span></td>
             </tr>
             <tr>
-              <td><strong>Usage Data</strong></td>
+              <td><strong data-i18n="legal.privacy.dataTable.categoryUsage">Usage Data</strong></td>
               <td data-i18n="legal.privacy.dataTable.usageFields">Login timestamps, session info (via Firebase)</td>
               <td data-i18n="legal.privacy.dataTable.securityMonitoring">Security monitoring, platform stability</td>
-              <td><span class="tag tag-green">Auto-collected</span></td>
+              <td><span class="tag tag-green" data-i18n="legal.privacy.dataTable.autoCollected">Auto-collected</span></td>
             </tr>
             <tr>
-              <td><strong>Subscription Data</strong></td>
+              <td><strong data-i18n="legal.privacy.dataTable.categorySubscription">Subscription Data</strong></td>
               <td data-i18n="legal.privacy.dataTable.subscriptionFields">Plan type, activation status, expiry date</td>
               <td data-i18n="legal.privacy.dataTable.accessManagement">Access management</td>
-              <td><span class="tag tag-blue">Managed by us</span></td>
+              <td><span class="tag tag-blue" data-i18n="legal.privacy.dataTable.managedByUs">Managed by us</span></td>
             </tr>
           </tbody>
         </table>
+        </div>
 
         <div class="info-box">
-          <p><strong>Important:</strong> We never see your password. Firebase Authentication stores a cryptographic hash only — not even our team can read it. Your invoice data and client records are only accessible through your authenticated account.</p>
+          <p><strong data-i18n="legal.privacy.importantLabel">Important:</strong> <span data-i18n="legal.privacy.securityImportantText">We never see your password. Firebase Authentication stores a cryptographic hash only — not even our team can read it. Your invoice data and client records are only accessible through your authenticated account.</span></p>
         </div>
       </div>
 
@@ -408,6 +413,7 @@
         <h3 data-i18n="legal.privacy.shareTitle">3. Data Sharing &amp; Third Parties</h3>
         <p data-i18n="legal.privacy.shareIntro">We share your data with a limited number of service providers who help us operate JOSKA. We do not sell your data. Ever.</p>
 
+        <div class="table-wrap">
         <table class="data-table">
           <thead>
             <tr>
@@ -432,6 +438,7 @@
             </tr>
           </tbody>
         </table>
+        </div>
 
         <p data-i18n="legal.privacy.shareLegalDisclosure">We may disclose your data if required to do so by Moroccan law, a court order, or to protect the rights, property, or safety of JOSKA, our users, or the public. We will notify you of such requests where legally permitted.</p>
 
@@ -471,6 +478,7 @@
       <div id="cookies">
         <h3 data-i18n="legal.privacy.cookiesTitle">6. Cookies &amp; Local Storage</h3>
         <p data-i18n="legal.privacy.cookiesIntro">JOSKA uses a minimal set of browser storage to keep the app functional:</p>
+        <div class="table-wrap">
         <table class="data-table">
           <thead>
             <tr><th data-i18n="legal.privacy.cookiesTable.name">Name</th><th data-i18n="legal.privacy.cookiesTable.type">Type</th><th data-i18n="legal.privacy.cookiesTable.purpose">Purpose</th><th data-i18n="legal.privacy.cookiesTable.duration">Duration</th></tr>
@@ -496,6 +504,7 @@
             </tr>
           </tbody>
         </table>
+        </div>
         <p data-i18n="legal.privacy.cookiesNoTracking">We do not use advertising cookies, cross-site tracking cookies, or third-party analytics cookies. We do not use Google Analytics or any similar tracking tools.</p>
       </div>
 
