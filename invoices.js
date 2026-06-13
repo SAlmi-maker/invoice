@@ -645,7 +645,19 @@ const JOSKA_INVOICES = (() => {
     const matched = allInvoices.filter(inv => {
       let d = null;
       if (inv.startDate) {
-        d = inv.startDate.toDate ? inv.startDate.toDate() : new Date(inv.startDate);
+        if (inv.startDate.toDate) {
+          d = inv.startDate.toDate();
+        } else if (typeof inv.startDate === 'string') {
+          // Parse date string as local time to avoid UTC timezone offset shifting the month
+          const parts = inv.startDate.split('-');
+          if (parts.length === 3) {
+            d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+          } else {
+            d = new Date(inv.startDate);
+          }
+        } else {
+          d = new Date(inv.startDate);
+        }
       }
       if (!d || isNaN(d.getTime())) {
         if (inv.createdAt?.toDate) d = inv.createdAt.toDate();

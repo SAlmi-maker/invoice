@@ -143,18 +143,17 @@
 
 .user-card {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   align-items: center;
-  justify-content: space-between;
-  gap: 4px;
+  gap: 8px;
   padding: 10px 12px;
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: background var(--t-fast);
 }
-.user-card > :first-child { order: 1; }
-.user-card > .logout-btn { order: 2; }
-.user-card > .user-email  { order: 3; width: 100%; }
+.user-card > .user-avatar { flex-shrink: 0; }
+.user-card > .user-email  { flex: 1; min-width: 0; }
+.user-card > .logout-btn  { flex-shrink: 0; margin-inline-start: auto; }
 .user-card:hover { background: var(--sidebar-hover); }
 
 .user-avatar {
@@ -721,7 +720,7 @@ tbody td {
   }
   .sidebar-overlay { display: block; pointer-events: none; }
   .sidebar-overlay.show { pointer-events: all; }
-  .sidebar .user-email { width: 100%; padding: 0 0 4px 0; font-size: 0.72rem; color: var(--sidebar-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sidebar .user-email { flex: 1; min-width: 0; padding: 0; font-size: 0.72rem; color: var(--sidebar-text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
   .main-content  { margin-inline-start: 0; }
   .topbar-hamburger { display: flex; }
