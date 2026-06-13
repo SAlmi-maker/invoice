@@ -774,16 +774,13 @@
   }
 
   #joska-print-container {
-    position: fixed;
-    top: 0;
-    left: 0;
     width: 100%;
-    height: 100%;
     background: #fff;
   }
   #joska-print-container .ip-invoice {
     width: 100%;
-    height: 100%;
+    height: 297mm;
+    min-height: 297mm;
     padding: 10mm 12mm;
     box-sizing: border-box;
     box-shadow: none;

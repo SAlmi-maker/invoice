@@ -681,31 +681,16 @@ const JOSKA_INVOICES = (() => {
     const currency = JOSKA_I18N.t('common.currency');
     const fmt = (n) => formatCurrency(n, currency, lang);
 
-    const iframe = document.createElement('iframe');
-    iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:210mm;height:297mm;border:none;';
-    document.body.appendChild(iframe);
-
-    const printDoc = iframe.contentWindow.document;
-    printDoc.open();
-    printDoc.write('<!DOCTYPE html><html><head><meta charset="utf-8">');
-    document.querySelectorAll('link[rel="stylesheet"]').forEach(el => {
-      if (el.href) printDoc.write(`<link rel="stylesheet" href="${el.href}">`);
-    });
-    document.querySelectorAll('style').forEach(el => {
-      printDoc.write(`<style>${el.textContent}</style>`);
-    });
-    printDoc.write(isRTL ? '<style>body{direction:rtl}</style>' : '');
-    printDoc.write('</head><body>');
-    printDoc.write('<div id="joska-print-container">');
-
+    // Build all invoice HTML strings upfront, then write everything at once
+    const invoiceHTMLs = [];
     let written = 0;
     matched.forEach((inv, idx) => {
       try {
-        if (idx > 0) printDoc.write('<div style="page-break-before:always;break-before:page;height:0;"></div>');
         const container = document.createElement('div');
         container.innerHTML = templateHTML;
         const invEl = container.firstElementChild;
         if (!invEl) return;
+        // page-break is handled by the print CSS on .ip-invoice; no inline override needed
         if (isRTL) invEl.setAttribute('dir', 'rtl');
 
         const accentHex = invoiceColorMode === 'bw' ? '#1e293b' : (invoiceColor || '#2563EB');
@@ -798,24 +783,81 @@ const JOSKA_INVOICES = (() => {
           logoEl.style.display = 'none';
         }
 
-        printDoc.write(invEl.outerHTML);
+        invoiceHTMLs.push(invEl.outerHTML);
         written++;
       } catch (err) {
         console.error('Export invoice error (idx=' + idx + '):', err);
       }
     });
 
-    printDoc.write('</div>');
-    printDoc.write('</body></html>');
-    printDoc.close();
+    // Write everything to the iframe in a single shot
+    const styleLinks = [];
+    document.querySelectorAll('link[rel="stylesheet"]').forEach(el => {
+      if (el.href) styleLinks.push(`<link rel="stylesheet" href="${el.href}">`);
+    });
+    const inlineStyles = [];
+    document.querySelectorAll('style').forEach(el => {
+      inlineStyles.push(`<style>${el.textContent}</style>`);
+    });
 
-    setTimeout(() => {
-      iframe.contentWindow.focus();
-      iframe.contentWindow.print();
-      setTimeout(() => { document.body.removeChild(iframe); }, 1000);
-    }, 500);
+    // Critical: multi-page print CSS — each invoice starts on a new page
+    const printCSS = `
+      <style>
+        @page { size: A4; margin: 0; }
+        * { box-sizing: border-box; }
+        body { margin: 0; padding: 0; background: #fff; }
+        #joska-print-container { width: 100%; }
+        .ip-invoice {
+          width: 210mm;
+          min-height: 297mm;
+          box-sizing: border-box;
+          page-break-after: always;
+          break-after: page;
+          page-break-inside: avoid;
+          break-inside: avoid;
+        }
+        .ip-invoice:last-child {
+          page-break-after: auto;
+          break-after: auto;
+        }
+      </style>
+    `;
 
-    showToast('success', `Exporting ${matched.length} invoice(s) as PDF`);
+    const fullHTML = [
+      '<!DOCTYPE html><html><head><meta charset="utf-8">',
+      ...styleLinks,
+      ...inlineStyles,
+      printCSS,
+      isRTL ? '<style>body{direction:rtl}</style>' : '',
+      '</head><body>',
+      '<div id="joska-print-container">',
+      invoiceHTMLs.join('\n'),
+      '</div>',
+      '</body></html>'
+    ].join('');
+
+    // Use a blob URL so the iframe can fully render before printing
+    const blob = new Blob([fullHTML], { type: 'text/html;charset=utf-8' });
+    const blobURL = URL.createObjectURL(blob);
+
+    const iframe = document.createElement('iframe');
+    iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:210mm;border:none;visibility:hidden;';
+    document.body.appendChild(iframe);
+
+    iframe.onload = () => {
+      setTimeout(() => {
+        iframe.contentWindow.focus();
+        iframe.contentWindow.print();
+        setTimeout(() => {
+          document.body.removeChild(iframe);
+          URL.revokeObjectURL(blobURL);
+        }, 2000);
+      }, 600);
+    };
+
+    iframe.src = blobURL;
+
+    showToast('success', `Exporting ${written} invoice(s) as PDF`);
   }
 
   // ── Print / PDF via browser ─────────────────────────────
