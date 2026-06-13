@@ -151,9 +151,9 @@
   cursor: pointer;
   transition: background var(--t-fast);
 }
-.user-card > .user-avatar { flex-shrink: 0; }
-.user-card > .user-email  { flex: 1; min-width: 0; }
-.user-card > .logout-btn  { flex-shrink: 0; margin-inline-start: auto; }
+.user-card > .user-avatar { flex-shrink: 0; order: 1; }
+.user-card > .user-email  { flex: 1; min-width: 0; order: 2; }
+.user-card > .logout-btn  { flex-shrink: 0; order: 3; }
 .user-card:hover { background: var(--sidebar-hover); }
 
 .user-avatar {
