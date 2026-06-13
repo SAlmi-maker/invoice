@@ -228,18 +228,16 @@
     }
 
     /* ── RESPONSIVE ── */
-    @media (max-width: 780px) {
+    @media (max-width: 900px) {
       body { padding: 16px 12px 48px; }
       .legal-card { padding: 28px 0; border-radius: 12px; }
+      .topbar { gap: 16px; }
       .legal-hero { padding: 0 16px 28px; }
       .legal-hero h1 { font-size: 1.4rem; }
       .summary-grid { padding: 0 16px; grid-template-columns: 1fr; }
       .doc-section { padding: 0 16px; }
       .contact-block { flex-direction: column; gap: 8px; padding: 16px; }
       .legal-footer { flex-direction: column; text-align: center; padding: 20px 16px 0; }
-    }
-    @media (max-width: 480px) {
-      .topbar { gap: 16px; flex-wrap: wrap; }
     }
   </style>
 </head>
@@ -264,11 +262,7 @@
   </div>
 </div>
 
-<!-- LAYOUT -->
-<div class="layout">
-
-  <!-- MAIN CONTENT -->
-  <main class="legal-card">
+<main class="legal-card">
 
     <!-- HERO -->
     <div class="legal-hero">
@@ -730,7 +724,6 @@
     </div>
 
   </main>
-</div>
 
 <script src="i18n.js"></script>
 <script>
