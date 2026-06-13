@@ -659,23 +659,6 @@ const JOSKA_INVOICES = (() => {
 
     closeExportModal();
 
-    // Generate combined PDF — collect clones of each invoice preview
-    const clones = [];
-    matched.forEach((inv, idx) => {
-      populatePreview(inv);
-      const el = document.querySelector('.ip-invoice');
-      if (!el) return;
-      const clone = el.cloneNode(true);
-      if (idx > 0) {
-        const pageBreak = document.createElement('div');
-        pageBreak.style.cssText = 'page-break-before:always;break-before:page;height:0;';
-        clones.push(pageBreak);
-      }
-      clones.push(clone);
-    });
-
-    if (!clones.length) { showToast('error', 'Failed to generate invoices'); return; }
-
     const lang = getPDFLang();
     const isRTL = lang === 'ar';
 
@@ -695,7 +678,16 @@ const JOSKA_INVOICES = (() => {
     printDoc.write(isRTL ? '<style>body{direction:rtl}</style>' : '');
     printDoc.write('</head><body>');
     printDoc.write('<div id="joska-print-container">');
-    clones.forEach(c => printDoc.write(c.outerHTML));
+
+    matched.forEach((inv, idx) => {
+      populatePreview(inv);
+      void document.querySelector('.ip-invoice')?.offsetHeight; // force reflow
+      const el = document.querySelector('.ip-invoice');
+      if (!el) return;
+      if (idx > 0) printDoc.write('<div style="page-break-before:always;break-before:page;height:0;"></div>');
+      printDoc.write(el.outerHTML);
+    });
+
     printDoc.write('</div>');
     printDoc.write('</body></html>');
     printDoc.close();
