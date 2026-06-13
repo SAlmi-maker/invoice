@@ -45,34 +45,6 @@
     }
     .topbar-right { display: flex; align-items: center; gap: 10px; }
 
-    /* ── TOC SIDEBAR LAYOUT ── */
-    .layout {
-      width: 100%; max-width: 1080px;
-      display: grid; grid-template-columns: 220px 1fr;
-      gap: 28px; align-items: start;
-    }
-    .toc {
-      position: sticky; top: 24px;
-      background: var(--bg-surface);
-      border: 1px solid var(--border-color);
-      border-radius: 12px; padding: 20px;
-    }
-    .toc-title {
-      font-size: 0.7rem; font-weight: 700; letter-spacing: .08em;
-      text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px;
-    }
-    .toc a {
-      display: block; font-size: 0.8rem; color: var(--text-secondary);
-      text-decoration: none; padding: 5px 8px; border-radius: 6px;
-      transition: all .15s; line-height: 1.4;
-    }
-    .toc a:hover { background: var(--primary-light); color: var(--primary); }
-    .toc a.toc-section {
-      font-weight: 600; color: var(--text-primary); margin-top: 10px;
-      font-size: 0.82rem;
-    }
-    .toc a.toc-sub { padding-left: 18px; font-size: 0.77rem; }
-
     /* ── MAIN CARD ── */
     .legal-card {
       background: var(--bg-surface);
@@ -247,8 +219,6 @@
 
     /* ── RESPONSIVE ── */
     @media (max-width: 780px) {
-      .layout { grid-template-columns: 1fr; }
-      .toc { display: none; }
       .legal-card { padding: 28px 20px; }
       .summary-grid { grid-template-columns: 1fr; }
       .legal-hero h1 { font-size: 1.4rem; }
@@ -278,32 +248,6 @@
 
 <!-- LAYOUT -->
 <div class="layout">
-
-  <!-- TABLE OF CONTENTS -->
-  <aside class="toc">
-    <div class="toc-title">On this page</div>
-    <a class="toc-section" href="#privacy">Privacy Policy</a>
-    <a class="toc-sub" href="#what-we-collect">What we collect</a>
-    <a class="toc-sub" href="#how-we-use">How we use it</a>
-    <a class="toc-sub" href="#data-sharing">Data sharing</a>
-    <a class="toc-sub" href="#data-security">Security</a>
-    <a class="toc-sub" href="#data-retention">Retention</a>
-    <a class="toc-sub" href="#cookies">Cookies</a>
-    <a class="toc-sub" href="#your-rights">Your rights</a>
-    <a class="toc-sub" href="#children">Children</a>
-    <a class="toc-sub" href="#privacy-contact">Contact</a>
-    <a class="toc-section" href="#terms">Terms of Service</a>
-    <a class="toc-sub" href="#acceptance">Acceptance</a>
-    <a class="toc-sub" href="#subscription">Subscription & Billing</a>
-    <a class="toc-sub" href="#acceptable-use">Acceptable Use</a>
-    <a class="toc-sub" href="#your-data-ownership">Your Data</a>
-    <a class="toc-sub" href="#ip">Intellectual Property</a>
-    <a class="toc-sub" href="#uptime">Availability</a>
-    <a class="toc-sub" href="#termination">Termination</a>
-    <a class="toc-sub" href="#disclaimer">Disclaimer</a>
-    <a class="toc-sub" href="#governing-law">Governing Law</a>
-    <a class="toc-sub" href="#terms-contact">Contact</a>
-  </aside>
 
   <!-- MAIN CONTENT -->
   <main class="legal-card">
@@ -795,13 +739,7 @@
     });
   });
 
-  // ── Smooth scroll for TOC ──
-  document.querySelectorAll('.toc a').forEach(a => {
-    a.addEventListener('click', e => {
-      const target = document.querySelector(a.getAttribute('href'));
-      if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
-    });
-  });
+
 </script>
 </body>
 </html>
