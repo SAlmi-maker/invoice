@@ -450,14 +450,14 @@
         <h3 data-i18n="legal.privacy.securityTitle">4. Data Security</h3>
         <p data-i18n="legal.privacy.securityIntro">We take security seriously and implement the following measures to protect your data:</p>
         <ul>
-          <li><strong>Encryption in transit:</strong> All data between your browser and JOSKA is encrypted via HTTPS/TLS</li>
-          <li><strong>Encryption at rest:</strong> Firebase stores your data with server-side encryption on Google Cloud</li>
-          <li><strong>Authentication:</strong> Passwords are never stored in plain text — Firebase uses industry-standard hashing</li>
-          <li><strong>Access control:</strong> Firebase Security Rules ensure each user can only access their own data</li>
-          <li><strong>No employee access:</strong> Our team cannot read your invoices, client data, or financial records without your explicit consent</li>
+          <li><strong data-i18n="legal.privacy.securityList.encryptTransitLabel">Encryption in transit:</strong> <span data-i18n="legal.privacy.securityList.encryptTransitText">All data between your browser and JOSKA is encrypted via HTTPS/TLS</span></li>
+          <li><strong data-i18n="legal.privacy.securityList.encryptRestLabel">Encryption at rest:</strong> <span data-i18n="legal.privacy.securityList.encryptRestText">Firebase stores your data with server-side encryption on Google Cloud</span></li>
+          <li><strong data-i18n="legal.privacy.securityList.authLabel">Authentication:</strong> <span data-i18n="legal.privacy.securityList.authText">Passwords are never stored in plain text — Firebase uses industry-standard hashing</span></li>
+          <li><strong data-i18n="legal.privacy.securityList.accessLabel">Access control:</strong> <span data-i18n="legal.privacy.securityList.accessText">Firebase Security Rules ensure each user can only access their own data</span></li>
+          <li><strong data-i18n="legal.privacy.securityList.noAccessLabel">No employee access:</strong> <span data-i18n="legal.privacy.securityList.noAccessText">Our team cannot read your invoices, client data, or financial records without your explicit consent</span></li>
         </ul>
         <div class="warn-box">
-          <p>While we implement strong safeguards, no system is 100% secure. You are responsible for keeping your account credentials confidential. If you suspect unauthorized access, contact us immediately at <strong>support@joska.app</strong>.</p>
+          <p><span data-i18n="legal.privacy.warnBoxText">While we implement strong safeguards, no system is 100% secure. You are responsible for keeping your account credentials confidential. If you suspect unauthorized access, contact us immediately at </span><strong>support@joska.app</strong><span data-i18n="legal.privacy.warnBoxPeriod">.</span></p>
         </div>
       </div>
 
@@ -466,11 +466,11 @@
         <h3 data-i18n="legal.privacy.retainTitle">5. Data Retention</h3>
         <p data-i18n="legal.privacy.retainIntro">We retain your data for as long as your account is active or as needed to provide you the service. Here's how retention works:</p>
         <ul>
-          <li><strong>Active account:</strong> All your data is retained and accessible as long as you are a subscriber</li>
-          <li><strong>Subscription cancellation:</strong> Your data is retained for 90 days after cancellation so you can export it, then permanently deleted</li>
-          <li><strong>Account deletion:</strong> When you delete your account from Settings, all associated data — invoices, clients, vehicles, company profile — is permanently deleted within 30 days</li>
-          <li><strong>Partial deletion:</strong> You can delete individual invoices, clients, or vehicles at any time from within the app</li>
-          <li><strong>Backup copies:</strong> Firebase automated backups may retain deleted data for up to 7 additional days for disaster recovery purposes</li>
+          <li><strong data-i18n="legal.privacy.retainList.activeLabel">Active account:</strong> <span data-i18n="legal.privacy.retainList.activeText">All your data is retained and accessible as long as you are a subscriber</span></li>
+          <li><strong data-i18n="legal.privacy.retainList.cancelLabel">Subscription cancellation:</strong> <span data-i18n="legal.privacy.retainList.cancelText">Your data is retained for 90 days after cancellation so you can export it, then permanently deleted</span></li>
+          <li><strong data-i18n="legal.privacy.retainList.deleteLabel">Account deletion:</strong> <span data-i18n="legal.privacy.retainList.deleteText">When you delete your account from Settings, all associated data — invoices, clients, vehicles, company profile — is permanently deleted within 30 days</span></li>
+          <li><strong data-i18n="legal.privacy.retainList.partialLabel">Partial deletion:</strong> <span data-i18n="legal.privacy.retainList.partialText">You can delete individual invoices, clients, or vehicles at any time from within the app</span></li>
+          <li><strong data-i18n="legal.privacy.retainList.backupLabel">Backup copies:</strong> <span data-i18n="legal.privacy.retainList.backupText">Firebase automated backups may retain deleted data for up to 7 additional days for disaster recovery purposes</span></li>
         </ul>
       </div>
 
@@ -749,17 +749,8 @@
     sunIcon.classList.toggle('hidden');
   });
 
-  // ── Lang switcher ──
-  JOSKA_I18N.applyToDOM();
-  document.querySelectorAll('.lang-btn').forEach(btn => {
-    const l = btn.getAttribute('data-lang');
-    btn.classList.toggle('active', l === JOSKA_I18N.getLang());
-    btn.addEventListener('click', function () {
-      JOSKA_I18N.setLang(l);
-      document.querySelectorAll('.lang-btn').forEach(b =>
-        b.classList.toggle('active', b.getAttribute('data-lang') === l));
-    });
-  });
+  // ── Lang switcher (init applies direction + wires buttons) ──
+  JOSKA_I18N.init();
 
 
 </script>
