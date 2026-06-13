@@ -145,12 +145,16 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 10px;
+  justify-content: space-between;
+  gap: 4px;
   padding: 10px 12px;
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: background var(--t-fast);
 }
+.user-card > :first-child { order: 1; }
+.user-card > .logout-btn { order: 2; }
+.user-card > .user-email  { order: 3; width: 100%; }
 .user-card:hover { background: var(--sidebar-hover); }
 
 .user-avatar {

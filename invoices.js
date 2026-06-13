@@ -644,10 +644,14 @@ const JOSKA_INVOICES = (() => {
 
     const matched = allInvoices.filter(inv => {
       let d = null;
-      if (inv.startDate)         d = new Date(inv.startDate);
-      else if (inv.createdAt?.toDate) d = inv.createdAt.toDate();
-      else if (inv.date)         d = new Date(inv.date);
-      if (!d) return false;
+      if (inv.startDate) {
+        d = inv.startDate.toDate ? inv.startDate.toDate() : new Date(inv.startDate);
+      }
+      if (!d || isNaN(d.getTime())) {
+        if (inv.createdAt?.toDate) d = inv.createdAt.toDate();
+        else if (inv.date) d = new Date(inv.date);
+      }
+      if (!d || isNaN(d.getTime())) return false;
       return months.includes(d.getMonth() + 1) && d.getFullYear() === year;
     });
 
@@ -655,8 +659,15 @@ const JOSKA_INVOICES = (() => {
 
     closeExportModal();
 
+    // Grab the template once
+    const templateEl = document.querySelector('.ip-invoice');
+    if (!templateEl) { showToast('error', 'Invoice template not found'); return; }
+    const templateHTML = templateEl.outerHTML;
+
     const lang = getPDFLang();
     const isRTL = lang === 'ar';
+    const currency = JOSKA_I18N.t('common.currency');
+    const fmt = (n) => formatCurrency(n, currency, lang);
 
     const iframe = document.createElement('iframe');
     iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:210mm;height:297mm;border:none;';
@@ -676,12 +687,113 @@ const JOSKA_INVOICES = (() => {
     printDoc.write('<div id="joska-print-container">');
 
     matched.forEach((inv, idx) => {
-      populatePreview(inv);
-      void document.querySelector('.ip-invoice')?.offsetHeight; // force reflow
-      const el = document.querySelector('.ip-invoice');
-      if (!el) return;
       if (idx > 0) printDoc.write('<div style="page-break-before:always;break-before:page;height:0;"></div>');
-      printDoc.write(el.outerHTML);
+      // Build this invoice into the template
+      const container = document.createElement('div');
+      container.innerHTML = templateHTML;
+      const invEl = container.firstElementChild;
+      if (!invEl) return;
+      if (isRTL) invEl.setAttribute('dir', 'rtl');
+
+      // Fill data using data-inv-* attributes on template elements
+      const s = (id, val) => {
+        const el = invEl.querySelector('#' + id);
+        if (el) el.textContent = val ?? '';
+      };
+      const setStyle = (id, prop, val) => {
+        const el = invEl.querySelector('#' + id);
+        if (el) el.style.setProperty(prop, val);
+      };
+      const accentHex = invoiceColorMode === 'bw' ? '#1e293b' : (invoiceColor || '#2563EB');
+      setStyle('ip_invoicePreview', '--ip-primary', accentHex);
+
+      const days = inv.days ?? calcDays(inv.startDate, inv.endDate);
+      const dp = parseFloat(inv.dailyPrice || 0);
+      const rental = days * dp;
+      const total = parseFloat(inv.total || 0);
+
+      const extras = [
+        { label: tl('inv.field.insurance'), val: parseFloat(inv.insurance || 0) },
+        { label: tl('inv.field.fuel'), val: parseFloat(inv.fuel || 0) },
+        { label: tl('inv.field.extraDriver'), val: parseFloat(inv.extraDriver || 0) },
+        { label: tl('inv.field.other'), val: parseFloat(inv.other || 0) },
+      ].filter(e => e.val > 0);
+
+      const t = tl;
+      const coName = companySettings.companyName || 'JOSKA';
+      const coAddr = companySettings.address || '';
+      const coEmail = companySettings.email || '';
+      const coPhone = companySettings.phone || '';
+
+      s('preview_companyName', coName);
+      s('preview_companyAddr', coAddr);
+      s('preview_companyEmail', coEmail);
+      s('preview_companyPhone', coPhone);
+      s('preview_companyWebsite', companySettings.website || '');
+      s('preview_title', t('pdf.invoice'));
+      s('preview_invNumber', `#${inv.invoiceNumber || inv.id?.slice(-6) || '—'}`);
+      s('preview_issueLabel', t('pdf.issue'));
+      s('preview_issueDate', inv.startDate || '—');
+      s('preview_dueLabel', t('pdf.due'));
+      s('preview_dueDate', inv.endDate || '—');
+      s('preview_billToLabel', t('pdf.billTo'));
+      s('preview_clientName', inv.clientName || '—');
+      s('preview_clientCIN', inv.cin ? `${t('pdf.cin')}: ${inv.cin}` : '');
+      s('preview_clientPhone', inv.phone ? `${t('pdf.tel')}: ${inv.phone}` : '');
+      s('preview_clientVehicle', `${inv.vehicleBrand || ''} ${inv.vehicleModel || ''}`.trim() || '');
+      s('preview_clientPlate', inv.plate ? `${t('pdf.plate')}: ${inv.plate}` : '');
+      s('preview_descLabel', t('pdf.description'));
+      s('preview_qtyLabel', t('pdf.qty'));
+      s('preview_unitLabel', t('pdf.ratePerDay'));
+      s('preview_amtLabel', t('pdf.amount'));
+
+      const tbody = invEl.querySelector('#preview_itemsBody');
+      if (tbody) {
+        tbody.innerHTML = '';
+        const dash = '—';
+        const addRow = (desc, daysVal, unit, amt) => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `<td>${escHtml(desc)}</td><td>${daysVal}</td><td>${typeof unit === 'number' ? fmt(unit) : unit}</td><td>${fmt(amt)}</td>`;
+          tbody.appendChild(tr);
+        };
+        addRow(`${t('inv.field.rentalSubtotal')} (${inv.vehicleBrand || ''} ${inv.vehicleModel || ''})`, days, dp, rental);
+        extras.forEach(e => addRow(e.label, dash, dash, e.val));
+      }
+
+      s('preview_grandLabel', t('pdf.grandTotal'));
+      s('preview_grandTotal', fmt(total));
+
+      const statusLabel = invEl.querySelector('#preview_statusLabel');
+      if (statusLabel) statusLabel.textContent = t('pdf.status');
+
+      const status = inv.status || 'draft';
+      const badge = invEl.querySelector('#preview_status');
+      if (badge) {
+        badge.textContent = t('dash.' + status);
+        badge.className = 'ip-status-badge ip-status-' + status;
+      }
+
+      const notesWrap = invEl.querySelector('#preview_notesWrap');
+      if (notesWrap) {
+        if (inv.notes) {
+          s('preview_notesLabel', t('pdf.notes'));
+          s('preview_notes', inv.notes);
+          notesWrap.style.display = 'block';
+        } else {
+          notesWrap.style.display = 'none';
+        }
+      }
+
+      // Logo
+      const logoEl = invEl.querySelector('#preview_logo');
+      if (companySettings.logoBase64 && logoEl) {
+        logoEl.src = companySettings.logoBase64;
+        logoEl.style.display = 'block';
+      } else if (logoEl) {
+        logoEl.style.display = 'none';
+      }
+
+      printDoc.write(invEl.outerHTML);
     });
 
     printDoc.write('</div>');
