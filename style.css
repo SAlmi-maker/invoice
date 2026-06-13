@@ -127,7 +127,7 @@
 html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'Inter', 'Noto Sans Arabic', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: 15px;
   line-height: 1.6;
   color: var(--text-primary);
@@ -135,10 +135,6 @@ body {
   transition: background var(--t-base), color var(--t-base);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-body.rtl {
-  font-family: 'Noto Sans Arabic', 'Inter', sans-serif;
 }
 
 img { max-width: 100%; display: block; }
