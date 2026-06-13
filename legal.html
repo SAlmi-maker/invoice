@@ -49,13 +49,13 @@
     .legal-card {
       background: var(--bg-surface);
       border: 1px solid var(--border-color);
-      border-radius: 16px; padding: 48px 52px;
+      border-radius: 16px; padding: 48px 0;
     }
 
     /* ── HERO ── */
     .legal-hero {
       border-bottom: 1px solid var(--border-color);
-      padding-bottom: 32px; margin-bottom: 40px;
+      padding: 0 52px 32px; margin-bottom: 40px;
     }
     .legal-hero-badge {
       display: inline-flex; align-items: center; gap: 6px;
@@ -83,7 +83,7 @@
     /* ── QUICK SUMMARY CARDS ── */
     .summary-grid {
       display: grid; grid-template-columns: repeat(3, 1fr);
-      gap: 12px; margin-bottom: 40px;
+      gap: 12px; margin-bottom: 40px; padding: 0 52px;
     }
     .summary-card {
       border-radius: 10px; padding: 16px; border: 1px solid;
@@ -99,7 +99,7 @@
     .summary-card .sc-text { font-size: 0.75rem; color: var(--text-secondary); line-height: 1.5; }
 
     /* ── SECTION ── */
-    .doc-section { margin-bottom: 48px; scroll-margin-top: 24px; }
+    .doc-section { margin-bottom: 48px; scroll-margin-top: 24px; padding: 0 52px; }
     .doc-section:last-child { margin-bottom: 0; }
 
     .section-header {
@@ -204,7 +204,7 @@
 
     /* ── FOOTER ── */
     .legal-footer {
-      margin-top: 48px; padding-top: 24px;
+      margin-top: 48px; padding: 24px 52px 0;
       border-top: 1px solid var(--border-color);
       display: flex; align-items: center; justify-content: space-between;
       flex-wrap: wrap; gap: 12px;
@@ -219,7 +219,11 @@
 
     /* ── RESPONSIVE ── */
     @media (max-width: 780px) {
-      .legal-card { padding: 28px 20px; }
+      .legal-card { padding: 28px 0; }
+      .legal-hero { padding: 0 20px 28px; }
+      .summary-grid { padding: 0 20px; }
+      .doc-section { padding: 0 20px; }
+      .legal-footer { padding: 20px 20px 0; }
       .summary-grid { grid-template-columns: 1fr; }
       .legal-hero h1 { font-size: 1.4rem; }
     }
