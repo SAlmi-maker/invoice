@@ -5,43 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>JOSKA — Legal</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232563EB'/%3E%3Ctext x='16' y='22' text-anchor='middle' fill='white' font-family='Inter,sans-serif' font-weight='800' font-size='14'%3EJ%3C/text%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="dashboard.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <style>
-    :root {
-      --primary: #2563EB;
-      --primary-light: #EFF6FF;
-      --primary-mid: #BFDBFE;
-      --bg-body: #F1F5F9;
-      --bg-surface: #FFFFFF;
-      --bg-muted: #F8FAFC;
-      --border-color: #E2E8F0;
-      --text-primary: #0F172A;
-      --text-secondary: #475569;
-      --text-muted: #94A3B8;
-      --green: #059669;
-      --green-light: #ECFDF5;
-      --amber: #D97706;
-      --amber-light: #FFFBEB;
-      --red: #DC2626;
-      --red-light: #FEF2F2;
-    }
-    [data-theme="dark"] {
-      --bg-body: #0F172A;
-      --bg-surface: #1E293B;
-      --bg-muted: #162032;
-      --border-color: #334155;
-      --text-primary: #F1F5F9;
-      --text-secondary: #94A3B8;
-      --text-muted: #64748B;
-      --primary-light: #1e3a5f;
-      --primary-mid: #1e40af;
-      --green-light: #052e16;
-      --amber-light: #1c1003;
-      --red-light: #1f0a0a;
-    }
-
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
@@ -75,25 +44,6 @@
       justify-content: center; color: #fff; font-weight: 800; font-size: 14px;
     }
     .topbar-right { display: flex; align-items: center; gap: 10px; }
-    .lang-btn {
-      padding: 5px 12px; font-size: 0.78rem; font-weight: 600;
-      border: 1.5px solid var(--border-color); border-radius: 6px;
-      background: var(--bg-surface); color: var(--text-secondary);
-      cursor: pointer; transition: all .15s;
-      font-family: 'Inter', sans-serif;
-    }
-    .lang-btn:hover, .lang-btn.active {
-      border-color: var(--primary); color: var(--primary);
-      background: var(--primary-light);
-    }
-    .theme-btn {
-      width: 34px; height: 34px; border-radius: 8px;
-      border: 1.5px solid var(--border-color); background: var(--bg-surface);
-      color: var(--text-secondary); cursor: pointer;
-      display: flex; align-items: center; justify-content: center; font-size: 16px;
-      transition: all .15s;
-    }
-    .theme-btn:hover { border-color: var(--primary); color: var(--primary); }
 
     /* ── TOC SIDEBAR LAYOUT ── */
     .layout {
@@ -314,10 +264,15 @@
     JOSKA
   </a>
   <div class="topbar-right">
-    <button class="lang-btn active" data-lang="en">EN</button>
-    <button class="lang-btn" data-lang="fr">FR</button>
-    <button class="lang-btn" data-lang="ar">ع</button>
-    <button class="theme-btn" id="themeToggle" title="Toggle theme">🌙</button>
+    <div class="lang-switcher">
+      <button class="lang-btn" data-lang="en">EN</button>
+      <button class="lang-btn" data-lang="fr">FR</button>
+      <button class="lang-btn" data-lang="ar">ع</button>
+    </div>
+    <button class="theme-toggle-btn" id="themeToggle" title="Toggle dark mode">
+      <svg class="theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <svg class="theme-icon-sun hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    </button>
   </div>
 </div>
 
@@ -809,35 +764,38 @@
   </main>
 </div>
 
+<script src="i18n.js"></script>
 <script>
   document.getElementById('legalYear').textContent = new Date().getFullYear();
 
-  // Theme
+  // ── Theme ──
   const savedTheme = localStorage.getItem('joska-theme') || 'light';
   document.documentElement.setAttribute('data-theme', savedTheme);
-  const themeBtn = document.getElementById('themeToggle');
-  themeBtn.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
-  themeBtn.addEventListener('click', () => {
-    const current = document.documentElement.getAttribute('data-theme');
-    const next = current === 'dark' ? 'light' : 'dark';
+  const moonIcon = document.querySelector('.theme-icon-moon');
+  const sunIcon = document.querySelector('.theme-icon-sun');
+  if (savedTheme === 'dark') { moonIcon.classList.add('hidden'); sunIcon.classList.remove('hidden'); }
+  document.getElementById('themeToggle')?.addEventListener('click', function () {
+    const cur = document.documentElement.getAttribute('data-theme');
+    const next = cur === 'dark' ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', next);
     localStorage.setItem('joska-theme', next);
-    themeBtn.textContent = next === 'dark' ? '☀️' : '🌙';
+    moonIcon.classList.toggle('hidden');
+    sunIcon.classList.toggle('hidden');
   });
 
-  // Lang buttons (placeholder — wire to your i18n.js)
-  const savedLang = localStorage.getItem('joska-lang') || 'en';
+  // ── Lang switcher ──
+  JOSKA_I18N.applyToDOM();
   document.querySelectorAll('.lang-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.getAttribute('data-lang') === savedLang);
+    const l = btn.getAttribute('data-lang');
+    btn.classList.toggle('active', l === JOSKA_I18N.getLang());
     btn.addEventListener('click', function () {
-      const l = this.getAttribute('data-lang');
-      localStorage.setItem('joska-lang', l);
+      JOSKA_I18N.setLang(l);
       document.querySelectorAll('.lang-btn').forEach(b =>
         b.classList.toggle('active', b.getAttribute('data-lang') === l));
     });
   });
 
-  // Smooth scroll for TOC
+  // ── Smooth scroll for TOC ──
   document.querySelectorAll('.toc a').forEach(a => {
     a.addEventListener('click', e => {
       const target = document.querySelector(a.getAttribute('href'));
