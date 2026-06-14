@@ -21,8 +21,8 @@ const RENVA_REPORTS = (() => {
   // ── Init ─────────────────────────────────────────────────
   async function init(user) {
     if (!user) return;
-    renderUserInfo(user);
     await loadCompanySettings(user.uid);
+    renderUserInfo(user);
     populateYearSelector();
     initThemeToggle();
     initSidebar();
