@@ -450,7 +450,7 @@ const RENVA_I18N = (() => {
       'legal.terms.subscriptionList.priceLabel': 'Price changes:',
       'legal.terms.subscriptionList.priceText': 'We will give you at least 30 days\' notice before changing subscription prices',
       'legal.terms.subscriptionList.nonPaymentLabel': 'Non-payment:',
-      'legal.terms.subscriptionList.nonPaymentText': 'If a renewal payment is not received within 14 days of the due date, access to the platform may be suspended. Your data will be retained for 90 days to allow you to settle the balance and regain access',
+      'legal.terms.subscriptionList.nonPaymentText': 'If a renewal payment is not received within 7 days of the due date, access to the platform may be suspended. Your data will be retained for 90 days to allow you to settle the balance and regain access',
       'legal.terms.bankWarnLabel': 'Bank transfer payments:',
       'legal.terms.bankWarnTextPart1': 'RENVA processes payments manually via bank transfer. Our bank details are shared with you privately upon request. Never send payment to any account not confirmed directly by our team at ',
       'legal.terms.bankWarnEmail': 'contact@renva.space',

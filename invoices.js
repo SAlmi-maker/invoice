@@ -63,7 +63,8 @@ const RENVA_INVOICES = (() => {
 
   // ── User info in sidebar ──────────────────────────────────
   function renderUserInfo(user) {
-    const initials = (user.displayName || user.email.split('@')[0]).slice(0, 2).toUpperCase();
+    const name = companySettings?.companyName || '';
+    const initials = name ? name.slice(0, 2).toUpperCase() : 'RV';
     document.querySelectorAll('.user-email').forEach(el => el.textContent = user.email);
     document.querySelectorAll('.user-avatar-text').forEach(el => el.textContent = initials);
     if (companySettings.companyName) {

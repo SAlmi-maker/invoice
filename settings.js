@@ -10,6 +10,8 @@ const RENVA_SETTINGS = (() => {
   // ── Init ─────────────────────────────────────────────────
   function init(user) {
     if (!user) return;
+    document.querySelectorAll('.user-email').forEach(el => el.textContent = user.email);
+    document.querySelectorAll('.user-avatar-text').forEach(el => el.textContent = 'RV');
     loadSettings(user.uid);
     wireForm(user.uid);
     wireFileUploads();
@@ -25,6 +27,9 @@ const RENVA_SETTINGS = (() => {
       if (doc.exists) {
         currentSettings = doc.data();
         populateForm(currentSettings);
+        if (currentSettings.companyName) {
+          document.querySelectorAll('.user-avatar-text').forEach(el => el.textContent = currentSettings.companyName.slice(0, 2).toUpperCase());
+        }
       }
     } catch (err) {
       console.error('Settings load error:', err);

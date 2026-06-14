@@ -224,6 +224,9 @@ const RENVA_CLIENTS = (() => {
     if (!user) return;
     currentUser = user;
 
+    document.querySelectorAll('.user-email').forEach(el => el.textContent = user.email);
+    document.querySelectorAll('.user-avatar-text').forEach(el => el.textContent = 'RV');
+
     // Resolve DOM refs here — guaranteed ready (avoids null refs on mobile)
     toast      = $('clientToast');
     tbody      = $('clientTableBody');
