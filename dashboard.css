@@ -45,6 +45,7 @@
   box-shadow: 0 4px 12px var(--primary-glow);
 }
 .sidebar-logo svg { width: 20px; height: 20px; color: #fff; }
+.sidebar-logo-img { width: 22px; height: 22px; object-fit: contain; }
 
 .sidebar-brand { flex: 1; overflow: hidden; }
 .sidebar-brand-name {
