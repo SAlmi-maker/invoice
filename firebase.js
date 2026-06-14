@@ -1,17 +1,15 @@
 // ============================================================
 // RENVA - Firebase Configuration
-// ⚠️  REPLACE the firebaseConfig object with YOUR project values
-//     from Firebase Console → Project Settings → Your Apps
 // ============================================================
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCRNK5nRVZKV7Xy2Rk0-KjJCMr-cg2kthg",
-  authDomain: "RENVA-ebb4d.firebaseapp.com",
-  projectId: "RENVA-ebb4d",
-  storageBucket: "RENVA-ebb4d.firebasestorage.app",
-  messagingSenderId: "555809439826",
-  appId: "1:555809439826:web:d6adba53f321eb9711df8b",
-  measurementId: "G-DWTFRW1W53"
+  apiKey: "AIzaSyAjYdkWCWsBmlhDOLx_PG8hmEw5DKU1I-c",
+  authDomain: "renva-ebb4d.firebaseapp.com",
+  projectId: "renva-ebb4d",
+  storageBucket: "renva-ebb4d.firebasestorage.app",
+  messagingSenderId: "5091704809",
+  appId: "1:5091704809:web:a73910ab6858ca6b461578",
+  measurementId: "G-TB51N3CS0E"
 };
 
 // Initialize Firebase
