@@ -7,6 +7,12 @@ const RENVA_SETTINGS = (() => {
   let currentSettings = {};
   let pendingLogoFile = null;
 
+  function setBrandSubtitle(name) {
+    document.querySelectorAll('.company-name').forEach(el => {
+      el.textContent = name || RENVA_I18N.t('brand.subtitle');
+    });
+  }
+
   // ── Init ─────────────────────────────────────────────────
   function init(user) {
     if (!user) return;
@@ -29,7 +35,7 @@ const RENVA_SETTINGS = (() => {
         populateForm(currentSettings);
         if (currentSettings.companyName) {
           document.querySelectorAll('.user-avatar-text').forEach(el => el.textContent = currentSettings.companyName.slice(0, 2).toUpperCase());
-          document.querySelectorAll('.company-name').forEach(el => el.textContent = currentSettings.companyName);
+          setBrandSubtitle(currentSettings.companyName);
         }
       }
     } catch (err) {
@@ -255,5 +261,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.addEventListener('RENVA:authReady', ({ detail }) => {
     if (detail.user) RENVA_SETTINGS.init(detail.user);
+  });
+
+  document.addEventListener('RENVA:langChanged', () => {
+    RENVA_I18N.applyToDOM();
+    setBrandSubtitle(currentSettings.companyName || '');
   });
 });

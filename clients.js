@@ -23,6 +23,12 @@ const RENVA_CLIENTS = (() => {
   function loadingDone() { loading.style.display = 'none'; }
   function setEmpty(v) { empty.style.display = v ? 'flex' : 'none'; }
 
+  function setBrandSubtitle(name) {
+    document.querySelectorAll('.company-name').forEach(el => {
+      el.textContent = name || RENVA_I18N.t('brand.subtitle');
+    });
+  }
+
   function makeClient(doc) {
     const d = doc.data();
     return {
@@ -228,9 +234,9 @@ const RENVA_CLIENTS = (() => {
     document.querySelectorAll('.user-avatar-text').forEach(el => el.textContent = 'RV');
 
     db.collection('users').doc(user.uid).collection('settings').doc('company').get().then(snap => {
-      if (snap.exists && snap.data().companyName) {
-        document.querySelectorAll('.company-name').forEach(el => el.textContent = snap.data().companyName);
-      }
+      const cn = snap.exists ? snap.data().companyName || '' : '';
+      setBrandSubtitle(cn);
+      RENVA_CLIENTS._cn = cn;
     }).catch(() => {});
 
     // Resolve DOM refs here — guaranteed ready (avoids null refs on mobile)
@@ -288,6 +294,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.addEventListener('RENVA:langChanged', () => {
     RENVA_I18N.applyToDOM();
+    setBrandSubtitle(RENVA_CLIENTS._cn || '');
     RENVA_CLIENTS.refresh();
   });
 });

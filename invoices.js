@@ -62,14 +62,18 @@ const RENVA_INVOICES = (() => {
   }
 
   // ── User info in sidebar ──────────────────────────────────
+  function setBrandSubtitle(name) {
+    document.querySelectorAll('.company-name').forEach(el => {
+      el.textContent = name || RENVA_I18N.t('brand.subtitle');
+    });
+  }
+
   function renderUserInfo(user) {
     const name = companySettings?.companyName || '';
     const initials = name ? name.slice(0, 2).toUpperCase() : 'RV';
     document.querySelectorAll('.user-email').forEach(el => el.textContent = user.email);
     document.querySelectorAll('.user-avatar-text').forEach(el => el.textContent = initials);
-    if (companySettings.companyName) {
-      document.querySelectorAll('.company-name').forEach(el => el.textContent = companySettings.companyName);
-    }
+    setBrandSubtitle(name);
   }
 
   // ── Firestore real-time subscription ─────────────────────
@@ -1597,6 +1601,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.addEventListener('RENVA:langChanged', () => {
     RENVA_I18N.applyToDOM();
+    setBrandSubtitle(companySettings.companyName || '');
     RENVA_INVOICES.populateExportModal();
   });
 });

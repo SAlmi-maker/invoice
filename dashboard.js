@@ -48,10 +48,14 @@ const RENVA_DASHBOARD = (() => {
     }
   }
 
-  function applyCompanyBranding(settings) {
-    const nameEls = document.querySelectorAll('.company-name');
-    if (settings.companyName) nameEls.forEach(el => el.textContent = settings.companyName);
+  function setBrandSubtitle(name) {
+    document.querySelectorAll('.company-name').forEach(el => {
+      el.textContent = name || RENVA_I18N.t('brand.subtitle');
+    });
+  }
 
+  function applyCompanyBranding(settings) {
+    setBrandSubtitle(settings.companyName);
 
     if (settings.logoUrl) {
       const logoEls = document.querySelectorAll('.company-logo-img');

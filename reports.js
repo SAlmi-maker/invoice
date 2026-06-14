@@ -35,7 +35,10 @@ const RENVA_REPORTS = (() => {
       renderAll();
     });
 
-    document.addEventListener('RENVA:langChanged', () => renderAll());
+    document.addEventListener('RENVA:langChanged', () => {
+      setBrandSubtitle(companySettings.companyName || '');
+      renderAll();
+    });
   }
 
   // ── Company Settings ──────────────────────────────────────
@@ -47,7 +50,7 @@ const RENVA_REPORTS = (() => {
         companySettings = doc.data();
         RENVA_I18N.setCurrency(companySettings.currency || 'MAD');
         if (companySettings.companyName) {
-          document.querySelectorAll('.company-name').forEach(el => el.textContent = companySettings.companyName);
+          setBrandSubtitle(companySettings.companyName);
         }
       }
     } catch (err) {
@@ -56,11 +59,18 @@ const RENVA_REPORTS = (() => {
   }
 
   // ── User Info ─────────────────────────────────────────────
+  function setBrandSubtitle(name) {
+    document.querySelectorAll('.company-name').forEach(el => {
+      el.textContent = name || RENVA_I18N.t('brand.subtitle');
+    });
+  }
+
   function renderUserInfo(user) {
     const name = companySettings?.companyName || '';
     const initials = name ? name.slice(0, 2).toUpperCase() : 'RV';
     document.querySelectorAll('.user-email').forEach(el => el.textContent = user.email);
     document.querySelectorAll('.user-avatar-text').forEach(el => el.textContent = initials);
+    setBrandSubtitle(name);
   }
 
   // ── Year Selector ─────────────────────────────────────────
