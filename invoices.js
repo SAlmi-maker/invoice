@@ -790,65 +790,22 @@ const JOSKA_INVOICES = (() => {
       }
     });
 
-    // Collect styles from the main page to inject into the print document
-    const styleLinks = [];
-    document.querySelectorAll('link[rel="stylesheet"]').forEach(el => {
-      if (el.href) styleLinks.push(`<link rel="stylesheet" href="${el.href}">`);
-    });
-    const inlineStyles = [];
-    document.querySelectorAll('style').forEach(el => {
-      inlineStyles.push(`<style>${el.textContent}</style>`);
-    });
+    // Inject invoices into the main page and call window.print()
+    // The @media print CSS in invoices.css hides all UI and shows #joska-print-container
+    const printContainer = document.createElement('div');
+    printContainer.id = 'joska-print-container';
+    printContainer.innerHTML = invoiceHTMLs.join('\n');
+    document.body.appendChild(printContainer);
 
-    // Critical: multi-page print CSS — each invoice starts on a new page
-    const printCSS = `
-      <style>
-        @page { size: A4; margin: 0; }
-        * { box-sizing: border-box; }
-        body { margin: 0; padding: 0; background: #fff; }
-        #joska-print-container { width: 100%; }
-        .ip-invoice {
-          width: 210mm;
-          min-height: 297mm;
-          box-sizing: border-box;
-          page-break-after: always;
-          break-after: page;
-          page-break-inside: avoid;
-          break-inside: avoid;
-        }
-        .ip-invoice:last-child {
-          page-break-after: auto;
-          break-after: auto;
-        }
-      </style>
-    `;
+    window.print();
 
-    const fullHTML = [
-      '<!DOCTYPE html><html><head><meta charset="utf-8">',
-      ...styleLinks,
-      ...inlineStyles,
-      printCSS,
-      isRTL ? '<style>body{direction:rtl}</style>' : '',
-      '</head><body>',
-      '<div id="joska-print-container">',
-      invoiceHTMLs.join('\n'),
-      '</div>',
-      '</body></html>'
-    ].join('');
-
-    // Open a new window — works on all browsers including mobile
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) {
-      showToast('error', 'Popup blocked. Please allow popups to export PDFs.');
-      return;
+    // Clean up after print dialog is dismissed
+    const cleanup = () => { document.body.removeChild(printContainer); };
+    if ('onafterprint' in window) {
+      window.onafterprint = cleanup;
+    } else {
+      setTimeout(cleanup, 3000);
     }
-    printWindow.document.write(fullHTML);
-    printWindow.document.close();
-    printWindow.focus();
-    // Wait for content & fonts to render before triggering print
-    setTimeout(() => {
-      printWindow.print();
-    }, 1000);
 
     showToast('success', `Exporting ${written} invoice(s) as PDF`);
   }

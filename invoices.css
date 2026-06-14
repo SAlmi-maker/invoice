@@ -779,7 +779,6 @@
   }
   #joska-print-container .ip-invoice {
     width: 100%;
-    height: 297mm;
     min-height: 297mm;
     padding: 10mm 12mm;
     box-sizing: border-box;
@@ -788,6 +787,14 @@
     /* Reset the preview scale transform */
     transform: none !important;
     margin-bottom: 0 !important;
+    page-break-after: always;
+    break-after: page;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  #joska-print-container .ip-invoice:last-child {
+    page-break-after: auto;
+    break-after: auto;
   }
   #joska-print-container .ip-invoice table.ip-invoice-table {
     table-layout: fixed;
@@ -827,3 +834,6 @@
   #joska-print-container .ip-invoice .ip-invoice-footer p   { font-size: 9pt; }
   @page { size: A4 portrait; margin: 0; }
 }
+
+/* ── Export print container (hidden on screen, shown in print) ── */
+#joska-print-container { display: none; }
