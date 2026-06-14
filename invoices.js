@@ -790,7 +790,7 @@ const JOSKA_INVOICES = (() => {
       }
     });
 
-    // Write everything to the iframe in a single shot
+    // Collect styles from the main page to inject into the print document
     const styleLinks = [];
     document.querySelectorAll('link[rel="stylesheet"]').forEach(el => {
       if (el.href) styleLinks.push(`<link rel="stylesheet" href="${el.href}">`);
@@ -836,26 +836,19 @@ const JOSKA_INVOICES = (() => {
       '</body></html>'
     ].join('');
 
-    // Use a blob URL so the iframe can fully render before printing
-    const blob = new Blob([fullHTML], { type: 'text/html;charset=utf-8' });
-    const blobURL = URL.createObjectURL(blob);
-
-    const iframe = document.createElement('iframe');
-    iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:210mm;border:none;visibility:hidden;';
-    document.body.appendChild(iframe);
-
-    iframe.onload = () => {
-      setTimeout(() => {
-        iframe.contentWindow.focus();
-        iframe.contentWindow.print();
-        setTimeout(() => {
-          document.body.removeChild(iframe);
-          URL.revokeObjectURL(blobURL);
-        }, 2000);
-      }, 600);
-    };
-
-    iframe.src = blobURL;
+    // Open a new window — works on all browsers including mobile
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) {
+      showToast('error', 'Popup blocked. Please allow popups to export PDFs.');
+      return;
+    }
+    printWindow.document.write(fullHTML);
+    printWindow.document.close();
+    printWindow.focus();
+    // Wait for content & fonts to render before triggering print
+    setTimeout(() => {
+      printWindow.print();
+    }, 1000);
 
     showToast('success', `Exporting ${written} invoice(s) as PDF`);
   }
