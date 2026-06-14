@@ -29,6 +29,7 @@ const RENVA_SETTINGS = (() => {
         populateForm(currentSettings);
         if (currentSettings.companyName) {
           document.querySelectorAll('.user-avatar-text').forEach(el => el.textContent = currentSettings.companyName.slice(0, 2).toUpperCase());
+          document.querySelectorAll('.company-name').forEach(el => el.textContent = currentSettings.companyName);
         }
       }
     } catch (err) {

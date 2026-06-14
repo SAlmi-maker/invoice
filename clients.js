@@ -227,6 +227,12 @@ const RENVA_CLIENTS = (() => {
     document.querySelectorAll('.user-email').forEach(el => el.textContent = user.email);
     document.querySelectorAll('.user-avatar-text').forEach(el => el.textContent = 'RV');
 
+    db.collection('users').doc(user.uid).collection('settings').doc('company').get().then(snap => {
+      if (snap.exists && snap.data().companyName) {
+        document.querySelectorAll('.company-name').forEach(el => el.textContent = snap.data().companyName);
+      }
+    }).catch(() => {});
+
     // Resolve DOM refs here — guaranteed ready (avoids null refs on mobile)
     toast      = $('clientToast');
     tbody      = $('clientTableBody');

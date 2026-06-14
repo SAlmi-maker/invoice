@@ -46,7 +46,9 @@ const RENVA_REPORTS = (() => {
       if (doc.exists) {
         companySettings = doc.data();
         RENVA_I18N.setCurrency(companySettings.currency || 'MAD');
-
+        if (companySettings.companyName) {
+          document.querySelectorAll('.company-name').forEach(el => el.textContent = companySettings.companyName);
+        }
       }
     } catch (err) {
       console.error('Error loading settings:', err);

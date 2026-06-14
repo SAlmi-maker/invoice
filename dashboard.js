@@ -50,7 +50,7 @@ const RENVA_DASHBOARD = (() => {
 
   function applyCompanyBranding(settings) {
     const nameEls = document.querySelectorAll('.company-name');
-    nameEls.forEach(el => el.textContent = settings.companyName || 'RENVA');
+    if (settings.companyName) nameEls.forEach(el => el.textContent = settings.companyName);
 
 
     if (settings.logoUrl) {
