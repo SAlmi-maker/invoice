@@ -1,10 +1,10 @@
 // ============================================================
-// JOSKA - Reports Module
+// RENVA - Reports Module
 // Depends on: firebase.js, i18n.js, auth.js
 // External:   Chart.js 4, SheetJS (xlsx)
 // ============================================================
 
-const JOSKA_REPORTS = (() => {
+const RENVA_REPORTS = (() => {
 
   // ── State ─────────────────────────────────────────────────
   let allInvoices       = [];
@@ -35,7 +35,7 @@ const JOSKA_REPORTS = (() => {
       renderAll();
     });
 
-    document.addEventListener('joska:langChanged', () => renderAll());
+    document.addEventListener('RENVA:langChanged', () => renderAll());
   }
 
   // ── Company Settings ──────────────────────────────────────
@@ -45,7 +45,7 @@ const JOSKA_REPORTS = (() => {
                           .collection('settings').doc('company').get();
       if (doc.exists) {
         companySettings = doc.data();
-        JOSKA_I18N.setCurrency(companySettings.currency || 'MAD');
+        RENVA_I18N.setCurrency(companySettings.currency || 'MAD');
 
       }
     } catch (err) {
@@ -113,7 +113,7 @@ const JOSKA_REPORTS = (() => {
     const todayStr  = now.toISOString().split('T')[0];
     const thisMonth = now.getMonth();
     const thisYear  = now.getFullYear();
-    const currency  = JOSKA_I18N.t('common.currency');
+    const currency  = RENVA_I18N.t('common.currency');
 
     const paid = invoices.filter(inv => inv.status === 'paid');
     const toNum = inv => parseFloat(inv.total || inv.amount || 0);
@@ -147,7 +147,7 @@ const JOSKA_REPORTS = (() => {
     if (!canvas) return;
 
     const months   = getMonthLabels();
-    const currency = JOSKA_I18N.t('common.currency');
+    const currency = RENVA_I18N.t('common.currency');
 
     // Build monthly revenue array (paid only)
     const data = Array(12).fill(0);
@@ -168,7 +168,7 @@ const JOSKA_REPORTS = (() => {
       data: {
         labels: months,
         datasets: [{
-          label: JOSKA_I18N.t('dash.revenueMonth'),
+          label: RENVA_I18N.t('dash.revenueMonth'),
           data,
           backgroundColor: data.map((_, i) =>
             i === new Date().getMonth() && selectedYear === new Date().getFullYear()
@@ -232,10 +232,10 @@ const JOSKA_REPORTS = (() => {
 
     const total  = invoices.length;
     const labels = [
-      JOSKA_I18N.t('dash.paid'),
-      JOSKA_I18N.t('dash.pending'),
-      JOSKA_I18N.t('dash.overdue'),
-      JOSKA_I18N.t('dash.draft'),
+      RENVA_I18N.t('dash.paid'),
+      RENVA_I18N.t('dash.pending'),
+      RENVA_I18N.t('dash.overdue'),
+      RENVA_I18N.t('dash.draft'),
     ];
     const data   = [counts.paid, counts.pending, counts.overdue, counts.draft];
     const colors = ['#10b981', '#f59e0b', '#ef4444', '#6b7280'];
@@ -296,7 +296,7 @@ const JOSKA_REPORTS = (() => {
     center.className = 'doughnut-center';
     center.innerHTML = `
       <div class="doughnut-center-value">${total}</div>
-      <div class="doughnut-center-label">${JOSKA_I18N.t('dash.totalInvoices')}</div>
+      <div class="doughnut-center-label">${RENVA_I18N.t('dash.totalInvoices')}</div>
     `;
     canvas.parentElement.style.position = 'relative';
     canvas.parentElement.appendChild(center);
@@ -308,7 +308,7 @@ const JOSKA_REPORTS = (() => {
     if (!tbody) return;
 
     const months   = getMonthLabels();
-    const currency = JOSKA_I18N.t('common.currency');
+    const currency = RENVA_I18N.t('common.currency');
     const now      = new Date();
     const isCurrentYear = selectedYear === now.getFullYear();
 
@@ -345,7 +345,7 @@ const JOSKA_REPORTS = (() => {
         <td class="month-name">
           <span class="month-badge">
             ${month}
-            ${isCurrent ? `<span class="current-tag">${JOSKA_I18N.t('dash.invoicesThisMonth')}</span>` : ''}
+            ${isCurrent ? `<span class="current-tag">${RENVA_I18N.t('dash.invoicesThisMonth')}</span>` : ''}
           </span>
         </td>
         <td class="num">${row.invoices || '—'}</td>
@@ -372,8 +372,8 @@ const JOSKA_REPORTS = (() => {
       return;
     }
 
-    const xl = companySettings.excelLang || JOSKA_I18N.getLang();
-    const currency = JOSKA_I18N.t('common.currency');
+    const xl = companySettings.excelLang || RENVA_I18N.getLang();
+    const currency = RENVA_I18N.t('common.currency');
     const months   = getMonthLabels(xl);
 
     const yearInvoices = allInvoices.filter(inv => {
@@ -397,7 +397,7 @@ const JOSKA_REPORTS = (() => {
     });
 
     const summaryRows = [
-      [JOSKA_I18N.tLang('reports.month', xl), JOSKA_I18N.tLang('dash.totalInvoices', xl), JOSKA_I18N.tLang('dash.paid', xl), JOSKA_I18N.tLang('dash.pending', xl), JOSKA_I18N.tLang('dash.overdue', xl), `${JOSKA_I18N.tLang('reports.revenue', xl)} (${currency})`],
+      [RENVA_I18N.tLang('reports.month', xl), RENVA_I18N.tLang('dash.totalInvoices', xl), RENVA_I18N.tLang('dash.paid', xl), RENVA_I18N.tLang('dash.pending', xl), RENVA_I18N.tLang('dash.overdue', xl), `${RENVA_I18N.tLang('reports.revenue', xl)} (${currency})`],
       ...months.map((m, i) => [
         m,
         monthData[i].invoices,
@@ -410,7 +410,7 @@ const JOSKA_REPORTS = (() => {
 
     // Sheet 2 — Raw Invoices
     const invoiceRows = [
-      [JOSKA_I18N.tLang('reports.invoiceNumber', xl), JOSKA_I18N.tLang('inv.col.client', xl), JOSKA_I18N.tLang('reports.date', xl), JOSKA_I18N.tLang('inv.col.status', xl), `${JOSKA_I18N.tLang('pdf.amount', xl)} (${currency})`],
+      [RENVA_I18N.tLang('reports.invoiceNumber', xl), RENVA_I18N.tLang('inv.col.client', xl), RENVA_I18N.tLang('reports.date', xl), RENVA_I18N.tLang('inv.col.status', xl), `${RENVA_I18N.tLang('pdf.amount', xl)} (${currency})`],
       ...yearInvoices.map(inv => {
         const d = getDate(inv);
         return [
@@ -427,20 +427,20 @@ const JOSKA_REPORTS = (() => {
     XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(summaryRows), `Summary ${selectedYear}`);
     XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(invoiceRows), `Invoices ${selectedYear}`);
 
-    const companyName = (companySettings.companyName || 'JOSKA').replace(/[<>:"/\\|?*]/g, '');
+    const companyName = (companySettings.companyName || 'RENVA').replace(/[<>:"/\\|?*]/g, '');
     XLSX.writeFile(wb, `${companyName}_Report_${selectedYear}.xlsx`);
     showToast('success', `Report exported for ${selectedYear}`);
   }
 
   // ── Theme Toggle ─────────────────────────────────────────
   function initThemeToggle() {
-    const saved = localStorage.getItem('joska_theme') || 'light';
+    const saved = localStorage.getItem('RENVA_theme') || 'light';
     applyTheme(saved);
     document.getElementById('themeToggle')?.addEventListener('click', () => {
       const cur  = document.documentElement.getAttribute('data-theme') || 'light';
       const next = cur === 'dark' ? 'light' : 'dark';
       applyTheme(next);
-      localStorage.setItem('joska_theme', next);
+      localStorage.setItem('RENVA_theme', next);
       // Redraw charts for new theme colors
       renderAll();
     });
@@ -486,7 +486,7 @@ const JOSKA_REPORTS = (() => {
   }
 
   function getMonthLabels(lang) {
-    const l = lang || JOSKA_I18N.getLang();
+    const l = lang || RENVA_I18N.getLang();
     if (l === 'fr') return MONTHS_FR;
     if (l === 'ar') return MONTHS_AR;
     return MONTHS_EN;
@@ -494,7 +494,7 @@ const JOSKA_REPORTS = (() => {
 
   function formatCurrency(amount, currency) {
     if (isNaN(amount)) amount = 0;
-    const lang = JOSKA_I18N.getLang();
+    const lang = RENVA_I18N.getLang();
     const num = new Intl.NumberFormat(lang, {
       minimumFractionDigits: 0,
       maximumFractionDigits: 2
@@ -503,7 +503,7 @@ const JOSKA_REPORTS = (() => {
   }
 
   function formatCurrencyShort(val, currency) {
-    const lrm = JOSKA_I18N.getLang() === 'ar' ? '\u200E' : '';
+    const lrm = RENVA_I18N.getLang() === 'ar' ? '\u200E' : '';
     if (val >= 1000000) return lrm + (val / 1000000).toFixed(1) + 'M ' + currency;
     if (val >= 1000)    return lrm + (val / 1000).toFixed(0) + 'K ' + currency;
     return lrm + val + ' ' + currency;
@@ -537,10 +537,10 @@ const JOSKA_REPORTS = (() => {
 
 // ── Boot ──────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  JOSKA_I18N.init();
-  JOSKA_AUTH.init();
+  RENVA_I18N.init();
+  RENVA_AUTH.init();
 
-  document.addEventListener('joska:authReady', ({ detail }) => {
-    if (detail.user) JOSKA_REPORTS.init(detail.user);
+  document.addEventListener('RENVA:authReady', ({ detail }) => {
+    if (detail.user) RENVA_REPORTS.init(detail.user);
   });
 });

@@ -1,10 +1,10 @@
 // ============================================================
-// JOSKA — Invoices Module
+// RENVA — Invoices Module
 // Handles: create/edit/delete invoices, Firestore CRUD,
 //           live totals, filtering, search, InvoicePro export.
 // ============================================================
 
-const JOSKA_INVOICES = (() => {
+const RENVA_INVOICES = (() => {
 
   // ── State ─────────────────────────────────────────────────
   let currentUser    = null;
@@ -40,7 +40,7 @@ const JOSKA_INVOICES = (() => {
         invoiceColorMode = companySettings.invoiceColorMode || 'bw';
         invoiceColor     = companySettings.invoiceColor || '#2563EB';
         invoiceLanguage  = companySettings.invoiceLanguage || '';
-        JOSKA_I18N.setCurrency(companySettings.currency || 'MAD');
+        RENVA_I18N.setCurrency(companySettings.currency || 'MAD');
       }
     } catch (e) { /* non-critical */ }
 
@@ -94,7 +94,7 @@ const JOSKA_INVOICES = (() => {
       }, err => {
         console.error('Invoice subscription error:', err);
         showLoading(false);
-        showToast('error', JOSKA_I18N.t('settings.error'));
+        showToast('error', RENVA_I18N.t('settings.error'));
       });
   }
 
@@ -139,8 +139,8 @@ const JOSKA_INVOICES = (() => {
     }
     if (empty) empty.style.display = 'none';
 
-    const currency = JOSKA_I18N.t('common.currency');
-    const lang     = JOSKA_I18N.getLang();
+    const currency = RENVA_I18N.t('common.currency');
+    const lang     = RENVA_I18N.getLang();
 
     invoices.forEach((inv, i) => {
       const tr = document.createElement('tr');
@@ -158,7 +158,7 @@ const JOSKA_INVOICES = (() => {
 
       const total    = parseFloat(inv.total || 0);
       const status   = inv.status || 'draft';
-      const statusLabel = JOSKA_I18N.t(`dash.${status}`);
+      const statusLabel = RENVA_I18N.t(`dash.${status}`);
 
       const num = inv.invoiceNumber || inv.id.slice(-6).toUpperCase();
       const vehicle = [inv.vehicleBrand, inv.vehicleModel].filter(Boolean).join(' ') || '—';
@@ -178,13 +178,13 @@ const JOSKA_INVOICES = (() => {
         <td><span class="badge badge-${status}">${statusLabel}</span></td>
         <td>
           <div class="row-actions">
-            <button class="inv-action-btn" title="Edit" onclick="JOSKA_INVOICES.openEdit('${inv.id}')">
+            <button class="inv-action-btn" title="Edit" onclick="RENVA_INVOICES.openEdit('${inv.id}')">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
             </button>
-            <button class="inv-action-btn" title="Download PDF" onclick="JOSKA_INVOICES.exportSingle('${inv.id}')">
+            <button class="inv-action-btn" title="Download PDF" onclick="RENVA_INVOICES.exportSingle('${inv.id}')">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             </button>
-            <button class="inv-action-btn danger" title="Delete" onclick="JOSKA_INVOICES.openDelete('${inv.id}')">
+            <button class="inv-action-btn danger" title="Delete" onclick="RENVA_INVOICES.openDelete('${inv.id}')">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
             </button>
           </div>
@@ -272,7 +272,7 @@ const JOSKA_INVOICES = (() => {
     setTodayAsDefault();
     recalculate();
     document.getElementById('modalTitle').setAttribute('data-i18n', 'inv.newInvoice');
-    document.getElementById('modalTitle').textContent = JOSKA_I18N.t('inv.newInvoice');
+    document.getElementById('modalTitle').textContent = RENVA_I18N.t('inv.newInvoice');
     document.getElementById('invoiceModal').classList.add('open');
     lockScroll();
     document.getElementById('invPreviewWrap')?.classList.add('open');
@@ -289,7 +289,7 @@ const JOSKA_INVOICES = (() => {
     set('inv_phone', phone);
     recalculate();
     document.getElementById('modalTitle').setAttribute('data-i18n', 'inv.newInvoice');
-    document.getElementById('modalTitle').textContent = JOSKA_I18N.t('inv.newInvoice');
+    document.getElementById('modalTitle').textContent = RENVA_I18N.t('inv.newInvoice');
     document.getElementById('invoiceModal').classList.add('open');
     lockScroll();
     document.getElementById('invPreviewWrap')?.classList.add('open');
@@ -302,7 +302,7 @@ const JOSKA_INVOICES = (() => {
     editingId = id;
     populateForm(inv);
     recalculate();
-    document.getElementById('modalTitle').textContent = `${JOSKA_I18N.t('common.edit')} #${inv.invoiceNumber || id.slice(-6).toUpperCase()}`;
+    document.getElementById('modalTitle').textContent = `${RENVA_I18N.t('common.edit')} #${inv.invoiceNumber || id.slice(-6).toUpperCase()}`;
     document.getElementById('invoiceModal').classList.add('open');
     lockScroll();
     document.getElementById('invPreviewWrap')?.classList.add('open');
@@ -354,11 +354,11 @@ const JOSKA_INVOICES = (() => {
     try {
       await db.collection('users').doc(currentUser.uid)
               .collection('invoices').doc(deleteTargetId).delete();
-      showToast('success', JOSKA_I18N.t('inv.deleted'));
+      showToast('success', RENVA_I18N.t('inv.deleted'));
       closeDeleteModal();
     } catch (e) {
       console.error(e);
-      showToast('error', JOSKA_I18N.t('settings.error'));
+      showToast('error', RENVA_I18N.t('settings.error'));
     } finally {
       btn.disabled = false;
     }
@@ -431,18 +431,18 @@ const JOSKA_INVOICES = (() => {
           startDate:    'inv.field.startDate',
           endDate:      'inv.field.endDate',
         };
-        showToast('error', `${JOSKA_I18N.t(labelMap[key] || key)} ${JOSKA_I18N.t('inv.isRequired')}`);
+        showToast('error', `${RENVA_I18N.t(labelMap[key] || key)} ${RENVA_I18N.t('inv.isRequired')}`);
         document.getElementById(`inv_${key}`)?.focus();
         return false;
       }
     }
     if (data.dailyPrice <= 0) {
-      showToast('error', JOSKA_I18N.t('inv.dailyPriceRequired'));
+      showToast('error', RENVA_I18N.t('inv.dailyPriceRequired'));
       document.getElementById('inv_dailyPrice')?.focus();
       return false;
     }
     if (data.startDate > data.endDate) {
-      showToast('error', JOSKA_I18N.t('inv.dateRangeError'));
+      showToast('error', RENVA_I18N.t('inv.dateRangeError'));
       return false;
     }
     return true;
@@ -462,7 +462,7 @@ const JOSKA_INVOICES = (() => {
     const rental = days * dailyPrice;
     const total  = rental + insurance + fuel + extraDriver + other;
 
-    const currency = JOSKA_I18N.t('common.currency');
+    const currency = RENVA_I18N.t('common.currency');
     const daysEl   = document.getElementById('invDaysText');
     const rentalEl = document.getElementById('calcRental');
     const totalEl  = document.getElementById('invTotalDisplay');
@@ -470,7 +470,7 @@ const JOSKA_INVOICES = (() => {
 
     if (daysEl) {
       if (days >= 0 && startDate && endDate) {
-        daysEl.textContent = `${days} ${JOSKA_I18N.t('inv.days')}`;
+        daysEl.textContent = `${days} ${RENVA_I18N.t('inv.days')}`;
         if (daysWrap) daysWrap.style.display = 'flex';
       } else {
         if (daysWrap) daysWrap.style.display = 'none';
@@ -494,7 +494,7 @@ const JOSKA_INVOICES = (() => {
   const MONTHS_AR = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
 
   function getMonthLabels() {
-    const l = JOSKA_I18N.getLang();
+    const l = RENVA_I18N.getLang();
     if (l === 'fr') return MONTHS_FR;
     if (l === 'ar') return MONTHS_AR;
     return MONTHS_EN;
@@ -561,11 +561,11 @@ const JOSKA_INVOICES = (() => {
         await col.add(payload);
       }
 
-      showToast('success', JOSKA_I18N.t('settings.saved'));
+      showToast('success', RENVA_I18N.t('settings.saved'));
       closeModal();
     } catch (err) {
       console.error(err);
-      showToast('error', JOSKA_I18N.t('settings.error'));
+      showToast('error', RENVA_I18N.t('settings.error'));
     } finally {
       setLoading(saveBtn,  false);
       setLoading(draftBtn, false);
@@ -599,10 +599,10 @@ const JOSKA_INVOICES = (() => {
         docId = ref.id;
         editingId = docId;
       }
-      showToast('success', JOSKA_I18N.t('inv.pdfReady'));
+      showToast('success', RENVA_I18N.t('inv.pdfReady'));
     } catch (err) {
       console.error(err);
-      showToast('error', JOSKA_I18N.t('settings.error'));
+      showToast('error', RENVA_I18N.t('settings.error'));
     }
   }
 
@@ -678,7 +678,7 @@ const JOSKA_INVOICES = (() => {
 
     const lang = getPDFLang();
     const isRTL = lang === 'ar';
-    const currency = JOSKA_I18N.t('common.currency');
+    const currency = RENVA_I18N.t('common.currency');
     const fmt = (n) => formatCurrency(n, currency, lang);
 
     // Build all invoice HTML strings upfront, then write everything at once
@@ -714,7 +714,7 @@ const JOSKA_INVOICES = (() => {
         ].filter(e => e.val > 0);
 
         const t = tl;
-        const coName = companySettings.companyName || 'JOSKA';
+        const coName = companySettings.companyName || 'RENVA';
 
         s('preview_companyName', coName);
         s('preview_companyAddr', companySettings.address || '');
@@ -791,9 +791,9 @@ const JOSKA_INVOICES = (() => {
     });
 
     // Inject invoices into the main page and call window.print()
-    // The @media print CSS in invoices.css hides all UI and shows #joska-print-container
+    // The @media print CSS in invoices.css hides all UI and shows #RENVA-print-container
     const printContainer = document.createElement('div');
-    printContainer.id = 'joska-print-container';
+    printContainer.id = 'RENVA-print-container';
     printContainer.innerHTML = invoiceHTMLs.join('\n');
     document.body.appendChild(printContainer);
 
@@ -812,15 +812,15 @@ const JOSKA_INVOICES = (() => {
 
   // ── Print / PDF via browser ─────────────────────────────
   function getPDFLang() {
-    return invoiceLanguage || JOSKA_I18N.getLang();
+    return invoiceLanguage || RENVA_I18N.getLang();
   }
 
   // Translate a key using the invoice language (falls back to website language)
   function tl(key) {
-    if (invoiceLanguage && invoiceLanguage !== JOSKA_I18N.getLang()) {
-      return JOSKA_I18N.tLang(key, invoiceLanguage);
+    if (invoiceLanguage && invoiceLanguage !== RENVA_I18N.getLang()) {
+      return RENVA_I18N.tLang(key, invoiceLanguage);
     }
-    return JOSKA_I18N.t(key);
+    return RENVA_I18N.t(key);
   }
 
   function printInvoice(inv) {
@@ -864,7 +864,7 @@ const JOSKA_INVOICES = (() => {
     });
 
     printDoc.write('</head><body>');
-    printDoc.write('<div id="joska-print-container">');
+    printDoc.write('<div id="RENVA-print-container">');
     printDoc.write(clone.outerHTML);
     printDoc.write('</div>');
     printDoc.write('</body></html>');
@@ -885,9 +885,9 @@ const JOSKA_INVOICES = (() => {
 
     const t = tl;
     const lang = getPDFLang();
-    const currency = JOSKA_I18N.t('common.currency');
+    const currency = RENVA_I18N.t('common.currency');
     const fmt = (n) => formatCurrency(n, currency, lang);
-    const coName = companySettings.companyName || 'JOSKA';
+    const coName = companySettings.companyName || 'RENVA';
     const coAddr = companySettings.address || '';
     const coEmail = companySettings.email || '';
     const coPhone = companySettings.phone || '';
@@ -1024,7 +1024,7 @@ const JOSKA_INVOICES = (() => {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(16);
     doc.setTextColor(15, 23, 42);
-    doc.text(companySettings.companyName || 'JOSKA', nameX, 14);
+    doc.text(companySettings.companyName || 'RENVA', nameX, 14);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7.5);
     doc.setTextColor(100, 116, 139);
@@ -1221,7 +1221,7 @@ const JOSKA_INVOICES = (() => {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(20);
     doc.setTextColor(15, 23, 42);
-    doc.text(companySettings.companyName || 'JOSKA', nameX2, 20);
+    doc.text(companySettings.companyName || 'RENVA', nameX2, 20);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7.5);
     doc.setTextColor(100, 116, 139);
@@ -1375,7 +1375,7 @@ const JOSKA_INVOICES = (() => {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(11);
     doc.setTextColor(255, 255, 255);
-    doc.text(companySettings.companyName || 'JOSKA', nameX3, 13);
+    doc.text(companySettings.companyName || 'RENVA', nameX3, 13);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(9);
     doc.setTextColor(255, 255, 255);
@@ -1486,13 +1486,13 @@ const JOSKA_INVOICES = (() => {
   // ── Theme toggle ──────────────────────────────────────────
   function initThemeToggle() {
     const toggle = document.getElementById('themeToggle');
-    const saved  = localStorage.getItem('joska_theme') || 'light';
+    const saved  = localStorage.getItem('RENVA_theme') || 'light';
     applyTheme(saved);
     toggle?.addEventListener('click', () => {
       const current = document.documentElement.getAttribute('data-theme') || 'light';
       const next = current === 'dark' ? 'light' : 'dark';
       applyTheme(next);
-      localStorage.setItem('joska_theme', next);
+      localStorage.setItem('RENVA_theme', next);
     });
   }
 
@@ -1555,7 +1555,7 @@ const JOSKA_INVOICES = (() => {
 
   function formatCurrency(amount, currency, locale) {
     if (isNaN(amount)) amount = 0;
-    const num = new Intl.NumberFormat(locale || JOSKA_I18N.getLang(), {
+    const num = new Intl.NumberFormat(locale || RENVA_I18N.getLang(), {
       minimumFractionDigits: 0,
       maximumFractionDigits: 2,
     }).format(amount);
@@ -1587,15 +1587,15 @@ const JOSKA_INVOICES = (() => {
 
 // ── Boot ──────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  JOSKA_I18N.init();
-  JOSKA_AUTH.init();
+  RENVA_I18N.init();
+  RENVA_AUTH.init();
 
-  document.addEventListener('joska:authReady', ({ detail }) => {
-    if (detail.user) JOSKA_INVOICES.init(detail.user);
+  document.addEventListener('RENVA:authReady', ({ detail }) => {
+    if (detail.user) RENVA_INVOICES.init(detail.user);
   });
 
-  document.addEventListener('joska:langChanged', () => {
-    JOSKA_I18N.applyToDOM();
-    JOSKA_INVOICES.populateExportModal();
+  document.addEventListener('RENVA:langChanged', () => {
+    RENVA_I18N.applyToDOM();
+    RENVA_INVOICES.populateExportModal();
   });
 });

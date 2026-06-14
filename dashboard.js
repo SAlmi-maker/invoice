@@ -1,8 +1,8 @@
 // ============================================================
-// JOSKA - Dashboard Module
+// RENVA - Dashboard Module
 // ============================================================
 
-const JOSKA_DASHBOARD = (() => {
+const RENVA_DASHBOARD = (() => {
 
   // ── State ─────────────────────────────────────────────────
   let companySettings = null;
@@ -37,7 +37,7 @@ const JOSKA_DASHBOARD = (() => {
       if (doc.exists) {
         companySettings = doc.data();
         applyCompanyBranding(companySettings);
-        JOSKA_I18N.setCurrency(companySettings.currency || 'MAD');
+        RENVA_I18N.setCurrency(companySettings.currency || 'MAD');
         hideSetupBanner();
       } else {
         showSetupBanner();
@@ -49,7 +49,7 @@ const JOSKA_DASHBOARD = (() => {
 
   function applyCompanyBranding(settings) {
     const nameEls = document.querySelectorAll('.company-name');
-    nameEls.forEach(el => el.textContent = settings.companyName || 'JOSKA');
+    nameEls.forEach(el => el.textContent = settings.companyName || 'RENVA');
 
 
     if (settings.logoUrl) {
@@ -60,7 +60,7 @@ const JOSKA_DASHBOARD = (() => {
       });
     }
 
-    document.title = `${settings.companyName || 'JOSKA'} — Dashboard`;
+    document.title = `${settings.companyName || 'RENVA'} — Dashboard`;
   }
 
   function showSetupBanner() {
@@ -152,13 +152,13 @@ const JOSKA_DASHBOARD = (() => {
       return d && d.getMonth() === thisMonth && d.getFullYear() === thisYear;
     }).length;
 
-    const currency = JOSKA_I18N.t('common.currency');
+    const currency = RENVA_I18N.t('common.currency');
 
     // Set values
     setStatCard('statToday',      formatCurrency(todayRevenue, currency), null, null);
-    setStatCard('statMonth',      formatCurrency(thisMonthRevenue, currency), lastMonthRevenue, thisMonthRevenue, JOSKA_I18N.t('dash.vsLastMonth'));
-    setStatCard('statYear',       formatCurrency(thisYearRevenue, currency), lastYearRevenue, thisYearRevenue, JOSKA_I18N.t('dash.vsLastYear'));
-    setStatCard('statInvoices',   totalInvoices, null, null, `${thisMonthInvoices} ${JOSKA_I18N.t('dash.invoicesThisMonth')}`);
+    setStatCard('statMonth',      formatCurrency(thisMonthRevenue, currency), lastMonthRevenue, thisMonthRevenue, RENVA_I18N.t('dash.vsLastMonth'));
+    setStatCard('statYear',       formatCurrency(thisYearRevenue, currency), lastYearRevenue, thisYearRevenue, RENVA_I18N.t('dash.vsLastYear'));
+    setStatCard('statInvoices',   totalInvoices, null, null, `${thisMonthInvoices} ${RENVA_I18N.t('dash.invoicesThisMonth')}`);
   }
 
   function getInvoiceDate(inv) {
@@ -193,7 +193,7 @@ const JOSKA_DASHBOARD = (() => {
   }
 
   function renderEmptyStats() {
-    const currency = JOSKA_I18N.t('common.currency');
+    const currency = RENVA_I18N.t('common.currency');
     ['statToday','statMonth','statYear'].forEach(id => {
       const card = document.getElementById(id);
       if (!card) return;
@@ -224,7 +224,7 @@ const JOSKA_DASHBOARD = (() => {
     }
     if (empty) empty.style.display = 'none';
 
-    const currency = JOSKA_I18N.t('common.currency');
+    const currency = RENVA_I18N.t('common.currency');
 
     invoices.forEach((inv, i) => {
       const tr = document.createElement('tr');
@@ -232,8 +232,8 @@ const JOSKA_DASHBOARD = (() => {
       tr.classList.add('fade-in-row');
 
       const date = getInvoiceDate(inv);
-      const dateStr = date ? date.toLocaleDateString(JOSKA_I18N.getLang()) : '—';
-      const statusLabel = JOSKA_I18N.t(`dash.${inv.status || 'draft'}`);
+      const dateStr = date ? date.toLocaleDateString(RENVA_I18N.getLang()) : '—';
+      const statusLabel = RENVA_I18N.t(`dash.${inv.status || 'draft'}`);
       const statusCls   = `badge badge-${inv.status || 'draft'}`;
 
       tr.innerHTML = `
@@ -244,7 +244,7 @@ const JOSKA_DASHBOARD = (() => {
         <td><span class="${statusCls}">${statusLabel}</span></td>
         <td>
           <div class="row-actions">
-            <button class="btn-icon" title="View" onclick="JOSKA_DASHBOARD.viewInvoice('${inv.id}')">
+            <button class="btn-icon" title="View" onclick="RENVA_DASHBOARD.viewInvoice('${inv.id}')">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
             </button>
           </div>
@@ -288,17 +288,17 @@ const JOSKA_DASHBOARD = (() => {
 
     const cs = companySettings || {};
     const invLang = cs.invoiceLanguage || '';
-    const t = invLang && invLang !== JOSKA_I18N.getLang()
-      ? (key) => JOSKA_I18N.tLang(key, invLang)
-      : JOSKA_I18N.t;
-    const currency = JOSKA_I18N.t('common.currency');
+    const t = invLang && invLang !== RENVA_I18N.getLang()
+      ? (key) => RENVA_I18N.tLang(key, invLang)
+      : RENVA_I18N.t;
+    const currency = RENVA_I18N.t('common.currency');
     const fmtNum = (n) => {
       if (isNaN(n)) n = 0;
-      return new Intl.NumberFormat(invLang || JOSKA_I18N.getLang(), {
+      return new Intl.NumberFormat(invLang || RENVA_I18N.getLang(), {
         minimumFractionDigits: 0, maximumFractionDigits: 2
       }).format(n);
     };
-    const fmt = (n) => (invLang === 'ar' || JOSKA_I18N.getLang() === 'ar' ? '\u200E' : '') + fmtNum(n) + ' ' + currency;
+    const fmt = (n) => (invLang === 'ar' || RENVA_I18N.getLang() === 'ar' ? '\u200E' : '') + fmtNum(n) + ' ' + currency;
     const startDate = inv.startDate || '';
     const endDate = inv.endDate || '';
     let days = inv.days;
@@ -336,7 +336,7 @@ const JOSKA_DASHBOARD = (() => {
       logoEl.style.display = 'none';
     }
 
-    s('preview_companyName', cs.companyName || 'JOSKA');
+    s('preview_companyName', cs.companyName || 'RENVA');
     s('preview_companyAddr', cs.address || '');
     s('preview_companyEmail', cs.email || '');
     s('preview_companyPhone', cs.phone || '');
@@ -396,7 +396,7 @@ const JOSKA_DASHBOARD = (() => {
   // ── Theme Toggle ─────────────────────────────────────────
   function initThemeToggle() {
     const toggle = document.getElementById('themeToggle');
-    const saved  = localStorage.getItem('joska_theme') || 'light';
+    const saved  = localStorage.getItem('RENVA_theme') || 'light';
     applyTheme(saved);
 
     if (toggle) {
@@ -404,7 +404,7 @@ const JOSKA_DASHBOARD = (() => {
         const current = document.documentElement.getAttribute('data-theme') || 'light';
         const next    = current === 'dark' ? 'light' : 'dark';
         applyTheme(next);
-        localStorage.setItem('joska_theme', next);
+        localStorage.setItem('RENVA_theme', next);
       });
     }
   }
@@ -466,7 +466,7 @@ const JOSKA_DASHBOARD = (() => {
 
   function formatCurrency(amount, currency) {
     if (isNaN(amount)) amount = 0;
-    const lang = JOSKA_I18N.getLang();
+    const lang = RENVA_I18N.getLang();
     const num = new Intl.NumberFormat(lang, {
       minimumFractionDigits: 0,
       maximumFractionDigits: 2
@@ -484,16 +484,16 @@ const JOSKA_DASHBOARD = (() => {
 
 // ── Boot ──────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  JOSKA_I18N.init();
-  JOSKA_AUTH.init();
+  RENVA_I18N.init();
+  RENVA_AUTH.init();
 
-  document.addEventListener('joska:authReady', ({ detail }) => {
-    if (detail.user) JOSKA_DASHBOARD.init(detail.user);
+  document.addEventListener('RENVA:authReady', ({ detail }) => {
+    if (detail.user) RENVA_DASHBOARD.init(detail.user);
   });
 
-  document.addEventListener('joska:langChanged', () => {
+  document.addEventListener('RENVA:langChanged', () => {
     // Re-render dynamic content when language changes
-    const user = JOSKA_AUTH.currentUser();
-    if (user) JOSKA_DASHBOARD.init(user);
+    const user = RENVA_AUTH.currentUser();
+    if (user) RENVA_DASHBOARD.init(user);
   });
 });

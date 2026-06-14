@@ -1,5 +1,5 @@
 /* ============================================================
-   JOSKA — Invoices Module Stylesheet
+   RENVA — Invoices Module Stylesheet
    ============================================================ */
 
 /* ── Filter Bar ─────────────────────────────────────────── */
@@ -763,8 +763,8 @@
 
 /* Print Styles — hide everything except the invoice */
 @media print {
-  body > *:not(#joska-print-container) { display: none !important; }
-  #joska-print-container { display: block !important; }
+  body > *:not(#RENVA-print-container) { display: none !important; }
+  #RENVA-print-container { display: block !important; }
 
   /* Force background colors and images to print */
   * {
@@ -773,11 +773,11 @@
     color-adjust: exact !important;
   }
 
-  #joska-print-container {
+  #RENVA-print-container {
     width: 100%;
     background: #fff;
   }
-  #joska-print-container .ip-invoice {
+  #RENVA-print-container .ip-invoice {
     width: 100%;
     min-height: 297mm;
     padding: 10mm 12mm;
@@ -792,15 +792,15 @@
     page-break-inside: avoid;
     break-inside: avoid;
   }
-  #joska-print-container .ip-invoice:last-child {
+  #RENVA-print-container .ip-invoice:last-child {
     page-break-after: auto;
     break-after: auto;
   }
-  #joska-print-container .ip-invoice table.ip-invoice-table {
+  #RENVA-print-container .ip-invoice table.ip-invoice-table {
     table-layout: fixed;
     width: 100%;
   }
-  #joska-print-container .ip-invoice table.ip-invoice-table thead th {
+  #RENVA-print-container .ip-invoice table.ip-invoice-table thead th {
     font-size: 8pt;
     padding: 7px 10px;
     background: var(--ip-primary, #2563EB) !important;
@@ -808,32 +808,32 @@
     white-space: nowrap;
     overflow: visible;
   }
-  #joska-print-container .ip-invoice table.ip-invoice-table thead th:nth-child(1) { width: 45%; }
-  #joska-print-container .ip-invoice table.ip-invoice-table thead th:nth-child(2) { width: 12%; }
-  #joska-print-container .ip-invoice table.ip-invoice-table thead th:nth-child(3) { width: 18%; }
-  #joska-print-container .ip-invoice table.ip-invoice-table thead th:nth-child(4) { width: 25%; }
-  #joska-print-container .ip-invoice table.ip-invoice-table tbody td {
+  #RENVA-print-container .ip-invoice table.ip-invoice-table thead th:nth-child(1) { width: 45%; }
+  #RENVA-print-container .ip-invoice table.ip-invoice-table thead th:nth-child(2) { width: 12%; }
+  #RENVA-print-container .ip-invoice table.ip-invoice-table thead th:nth-child(3) { width: 18%; }
+  #RENVA-print-container .ip-invoice table.ip-invoice-table thead th:nth-child(4) { width: 25%; }
+  #RENVA-print-container .ip-invoice table.ip-invoice-table tbody td {
     font-size: 10pt;
     padding: 6px 10px;
     overflow: visible;
   }
-  #joska-print-container .ip-invoice table.ip-invoice-table tbody tr:nth-child(even) td {
+  #RENVA-print-container .ip-invoice table.ip-invoice-table tbody tr:nth-child(even) td {
     background: #F8FAFC !important;
   }
-  #joska-print-container .ip-invoice .ip-invoice-title-bar h1 { font-size: 30pt; }
-  #joska-print-container .ip-invoice .ip-invoice-company h2  { font-size: 18pt; }
-  #joska-print-container .ip-invoice .ip-invoice-company p  { font-size: 9pt; }
-  #joska-print-container .ip-invoice .ip-address-block h4   { font-size: 8pt; }
-  #joska-print-container .ip-invoice .ip-address-block h3   { font-size: 12pt; }
-  #joska-print-container .ip-invoice .ip-address-block p    { font-size: 9pt; }
-  #joska-print-container .ip-invoice .ip-invoice-meta       { font-size: 9pt; }
-  #joska-print-container .ip-invoice .ip-summary-table td   { font-size: 11pt; padding: 10px 10px; }
-  #joska-print-container .ip-invoice .ip-summary-grand td:last-child { font-size: 14pt; }
-  #joska-print-container .ip-invoice .ip-summary-status td:last-child .ip-status-badge { font-size: 14pt; font-weight: 800; }
-  #joska-print-container .ip-invoice .ip-invoice-footer h5  { font-size: 8pt; }
-  #joska-print-container .ip-invoice .ip-invoice-footer p   { font-size: 9pt; }
+  #RENVA-print-container .ip-invoice .ip-invoice-title-bar h1 { font-size: 30pt; }
+  #RENVA-print-container .ip-invoice .ip-invoice-company h2  { font-size: 18pt; }
+  #RENVA-print-container .ip-invoice .ip-invoice-company p  { font-size: 9pt; }
+  #RENVA-print-container .ip-invoice .ip-address-block h4   { font-size: 8pt; }
+  #RENVA-print-container .ip-invoice .ip-address-block h3   { font-size: 12pt; }
+  #RENVA-print-container .ip-invoice .ip-address-block p    { font-size: 9pt; }
+  #RENVA-print-container .ip-invoice .ip-invoice-meta       { font-size: 9pt; }
+  #RENVA-print-container .ip-invoice .ip-summary-table td   { font-size: 11pt; padding: 10px 10px; }
+  #RENVA-print-container .ip-invoice .ip-summary-grand td:last-child { font-size: 14pt; }
+  #RENVA-print-container .ip-invoice .ip-summary-status td:last-child .ip-status-badge { font-size: 14pt; font-weight: 800; }
+  #RENVA-print-container .ip-invoice .ip-invoice-footer h5  { font-size: 8pt; }
+  #RENVA-print-container .ip-invoice .ip-invoice-footer p   { font-size: 9pt; }
   @page { size: A4 portrait; margin: 0; }
 }
 
 /* ── Export print container (hidden on screen, shown in print) ── */
-#joska-print-container { display: none; }
+#RENVA-print-container { display: none; }

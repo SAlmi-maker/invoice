@@ -1,8 +1,8 @@
 // ============================================================
-// JOSKA - Authentication Module
+// RENVA - Authentication Module
 // ============================================================
 
-const JOSKA_AUTH = (() => {
+const RENVA_AUTH = (() => {
   const PROTECTED_PAGES = ['dashboard.html', 'settings.html', 'invoices.html', 'reports.html', 'clients.html'];
   const LOGIN_PAGE      = 'login.html';
   const HOME_PAGE       = 'dashboard.html';
@@ -22,7 +22,7 @@ const JOSKA_AUTH = (() => {
       }
 
       // Trigger page-ready event so modules can initialize
-      document.dispatchEvent(new CustomEvent('joska:authReady', { detail: { user } }));
+      document.dispatchEvent(new CustomEvent('RENVA:authReady', { detail: { user } }));
     });
   }
 
@@ -92,7 +92,7 @@ const JOSKA_AUTH = (() => {
 
         try {
           await sendPasswordReset(email);
-          msg.textContent = JOSKA_I18N.t('auth.resetSent');
+          msg.textContent = RENVA_I18N.t('auth.resetSent');
           msg.classList.add('success');
         } catch (err) {
           msg.textContent = translateAuthError(err.code);
@@ -118,14 +118,14 @@ const JOSKA_AUTH = (() => {
 
   function translateAuthError(code) {
     const map = {
-      'auth/user-not-found':    JOSKA_I18N.t('auth.userNotFound'),
-      'auth/wrong-password':    JOSKA_I18N.t('auth.wrongPassword'),
-      'auth/invalid-email':     JOSKA_I18N.t('auth.invalidEmail'),
-      'auth/too-many-requests': JOSKA_I18N.t('auth.tooManyRequests'),
-      'auth/user-disabled':     JOSKA_I18N.t('auth.userDisabled'),
-      'auth/invalid-credential':JOSKA_I18N.t('auth.wrongPassword'),
+      'auth/user-not-found':    RENVA_I18N.t('auth.userNotFound'),
+      'auth/wrong-password':    RENVA_I18N.t('auth.wrongPassword'),
+      'auth/invalid-email':     RENVA_I18N.t('auth.invalidEmail'),
+      'auth/too-many-requests': RENVA_I18N.t('auth.tooManyRequests'),
+      'auth/user-disabled':     RENVA_I18N.t('auth.userDisabled'),
+      'auth/invalid-credential':RENVA_I18N.t('auth.wrongPassword'),
     };
-    return map[code] || JOSKA_I18N.t('auth.genericError');
+    return map[code] || RENVA_I18N.t('auth.genericError');
   }
 
   return { init, login, logout, sendPasswordReset, currentUser, guardRoute };

@@ -1,8 +1,8 @@
 // ============================================================
-// JOSKA - Settings Module
+// RENVA - Settings Module
 // ============================================================
 
-const JOSKA_SETTINGS = (() => {
+const RENVA_SETTINGS = (() => {
 
   let currentSettings = {};
   let pendingLogoFile = null;
@@ -44,7 +44,7 @@ const JOSKA_SETTINGS = (() => {
     const currencyEl = document.getElementById('field_currency');
     if (currencyEl && data.currency) {
       currencyEl.value = data.currency;
-      JOSKA_I18N.setCurrency(data.currency);
+      RENVA_I18N.setCurrency(data.currency);
     }
 
     // Logo Preview
@@ -131,11 +131,11 @@ const JOSKA_SETTINGS = (() => {
                 .collection('settings').doc('company').set(updates, { merge: true });
 
         currentSettings = { ...currentSettings, ...updates };
-        JOSKA_I18N.setCurrency(updates.currency);
-        showToast(toast, 'success', JOSKA_I18N.t('settings.saved'));
+        RENVA_I18N.setCurrency(updates.currency);
+        showToast(toast, 'success', RENVA_I18N.t('settings.saved'));
       } catch (err) {
         console.error('Settings save error:', err);
-        showToast(toast, 'error', JOSKA_I18N.t('settings.error'));
+        showToast(toast, 'error', RENVA_I18N.t('settings.error'));
       } finally {
         setLoading(btn, false);
       }
@@ -194,7 +194,7 @@ const JOSKA_SETTINGS = (() => {
     btn.disabled = state;
     btn.classList.toggle('loading', state);
     const span = btn.querySelector('span');
-    if (span) span.textContent = state ? JOSKA_I18N.t('settings.saving') : JOSKA_I18N.t('settings.saveBtn');
+    if (span) span.textContent = state ? RENVA_I18N.t('settings.saving') : RENVA_I18N.t('settings.saveBtn');
   }
 
   function showToast(toast, type, message) {
@@ -206,7 +206,7 @@ const JOSKA_SETTINGS = (() => {
 
   function initThemeToggle() {
     const toggle = document.getElementById('themeToggle');
-    const saved  = localStorage.getItem('joska_theme') || 'light';
+    const saved  = localStorage.getItem('RENVA_theme') || 'light';
     document.documentElement.setAttribute('data-theme', saved);
 
     if (toggle) {
@@ -214,7 +214,7 @@ const JOSKA_SETTINGS = (() => {
         const current = document.documentElement.getAttribute('data-theme') || 'light';
         const next    = current === 'dark' ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', next);
-        localStorage.setItem('joska_theme', next);
+        localStorage.setItem('RENVA_theme', next);
       });
     }
   }
@@ -244,10 +244,10 @@ const JOSKA_SETTINGS = (() => {
 
 // ── Boot ──────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  JOSKA_I18N.init();
-  JOSKA_AUTH.init();
+  RENVA_I18N.init();
+  RENVA_AUTH.init();
 
-  document.addEventListener('joska:authReady', ({ detail }) => {
-    if (detail.user) JOSKA_SETTINGS.init(detail.user);
+  document.addEventListener('RENVA:authReady', ({ detail }) => {
+    if (detail.user) RENVA_SETTINGS.init(detail.user);
   });
 });

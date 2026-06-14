@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>JOSKA — Sign In</title>
-  <meta name="description" content="JOSKA Invoice & Revenue Management — Sign In" />
+  <title>RENVA — Sign In</title>
+  <meta name="description" content="RENVA Invoice & Revenue Management — Sign In" />
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232563EB'/%3E%3Ctext x='16' y='22' text-anchor='middle' fill='white' font-family='Inter,sans-serif' font-weight='800' font-size='14'%3EJ%3C/text%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -307,7 +307,7 @@
           <polyline points="10 9 9 9 8 9"/>
         </svg>
       </div>
-      <div class="brand-name">JOSKA</div>
+      <div class="brand-name">RENVA</div>
       <div class="brand-tagline" data-i18n="brand.tagline">Invoice &amp; Revenue Management</div>
 
       <div class="brand-features">
@@ -342,7 +342,7 @@
             <polyline points="14 2 14 8 20 8"/>
           </svg>
         </div>
-        <span class="login-logo-text">JOSKA</span>
+        <span class="login-logo-text">RENVA</span>
       </a>
 
       <div style="display:flex;align-items:center;gap:8px;">
@@ -362,7 +362,7 @@
 
       <div class="login-panel-main" id="loginPanel">
         <h1 class="login-heading" data-i18n="auth.loginTitle">Welcome Back</h1>
-        <p class="login-subheading" data-i18n="auth.loginSubtitle">Sign in to your JOSKA account</p>
+        <p class="login-subheading" data-i18n="auth.loginSubtitle">Sign in to your RENVA account</p>
 
         <div class="login-error" id="loginError"></div>
 
@@ -464,7 +464,7 @@
       </div>
 
       <div class="login-footer">
-        &copy; JOSKA. Car Rental Invoice Management.
+        &copy; RENVA. Car Rental Invoice Management.
       </div>
     </div>
   </div>
@@ -481,17 +481,17 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    JOSKA_I18N.init();
-    JOSKA_AUTH.init();
+    RENVA_I18N.init();
+    RENVA_AUTH.init();
 
     const themeToggle = document.getElementById('themeToggle');
-    const saved = localStorage.getItem('joska_theme') || 'light';
+    const saved = localStorage.getItem('RENVA_theme') || 'light';
     applyLoginTheme(saved);
     themeToggle?.addEventListener('click', () => {
       const cur  = document.documentElement.getAttribute('data-theme') || 'light';
       const next = cur === 'dark' ? 'light' : 'dark';
       applyLoginTheme(next);
-      localStorage.setItem('joska_theme', next);
+      localStorage.setItem('RENVA_theme', next);
     });
 
     function applyLoginTheme(theme) {
