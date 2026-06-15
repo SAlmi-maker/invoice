@@ -47,7 +47,6 @@ const RENVA_INVOICES = (() => {
     renderUserInfo(user);
     subscribeToInvoices(user.uid);
     wireUI();
-    initThemeToggle();
     initSidebar();
     setTodayAsDefault();
     populateExportModal();
@@ -1489,27 +1488,6 @@ const RENVA_INVOICES = (() => {
   }
 
   // ── Theme toggle ──────────────────────────────────────────
-  function initThemeToggle() {
-    const toggle = document.getElementById('themeToggle');
-    const saved  = localStorage.getItem('RENVA_theme') || 'light';
-    applyTheme(saved);
-    toggle?.addEventListener('click', () => {
-      const current = document.documentElement.getAttribute('data-theme') || 'light';
-      const next = current === 'dark' ? 'light' : 'dark';
-      applyTheme(next);
-      localStorage.setItem('RENVA_theme', next);
-    });
-  }
-
-  function applyTheme(theme) {
-    document.documentElement.setAttribute('data-theme', theme);
-    const toggle = document.getElementById('themeToggle');
-    if (toggle) {
-      toggle.querySelector('.theme-icon-sun')?.classList.toggle('hidden',  theme === 'light');
-      toggle.querySelector('.theme-icon-moon')?.classList.toggle('hidden', theme === 'dark');
-    }
-  }
-
   // ── Sidebar toggle ────────────────────────────────────────
   function initSidebar() {
     const hamburger = document.getElementById('hamburger');

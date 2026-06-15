@@ -15,7 +15,6 @@ const RENVA_DASHBOARD = (() => {
     renderUserInfo(user);
     await loadCompanySettings(user.uid);
     subscribeToInvoices(user.uid);
-    initThemeToggle();
     initSidebar();
     initAnimations();
     wirePreviewClose();
@@ -399,30 +398,6 @@ const RENVA_DASHBOARD = (() => {
   }
 
   // ── Theme Toggle ─────────────────────────────────────────
-  function initThemeToggle() {
-    const toggle = document.getElementById('themeToggle');
-    const saved  = localStorage.getItem('RENVA_theme') || 'light';
-    applyTheme(saved);
-
-    if (toggle) {
-      toggle.addEventListener('click', () => {
-        const current = document.documentElement.getAttribute('data-theme') || 'light';
-        const next    = current === 'dark' ? 'light' : 'dark';
-        applyTheme(next);
-        localStorage.setItem('RENVA_theme', next);
-      });
-    }
-  }
-
-  function applyTheme(theme) {
-    document.documentElement.setAttribute('data-theme', theme);
-    const toggle = document.getElementById('themeToggle');
-    if (toggle) {
-      toggle.querySelector('.theme-icon-sun')?.classList.toggle('hidden', theme === 'light');
-      toggle.querySelector('.theme-icon-moon')?.classList.toggle('hidden', theme === 'dark');
-    }
-  }
-
   // ── Sidebar ───────────────────────────────────────────────
   function initSidebar() {
     const hamburger = document.getElementById('hamburger');
@@ -483,7 +458,7 @@ const RENVA_DASHBOARD = (() => {
     return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
-  return { init, viewInvoice, applyTheme };
+  return { init, viewInvoice };
 })();
 
 

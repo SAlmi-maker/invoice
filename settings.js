@@ -21,7 +21,6 @@ const RENVA_SETTINGS = (() => {
     loadSettings(user.uid);
     wireForm(user.uid);
     wireFileUploads();
-    initThemeToggle();
     initSidebar();
   }
 
@@ -214,21 +213,6 @@ const RENVA_SETTINGS = (() => {
     toast.textContent = message;
     toast.className   = `toast toast-${type} show`;
     setTimeout(() => toast.classList.remove('show'), 3500);
-  }
-
-  function initThemeToggle() {
-    const toggle = document.getElementById('themeToggle');
-    const saved  = localStorage.getItem('RENVA_theme') || 'light';
-    document.documentElement.setAttribute('data-theme', saved);
-
-    if (toggle) {
-      toggle.addEventListener('click', () => {
-        const current = document.documentElement.getAttribute('data-theme') || 'light';
-        const next    = current === 'dark' ? 'light' : 'dark';
-        document.documentElement.setAttribute('data-theme', next);
-        localStorage.setItem('RENVA_theme', next);
-      });
-    }
   }
 
   function initSidebar() {

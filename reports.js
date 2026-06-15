@@ -24,7 +24,6 @@ const RENVA_REPORTS = (() => {
     await loadCompanySettings(user.uid);
     renderUserInfo(user);
     populateYearSelector();
-    initThemeToggle();
     initSidebar();
     initAnimations();
     subscribeToInvoices(user.uid);
@@ -446,25 +445,6 @@ const RENVA_REPORTS = (() => {
   }
 
   // ── Theme Toggle ─────────────────────────────────────────
-  function initThemeToggle() {
-    const saved = localStorage.getItem('RENVA_theme') || 'light';
-    applyTheme(saved);
-    document.getElementById('themeToggle')?.addEventListener('click', () => {
-      const cur  = document.documentElement.getAttribute('data-theme') || 'light';
-      const next = cur === 'dark' ? 'light' : 'dark';
-      applyTheme(next);
-      localStorage.setItem('RENVA_theme', next);
-      // Redraw charts for new theme colors
-      renderAll();
-    });
-  }
-
-  function applyTheme(theme) {
-    document.documentElement.setAttribute('data-theme', theme);
-    document.querySelector('.theme-icon-sun')?.classList.toggle('hidden', theme === 'light');
-    document.querySelector('.theme-icon-moon')?.classList.toggle('hidden', theme === 'dark');
-  }
-
   // ── Sidebar ───────────────────────────────────────────────
   function initSidebar() {
     const hamburger = document.getElementById('hamburger');
