@@ -14,6 +14,9 @@ const RENVA_I18N = (() => {
       'brand.name': 'RENVA',
       'brand.tagline': 'Invoice & Revenue Management',
       'brand.subtitle': 'Vehicle Rental',
+      'brand.feature1': 'Real-time revenue tracking',
+      'brand.feature2': 'Professional invoicing',
+      'brand.feature3': 'Secure & private data',
 
       // Auth
       'auth.loginTitle':      'Welcome Back',
@@ -533,6 +536,9 @@ const RENVA_I18N = (() => {
       'brand.name': 'RENVA',
       'brand.tagline': 'Gestion des Factures & Revenus',
       'brand.subtitle': 'Location de Véhicules',
+      'brand.feature1': 'Suivi des revenus en temps réel',
+      'brand.feature2': 'Facturation professionnelle',
+      'brand.feature3': 'Données sécurisées et privées',
 
       'auth.loginTitle':      'Bon Retour',
       'auth.loginSubtitle':   'Connectez-vous à votre compte RENVA',
@@ -1046,6 +1052,9 @@ const RENVA_I18N = (() => {
       'brand.name': 'جوسكا',
       'brand.tagline': 'إدارة الفواتير والإيرادات',
       'brand.subtitle': 'تأجير المركبات',
+      'brand.feature1': 'تتبع الإيرادات في الوقت الفعلي',
+      'brand.feature2': 'إصدار الفواتير الاحترافية',
+      'brand.feature3': 'بيانات آمنة وخاصة',
 
       'auth.loginTitle':      'مرحباً بعودتك',
       'auth.loginSubtitle':   'سجّل الدخول إلى حساب جوسكا',

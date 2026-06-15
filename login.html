@@ -268,21 +268,6 @@
     .back-btn:hover { color: var(--primary); }
     .back-btn svg   { width: 15px; height: 15px; }
 
-    .login-theme-toggle {
-      width: 34px; height: 34px;
-      border: 1px solid var(--border-color);
-      border-radius: var(--radius-md);
-      background: var(--bg-subtle);
-      color: var(--text-secondary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all var(--t-fast);
-    }
-    .login-theme-toggle:hover { background: var(--bg-subtle); color: var(--text-primary); }
-    .login-theme-toggle svg   { width: 15px; height: 15px; }
-
     @media (max-width: 900px) {
       .login-panel-left { display: none; }
       .login-panel-right { width: 100%; padding: 32px 24px; }
@@ -310,19 +295,19 @@
           <div class="brand-feature-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
           </div>
-          <div class="brand-feature-text">Real-time revenue tracking</div>
+          <div class="brand-feature-text" data-i18n="brand.feature1">Real-time revenue tracking</div>
         </div>
         <div class="brand-feature">
           <div class="brand-feature-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
           </div>
-          <div class="brand-feature-text">Professional invoicing</div>
+          <div class="brand-feature-text" data-i18n="brand.feature2">Professional invoicing</div>
         </div>
         <div class="brand-feature">
           <div class="brand-feature-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
           </div>
-          <div class="brand-feature-text">Secure &amp; private data</div>
+          <div class="brand-feature-text" data-i18n="brand.feature3">Secure &amp; private data</div>
         </div>
       </div>
     </div>
@@ -343,10 +328,7 @@
           <button class="lang-btn" data-lang="fr">FR</button>
           <button class="lang-btn" data-lang="ar">ع</button>
         </div>
-        <button class="login-theme-toggle" id="themeToggle" title="Toggle theme">
-          <svg class="theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-          <svg class="theme-icon-sun hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-        </button>
+        </div>
       </div>
     </div>
 
@@ -475,22 +457,6 @@
   document.addEventListener('DOMContentLoaded', () => {
     RENVA_I18N.init();
     RENVA_AUTH.init();
-
-    const themeToggle = document.getElementById('themeToggle');
-    const saved = localStorage.getItem('RENVA_theme') || 'light';
-    applyLoginTheme(saved);
-    themeToggle?.addEventListener('click', () => {
-      const cur  = document.documentElement.getAttribute('data-theme') || 'light';
-      const next = cur === 'dark' ? 'light' : 'dark';
-      applyLoginTheme(next);
-      localStorage.setItem('RENVA_theme', next);
-    });
-
-    function applyLoginTheme(theme) {
-      document.documentElement.setAttribute('data-theme', theme);
-      document.getElementById('themeToggle')?.querySelector('.theme-icon-sun')?.classList.toggle('hidden', theme === 'light');
-      document.getElementById('themeToggle')?.querySelector('.theme-icon-moon')?.classList.toggle('hidden', theme === 'dark');
-    }
 
     const pwInput  = document.getElementById('password');
     const pwToggle = document.getElementById('pwToggle');
