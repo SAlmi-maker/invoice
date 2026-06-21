@@ -283,7 +283,7 @@
       <div class="summary-card green">
 
         <div class="sc-title" data-i18n="legal.summary1Title">We protect your data</div>
-        <div class="sc-text" data-i18n="legal.summary1Text">Your data is stored securely on Google Cloud (Firebase). We never sell it to anyone.</div>
+        <div class="sc-text" data-i18n="legal.summary1Text">Your data is stored securely on Supabase (PostgreSQL). We never sell it to anyone.</div>
       </div>
       <div class="summary-card amber">
 
@@ -356,7 +356,7 @@
             </tr>
             <tr>
               <td><strong data-i18n="legal.privacy.dataTable.categoryUsage">Usage Data</strong></td>
-              <td data-i18n="legal.privacy.dataTable.usageFields">Login timestamps, session info (via Firebase)</td>
+              <td data-i18n="legal.privacy.dataTable.usageFields">Login timestamps, session info (via Supabase)</td>
               <td data-i18n="legal.privacy.dataTable.securityMonitoring">Security monitoring, platform stability</td>
               <td><span class="tag tag-green" data-i18n="legal.privacy.dataTable.autoCollected">Auto-collected</span></td>
             </tr>
@@ -371,7 +371,7 @@
         </div>
 
         <div class="info-box">
-          <p><strong data-i18n="legal.privacy.importantLabel">Important:</strong> <span data-i18n="legal.privacy.securityImportantText">We never see your password. Firebase Authentication stores a cryptographic hash only — not even our team can read it. Your invoice data and client records are only accessible through your authenticated account.</span></p>
+          <p><strong data-i18n="legal.privacy.importantLabel">Important:</strong> <span data-i18n="legal.privacy.securityImportantText">We never see your password. Supabase Auth stores a cryptographic hash only — not even our team can read it. Your invoice data and client records are only accessible through your authenticated account.</span></p>
         </div>
       </div>
 
@@ -436,9 +436,9 @@
         <p data-i18n="legal.privacy.securityIntro">We take security seriously and implement the following measures to protect your data:</p>
         <ul>
           <li><strong data-i18n="legal.privacy.securityList.encryptTransitLabel">Encryption in transit:</strong> <span data-i18n="legal.privacy.securityList.encryptTransitText">All data between your browser and RENVA is encrypted via HTTPS/TLS</span></li>
-          <li><strong data-i18n="legal.privacy.securityList.encryptRestLabel">Encryption at rest:</strong> <span data-i18n="legal.privacy.securityList.encryptRestText">Firebase stores your data with server-side encryption on Google Cloud</span></li>
-          <li><strong data-i18n="legal.privacy.securityList.authLabel">Authentication:</strong> <span data-i18n="legal.privacy.securityList.authText">Passwords are never stored in plain text — Firebase uses industry-standard hashing</span></li>
-          <li><strong data-i18n="legal.privacy.securityList.accessLabel">Access control:</strong> <span data-i18n="legal.privacy.securityList.accessText">Firebase Security Rules ensure each user can only access their own data</span></li>
+          <li><strong data-i18n="legal.privacy.securityList.encryptRestLabel">Encryption at rest:</strong> <span data-i18n="legal.privacy.securityList.encryptRestText">Supabase stores your data with server-side encryption on AWS</span></li>
+          <li><strong data-i18n="legal.privacy.securityList.authLabel">Authentication:</strong> <span data-i18n="legal.privacy.securityList.authText">Passwords are never stored in plain text — Supabase uses industry-standard hashing</span></li>
+          <li><strong data-i18n="legal.privacy.securityList.accessLabel">Access control:</strong> <span data-i18n="legal.privacy.securityList.accessText">Row-Level Security (RLS) policies ensure each user can only access their own data</span></li>
           <li><strong data-i18n="legal.privacy.securityList.noAccessLabel">No employee access:</strong> <span data-i18n="legal.privacy.securityList.noAccessText">Our team cannot read your invoices, client data, or financial records without your explicit consent</span></li>
         </ul>
         <div class="warn-box">
@@ -455,7 +455,7 @@
           <li><strong data-i18n="legal.privacy.retainList.cancelLabel">Subscription cancellation:</strong> <span data-i18n="legal.privacy.retainList.cancelText">Your data is retained for 90 days after cancellation so you can export it, then permanently deleted</span></li>
           <li><strong data-i18n="legal.privacy.retainList.deleteLabel">Account deletion:</strong> <span data-i18n="legal.privacy.retainList.deleteText">When you delete your account from Settings, all associated data — invoices, clients, vehicles, company profile — is permanently deleted within 30 days</span></li>
           <li><strong data-i18n="legal.privacy.retainList.partialLabel">Partial deletion:</strong> <span data-i18n="legal.privacy.retainList.partialText">You can delete individual invoices, clients, or vehicles at any time from within the app</span></li>
-          <li><strong data-i18n="legal.privacy.retainList.backupLabel">Backup copies:</strong> <span data-i18n="legal.privacy.retainList.backupText">Firebase automated backups may retain deleted data for up to 7 additional days for disaster recovery purposes</span></li>
+          <li><strong data-i18n="legal.privacy.retainList.backupLabel">Backup copies:</strong> <span data-i18n="legal.privacy.retainList.backupText">Supabase automated backups may retain deleted data for up to 7 additional days for disaster recovery purposes</span></li>
         </ul>
       </div>
 
@@ -470,7 +470,7 @@
           </thead>
           <tbody>
             <tr>
-              <td data-i18n="legal.privacy.cookiesTable.authToken">Firebase Auth Token</td>
+              <td data-i18n="legal.privacy.cookiesTable.authToken">Supabase Auth Token</td>
               <td data-i18n="legal.privacy.cookiesTable.authTokenType">IndexedDB / Cookie</td>
               <td data-i18n="legal.privacy.cookiesTable.authTokenPurpose">Keeps you logged in securely</td>
               <td data-i18n="legal.privacy.cookiesTable.authTokenDuration">Session / 30 days</td>
@@ -641,7 +641,7 @@
         <ul>
           <li data-i18n="legal.terms.uptimeList.maintenance">Scheduled maintenance (we will provide advance notice when possible)</li>
           <li data-i18n="legal.terms.uptimeList.emergency">Emergency fixes or security patches</li>
-          <li data-i18n="legal.terms.uptimeList.infrastructure">Firebase or Google Cloud infrastructure incidents beyond our control</li>
+          <li data-i18n="legal.terms.uptimeList.infrastructure">Supabase infrastructure incidents beyond our control</li>
           <li data-i18n="legal.terms.uptimeList.forceMajeure">Force majeure events (natural disasters, internet outages, etc.)</li>
         </ul>
         <p data-i18n="legal.terms.uptimeNoLiability">We are not liable for any losses resulting from platform downtime, data unavailability, or service interruptions.</p>
@@ -670,7 +670,7 @@
           <li data-i18n="legal.terms.disclaimerList.indirect">Any indirect, incidental, special, or consequential damages</li>
           <li data-i18n="legal.terms.disclaimerList.businessLoss">Loss of business, revenue, or profits resulting from use of or inability to use the platform</li>
           <li data-i18n="legal.terms.disclaimerList.dataLoss">Loss or corruption of data due to technical failures or user error</li>
-          <li data-i18n="legal.terms.disclaimerList.thirdParty">Actions or content of third-party services (Firebase, Google Cloud)</li>
+          <li data-i18n="legal.terms.disclaimerList.thirdParty">Actions or content of third-party services (Supabase, AWS)</li>
           <li data-i18n="legal.terms.disclaimerList.taxLegal">Any tax, legal, or accounting consequences arising from invoice data you generate</li>
         </ul>
         <div class="info-box">
