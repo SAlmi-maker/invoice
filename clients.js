@@ -129,8 +129,7 @@ const RENVA_CLIENTS = (() => {
         phone: $('client_phone').value.trim(),
         email: $('client_email').value.trim(),
         address: $('client_address').value.trim(),
-        notes: $('client_notes').value.trim(),
-        updated_at: new Date().toISOString()
+        notes: $('client_notes').value.trim()
       };
 
       if (id) {
