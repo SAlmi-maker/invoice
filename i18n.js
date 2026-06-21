@@ -583,7 +583,7 @@ const RENVA_I18N = (() => {
 
       // Reset Password Page
       'auth.resetFeature1':     'Votre compte est protégé',
-      'auth.resetFeature2':     'Réinitialisation sécurisée du mot de passe',
+      'auth.resetFeature2':     'Réinitialisation sécurisée',
       'auth.resetFeature3':     'Retour à la gestion des revenus',
       'auth.resetLinkInvalid':  'Lien expiré ou invalide',
       'auth.resetLinkInvalidDesc':'Ce lien de réinitialisation a expiré ou a déjà été utilisé. Veuillez en demander un nouveau.',
