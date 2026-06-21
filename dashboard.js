@@ -59,14 +59,6 @@ const RENVA_DASHBOARD = (() => {
   function applyCompanyBranding(settings) {
     setBrandSubtitle(settings.company_name);
 
-    if (settings.logo_base64) {
-      const logoEls = document.querySelectorAll('.company-logo-img');
-      logoEls.forEach(el => {
-        el.src = settings.logo_base64;
-        el.style.display = 'block';
-      });
-    }
-
     document.title = `${settings.company_name || 'RENVA'} — Dashboard`;
   }
 
