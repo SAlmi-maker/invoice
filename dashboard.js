@@ -30,7 +30,7 @@ const RENVA_DASHBOARD = (() => {
   // ── Company Settings ──────────────────────────────────────
   async function loadCompanySettings(uid) {
     try {
-      const { data, error } = await supabase.from('companies')
+      const { data, error } = await sb.from('companies')
         .select('*')
         .eq('user_id', uid)
         .maybeSingle();
@@ -83,7 +83,7 @@ const RENVA_DASHBOARD = (() => {
     setStatsLoading(true);
 
     try {
-      const { data, error } = await supabase.from('invoices')
+      const { data, error } = await sb.from('invoices')
         .select('*')
         .eq('user_id', uid)
         .order('created_at', { ascending: false });

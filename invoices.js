@@ -31,7 +31,7 @@ const RENVA_INVOICES = (() => {
     currentUser = user;
 
     try {
-      const { data: csData, error: csError } = await supabase.from('companies')
+      const { data: csData, error: csError } = await sb.from('companies')
         .select('*')
         .eq('user_id', user.uid)
         .maybeSingle();
@@ -80,7 +80,7 @@ const RENVA_INVOICES = (() => {
     showLoading(true);
 
     try {
-      const { data, error } = await supabase.from('invoices')
+      const { data, error } = await sb.from('invoices')
         .select('*')
         .eq('user_id', uid)
         .order('created_at', { ascending: false });
@@ -357,7 +357,7 @@ const RENVA_INVOICES = (() => {
     const btn = document.getElementById('deleteConfirmBtn');
     btn.disabled = true;
     try {
-      const { error } = await supabase.from('invoices').delete().eq('id', deleteTargetId);
+      const { error } = await sb.from('invoices').delete().eq('id', deleteTargetId);
       if (error) throw error;
       showToast('success', RENVA_I18N.t('inv.deleted'));
       closeDeleteModal();
@@ -556,13 +556,13 @@ const RENVA_INVOICES = (() => {
       };
 
       if (editingId) {
-        const { error } = await supabase.from('invoices').update(payload).eq('id', editingId);
+        const { error } = await sb.from('invoices').update(payload).eq('id', editingId);
         if (error) throw error;
       } else {
         payload.user_id = currentUser.uid;
         payload.invoice_number = await generateInvoiceNumber();
         payload.created_at = now;
-        const { error } = await supabase.from('invoices').insert(payload);
+        const { error } = await sb.from('invoices').insert(payload);
         if (error) throw error;
       }
 
@@ -594,10 +594,10 @@ const RENVA_INVOICES = (() => {
     try {
       const now = new Date().toISOString();
       if (editingId) {
-        const { error } = await supabase.from('invoices').update({ ...data, days, total, updated_at: now }).eq('id', editingId);
+        const { error } = await sb.from('invoices').update({ ...data, days, total, updated_at: now }).eq('id', editingId);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from('invoices').insert({ ...data, user_id: currentUser.uid, days, total, invoice_number: invNumber, created_at: now, updated_at: now });
+        const { error } = await sb.from('invoices').insert({ ...data, user_id: currentUser.uid, days, total, invoice_number: invNumber, created_at: now, updated_at: now });
         if (error) throw error;
       }
       showToast('success', RENVA_I18N.t('inv.pdfReady'));

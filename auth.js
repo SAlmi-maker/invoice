@@ -13,7 +13,7 @@ const RENVA_AUTH = (() => {
   function guardRoute() {
     const page = window.location.pathname.split('/').pop() || 'index.html';
 
-    supabase.auth.onAuthStateChange((event, session) => {
+    sb.auth.onAuthStateChange((event, session) => {
       const user = session?.user ?? null;
       _currentUser = user;
 
@@ -32,19 +32,19 @@ const RENVA_AUTH = (() => {
 
   // ── Login ─────────────────────────────────────────────────
   async function login(email, password) {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await sb.auth.signInWithPassword({ email, password });
     if (error) throw error;
   }
 
   // ── Logout ────────────────────────────────────────────────
   async function logout() {
-    await supabase.auth.signOut();
+    await sb.auth.signOut();
     window.location.href = LOGIN_PAGE;
   }
 
   // ── Forgot Password ───────────────────────────────────────
   async function sendPasswordReset(email) {
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    const { error } = await sb.auth.resetPasswordForEmail(email, {
       redirectTo: window.location.origin + '/' + LOGIN_PAGE,
     });
     if (error) throw error;

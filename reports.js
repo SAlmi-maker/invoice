@@ -1,6 +1,6 @@
 // ============================================================
 // RENVA - Reports Module
-// Depends on: supabase.js, i18n.js, auth.js
+// Depends on: sb.js, i18n.js, auth.js
 // External:   Chart.js 4, SheetJS (xlsx)
 // ============================================================
 
@@ -42,7 +42,7 @@ const RENVA_REPORTS = (() => {
   // ── Company Settings ──────────────────────────────────────
   async function loadCompanySettings(uid) {
     try {
-      const { data, error } = await supabase.from('companies')
+      const { data, error } = await sb.from('companies')
         .select('*')
         .eq('user_id', uid)
         .maybeSingle();
@@ -93,7 +93,7 @@ const RENVA_REPORTS = (() => {
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.from('invoices')
+      const { data, error } = await sb.from('invoices')
         .select('*')
         .eq('user_id', uid)
         .order('created_at', { ascending: false });

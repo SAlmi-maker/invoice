@@ -27,7 +27,7 @@ const RENVA_SETTINGS = (() => {
   // ── Load Settings ─────────────────────────────────────────
   async function loadSettings(uid) {
     try {
-      const { data, error } = await supabase.from('companies')
+      const { data, error } = await sb.from('companies')
         .select('*')
         .eq('user_id', uid)
         .maybeSingle();
@@ -139,7 +139,7 @@ const RENVA_SETTINGS = (() => {
           updates.logo_base64 = currentSettings.logo_base64;
         }
 
-        const { error } = await supabase.from('companies')
+        const { error } = await sb.from('companies')
           .upsert({ user_id: uid, ...updates }, { onConflict: 'user_id' });
         if (error) throw error;
 

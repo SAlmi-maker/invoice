@@ -134,13 +134,13 @@ const RENVA_CLIENTS = (() => {
       };
 
       if (id) {
-        const { error } = await supabase.from('clients').update(data).eq('id', id);
+        const { error } = await sb.from('clients').update(data).eq('id', id);
         if (error) throw error;
         showToast(RENVA_I18N.t('clients.updated'));
       } else {
         data.user_id = currentUser.uid;
         data.created_at = new Date().toISOString();
-        const { error } = await supabase.from('clients').insert(data);
+        const { error } = await sb.from('clients').insert(data);
         if (error) throw error;
         showToast(RENVA_I18N.t('clients.saved'));
       }
@@ -159,7 +159,7 @@ const RENVA_CLIENTS = (() => {
     const btn = $('deleteConfirmBtn');
     btn.disabled = true;
     try {
-      const { error } = await supabase.from('clients').delete().eq('id', deleteTargetId);
+      const { error } = await sb.from('clients').delete().eq('id', deleteTargetId);
       if (error) throw error;
       showToast(RENVA_I18N.t('clients.deleted'));
       closeDeleteModal();
@@ -182,7 +182,7 @@ const RENVA_CLIENTS = (() => {
     setEmpty(false);
 
     try {
-      const { data, error } = await supabase.from('clients')
+      const { data, error } = await sb.from('clients')
         .select('*')
         .eq('user_id', currentUser.uid)
         .order('created_at', { ascending: false });
@@ -201,7 +201,7 @@ const RENVA_CLIENTS = (() => {
   async function loadInvoiceCounts() {
     if (!currentUser) return;
     try {
-      const { data, error } = await supabase.from('invoices')
+      const { data, error } = await sb.from('invoices')
         .select('client_name')
         .eq('user_id', currentUser.uid);
       if (error) throw error;
@@ -240,7 +240,7 @@ const RENVA_CLIENTS = (() => {
     document.querySelectorAll('.user-email').forEach(el => el.textContent = user.email);
     document.querySelectorAll('.user-avatar-text').forEach(el => el.textContent = 'RV');
 
-    supabase.from('companies').select('company_name').eq('user_id', user.uid).maybeSingle().then(({ data }) => {
+    sb.from('companies').select('company_name').eq('user_id', user.uid).maybeSingle().then(({ data }) => {
       const cn = data?.company_name || '';
       setBrandSubtitle(cn);
       RENVA_CLIENTS._cn = cn;
