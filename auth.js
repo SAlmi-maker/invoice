@@ -59,6 +59,12 @@ const RENVA_AUTH = (() => {
   function init() {
     guardRoute();
 
+    // Force REST client to use stored auth token for API calls
+    (async () => {
+      const { data: { session } } = await sb.auth.getSession();
+      if (session) await sb.auth.setSession({ access_token: session.access_token, refresh_token: session.refresh_token });
+    })();
+
     // Wire login form if present
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
