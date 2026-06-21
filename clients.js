@@ -244,6 +244,8 @@ const RENVA_CLIENTS = (() => {
 
     sb.from('companies').select('company_name').eq('user_id', user.id).maybeSingle().then(({ data }) => {
       const cn = data?.company_name || '';
+      const initials = cn ? cn.slice(0, 2).toUpperCase() : 'RV';
+      document.querySelectorAll('.user-avatar-text').forEach(el => el.textContent = initials);
       setBrandSubtitle(cn);
       RENVA_CLIENTS._cn = cn;
     }).catch(() => {});

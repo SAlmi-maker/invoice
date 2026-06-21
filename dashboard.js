@@ -13,6 +13,8 @@ const RENVA_DASHBOARD = (() => {
     if (!user || companySettings) return;
     renderUserInfo(user);
     await loadCompanySettings(user.id);
+    const dn = companySettings?.company_name || '';
+    document.querySelectorAll('.user-avatar-text').forEach(el => el.textContent = dn ? dn.slice(0, 2).toUpperCase() : 'RV');
     subscribeToInvoices(user.id);
     window.addEventListener('focus', () => subscribeToInvoices(user.id));
     initSidebar();
