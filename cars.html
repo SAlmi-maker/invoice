@@ -6,9 +6,9 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>RENVA — Clients | Customer Management for Rental Agencies</title>
-  <meta name="description" content="Manage your car rental clients: store names, ID/passport, phone, email, and invoice history. Find client records instantly with search." />
-  <meta name="keywords" content="client management car rental Morocco, customer database rental agency, gestion clients location voitures" />
+  <title>RENVA — Cars | Fleet Management for Rental Agencies</title>
+  <meta name="description" content="Manage your car rental fleet: add vehicles, track availability, store photos, and set daily rates." />
+  <meta name="keywords" content="fleet management car rental, vehicle tracking Morocco, gestion parc auto location" />
   <link rel="icon" type="image/png" href="renvafavicon.png" sizes="32x32" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -16,13 +16,122 @@
   <link rel="stylesheet" href="style.css?v=2" />
   <link rel="stylesheet" href="dashboard.css?v=3" />
   <link rel="stylesheet" href="invoices.css?v=2" />
+  <style>
+    .cars-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 18px;
+      padding: 4px 0;
+    }
+    .car-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      overflow: hidden;
+      transition: transform var(--t-base), box-shadow var(--t-base);
+    }
+    .car-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg);
+    }
+    .car-card-img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      background: var(--bg-muted);
+      display: block;
+    }
+    .car-card-img-placeholder {
+      width: 100%;
+      height: 150px;
+      background: linear-gradient(135deg, var(--primary-light), var(--bg-muted));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+    }
+    .car-card-img-placeholder svg {
+      width: 48px;
+      height: 48px;
+      opacity: 0.4;
+    }
+    .car-card-body {
+      padding: 14px 16px 16px;
+    }
+    .car-card-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+    .car-card-plate {
+      font-size: 0.78rem;
+      color: var(--text-tertiary);
+      font-family: monospace;
+      margin-bottom: 8px;
+    }
+    .car-card-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .car-card-price {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .car-card-status {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .car-card-status.available {
+      background: var(--green-light);
+      color: var(--green);
+    }
+    .car-card-status.unavailable {
+      background: var(--red-light);
+      color: var(--red);
+    }
+    .car-card-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border-color);
+    }
+    .car-card-actions .btn {
+      flex: 1;
+      font-size: 0.75rem;
+    }
+    .image-preview-wrap {
+      margin-top: 6px;
+      border-radius: 8px;
+      overflow: hidden;
+      max-width: 200px;
+      border: 1px solid var(--border-color);
+    }
+    .image-preview-wrap img {
+      width: 100%;
+      display: block;
+    }
+
+    @media (max-width: 600px) {
+      .cars-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 <body>
 <div class="app-layout">
 
   <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
-  <!-- ═══ SIDEBAR ═══ -->
   <aside class="sidebar" id="sidebar" role="navigation" aria-label="Main navigation">
     <div class="sidebar-header">
       <div class="sidebar-logo">
@@ -45,11 +154,11 @@
         <span data-i18n="nav.invoices">Invoices</span>
         <span class="nav-badge" id="navInvoiceCount">—</span>
       </a>
-      <a href="clients.html" class="nav-item active">
+      <a href="clients.html" class="nav-item">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         <span data-i18n="nav.clients">Clients</span>
       </a>
-      <a href="cars.html" class="nav-item">
+      <a href="cars.html" class="nav-item active">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.5a2 2 0 0 0-1.9 1.4L2 14v3a1 1 0 0 0 1 1h1m10 0H9m6 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/></svg>
         <span data-i18n="nav.cars">Cars</span>
       </a>
@@ -78,7 +187,6 @@
     </div>
   </aside>
 
-  <!-- ═══ MAIN ═══ -->
   <main class="main-content">
     <header class="topbar">
       <button class="topbar-hamburger" id="hamburger" aria-label="Toggle sidebar">
@@ -88,7 +196,7 @@
           <line x1="3" y1="18" x2="21" y2="18"/>
         </svg>
       </button>
-      <h2 class="topbar-title" data-i18n="nav.clients">Clients</h2>
+      <h2 class="topbar-title" data-i18n="nav.cars">Cars</h2>
       <span class="topbar-company-name company-name"></span>
       <div class="topbar-actions">
         <div style="display:flex;align-items:center;gap:8px;">
@@ -97,133 +205,126 @@
             <button class="lang-btn" data-lang="fr">FR</button>
             <button class="lang-btn" data-lang="ar">ع</button>
           </div>
-          <!-- theme toggle removed -->
         </div>
-        <button class="btn btn-primary btn-sm" id="btnNewClient" style="gap:6px;">
+        <button class="btn btn-primary btn-sm" id="btnNewCar" style="gap:6px;">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          <span data-i18n="clients.newClient">New Client</span>
+          <span data-i18n="cars.newCar">New Car</span>
         </button>
       </div>
     </header>
 
     <div class="page-body">
       <div class="page-header">
-        <h1 data-i18n="nav.clients">Clients</h1>
-        <p data-i18n="clients.subtitle">Manage your customers and their information</p>
+        <h1 data-i18n="nav.cars">Cars</h1>
+        <p data-i18n="cars.subtitle">Manage your fleet of vehicles</p>
       </div>
 
-      <!-- Search -->
       <div class="inv-filter-bar glass-card visible" style="margin-bottom:22px;">
         <div class="inv-filter-left">
           <div class="inv-search-wrap">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" id="clientSearch" class="inv-search-input" data-i18n-placeholder="common.search" placeholder="Search..." />
+            <input type="text" id="carSearch" class="inv-search-input" data-i18n-placeholder="common.search" placeholder="Search..." />
           </div>
         </div>
-        <div class="inv-count-badge" id="clientCountBadge" style="display:flex;align-items:center;gap:6px;padding:0 12px;">
-          <span id="clientCount">0</span>
+        <div class="inv-count-badge" style="display:flex;align-items:center;gap:6px;padding:0 12px;">
+          <span id="carCount">0</span>
         </div>
       </div>
 
-      <!-- Client Table -->
       <div class="section-card glass-card visible">
         <div class="section-header">
-          <h3><span data-i18n="nav.clients">Clients</span></h3>
+          <h3><span data-i18n="nav.cars">Cars</span></h3>
         </div>
-        <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th data-i18n="clients.name">Name</th>
-                <th data-i18n="clients.cin">ID/Passport</th>
-                <th data-i18n="clients.phone">Phone</th>
-                <th data-i18n="clients.email">Email</th>
-                <th data-i18n="clients.invoices">Invoices</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody id="clientTableBody"></tbody>
-          </table>
-          <div class="inv-loading" id="clientLoading">
-            <div class="inv-skeleton-row" style="animation-delay:0ms"></div>
-            <div class="inv-skeleton-row" style="animation-delay:80ms"></div>
-            <div class="inv-skeleton-row" style="animation-delay:160ms"></div>
-          </div>
-          <div class="empty-state" id="clientEmpty" style="display:none;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-            <h4 data-i18n="clients.noClients">No clients yet</h4>
-            <p data-i18n="clients.noClientsDesc">Add your first client using the button above.</p>
-          </div>
+        <div class="inv-loading" id="carLoading">
+          <div class="inv-skeleton-row" style="animation-delay:0ms"></div>
+          <div class="inv-skeleton-row" style="animation-delay:80ms"></div>
+          <div class="inv-skeleton-row" style="animation-delay:160ms"></div>
+        </div>
+        <div class="cars-grid" id="carsGrid"></div>
+        <div class="empty-state" id="carEmpty" style="display:none;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.5a2 2 0 0 0-1.9 1.4L2 14v3a1 1 0 0 0 1 1h1m10 0H9m6 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/></svg>
+          <h4 data-i18n="cars.noCars">No cars yet</h4>
+          <p data-i18n="cars.noCarsDesc">Add your first car using the button above.</p>
         </div>
       </div>
     </div>
   </main>
 </div>
 
-<!-- ═══ CLIENT MODAL ═══ -->
-<div class="modal-backdrop" id="clientModal" role="dialog" aria-modal="true">
+<div class="modal-backdrop" id="carModal" role="dialog" aria-modal="true">
   <div class="modal-panel modal-panel-sm">
     <div class="modal-header">
       <div>
-        <h3 class="modal-title" id="clientModalTitle" data-i18n="clients.newClient">New Client</h3>
+        <h3 class="modal-title" id="carModalTitle" data-i18n="cars.newCar">New Car</h3>
       </div>
-      <button class="modal-close" id="clientModalClose" aria-label="Close">
+      <button class="modal-close" id="carModalClose" aria-label="Close">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
     <div class="modal-body">
-      <form id="clientForm" novalidate autocomplete="off">
-        <input type="hidden" id="client_id" />
+      <form id="carForm" novalidate autocomplete="off">
+        <input type="hidden" id="car_id" />
 
         <div class="form-group">
-          <label class="form-label" for="client_name" data-i18n="clients.name">Full Name <span class="req">*</span></label>
-          <input type="text" id="client_name" class="form-input" required />
+          <label class="form-label" for="car_brand" data-i18n="cars.brand">Brand <span class="req">*</span></label>
+          <input type="text" id="car_brand" class="form-input" required />
         </div>
 
         <div class="form-group">
-          <label class="form-label" for="client_cin" data-i18n="clients.cin">ID/Passport <span class="req">*</span></label>
-          <input type="text" id="client_cin" class="form-input" required />
+          <label class="form-label" for="car_model" data-i18n="cars.model">Model <span class="req">*</span></label>
+          <input type="text" id="car_model" class="form-input" required />
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="form-group">
+            <label class="form-label" for="car_plate" data-i18n="cars.plate">Plate <span class="req">*</span></label>
+            <input type="text" id="car_plate" class="form-input" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="car_dailyPrice" data-i18n="cars.dailyPrice">Daily Price <span class="req">*</span></label>
+            <input type="number" id="car_dailyPrice" class="form-input" step="0.01" min="0" required />
+          </div>
         </div>
 
         <div class="form-group">
-          <label class="form-label" for="client_phone" data-i18n="clients.phone">Phone</label>
-          <input type="tel" id="client_phone" class="form-input" />
+          <label class="form-label" for="car_status" data-i18n="cars.status">Status</label>
+          <select id="car_status" class="form-input">
+            <option value="available" data-i18n="cars.available">Available</option>
+            <option value="unavailable" data-i18n="cars.unavailable">Unavailable</option>
+          </select>
         </div>
 
         <div class="form-group">
-          <label class="form-label" for="client_email" data-i18n="clients.email">Email</label>
-          <input type="email" id="client_email" class="form-input" />
+          <label class="form-label" for="car_image" data-i18n="cars.image">Image</label>
+          <input type="file" id="car_image" class="form-input" accept="image/*" />
+          <div class="image-preview-wrap" id="carImagePreviewWrap" style="display:none;">
+            <img id="carImagePreview" src="" alt="Preview" />
+          </div>
         </div>
 
         <div class="form-group">
-          <label class="form-label" for="client_address" data-i18n="clients.address">Address</label>
-          <textarea id="client_address" class="form-textarea" rows="2"></textarea>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="client_notes" data-i18n="clients.notes">Notes</label>
-          <input type="text" id="client_notes" class="form-input" />
+          <label class="form-label" for="car_notes" data-i18n="cars.notes">Notes</label>
+          <textarea id="car_notes" class="form-textarea" rows="2"></textarea>
         </div>
       </form>
     </div>
     <div class="modal-footer">
-      <button class="btn btn-ghost" id="clientModalCancel" data-i18n="common.cancel">Cancel</button>
-      <button class="btn btn-primary" id="clientSaveBtn" data-i18n="common.save">Save</button>
+      <button class="btn btn-ghost" id="carModalCancel" data-i18n="common.cancel">Cancel</button>
+      <button class="btn btn-primary" id="carSaveBtn" data-i18n="common.save">Save</button>
     </div>
   </div>
 </div>
 
-<!-- ═══ DELETE MODAL ═══ -->
 <div class="modal-backdrop modal-backdrop-sm" id="deleteModal" role="dialog" aria-modal="true">
   <div class="modal-panel modal-panel-sm">
     <div class="modal-header">
-      <h3 class="modal-title" data-i18n="clients.deleteTitle">Delete Client</h3>
+      <h3 class="modal-title" data-i18n="cars.deleteTitle">Delete Car</h3>
       <button class="modal-close" id="deleteModalClose">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
     <div class="modal-body">
-      <p style="color:var(--text-secondary);font-size:0.95rem;" data-i18n="clients.deleteConfirm">Are you sure you want to delete this client? This action cannot be undone.</p>
+      <p style="color:var(--text-secondary);font-size:0.95rem;" data-i18n="cars.deleteConfirm">Are you sure you want to delete this car? This action cannot be undone.</p>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" id="deleteCancelBtn" data-i18n="common.cancel">Cancel</button>
@@ -232,14 +333,12 @@
   </div>
 </div>
 
-<div class="toast" id="clientToast"></div>
+<div class="toast" id="carToast"></div>
 
-<!-- Firebase SDKs -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-  <script src="supabase.js"></script>
-  <script src="i18n.js?v=4"></script>
-  <script src="auth.js?v=3"></script>
-  <script src="clients.js?v=3"></script>
+<script src="supabase.js"></script>
+<script src="i18n.js?v=4"></script>
+<script src="auth.js?v=3"></script>
+<script src="cars.js"></script>
 </body>
 </html>

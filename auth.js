@@ -3,7 +3,7 @@
 // ============================================================
 
 const RENVA_AUTH = (() => {
-  const PROTECTED_PAGES = ['dashboard.html', 'settings.html', 'invoices.html', 'reports.html', 'clients.html'];
+    const PROTECTED_PAGES = ['dashboard.html', 'settings.html', 'invoices.html', 'reports.html', 'clients.html', 'cars.html'];
   const LOGIN_PAGE      = 'login.html';
   const HOME_PAGE       = 'dashboard.html';
 
