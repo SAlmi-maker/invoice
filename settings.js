@@ -6,6 +6,7 @@ const RENVA_SETTINGS = (() => {
 
   let currentSettings = {};
   let pendingLogoFile = null;
+  let _initialized = false;
 
   function setBrandSubtitle(name) {
     document.querySelectorAll('.company-name').forEach(el => {
@@ -15,7 +16,8 @@ const RENVA_SETTINGS = (() => {
 
   // ── Init ─────────────────────────────────────────────────
   function init(user) {
-    if (!user) return;
+    if (!user || _initialized) return;
+    _initialized = true;
     document.querySelectorAll('.user-email').forEach(el => el.textContent = user.email);
     document.querySelectorAll('.user-avatar-text').forEach(el => el.textContent = 'RV');
     loadSettings(user.id);

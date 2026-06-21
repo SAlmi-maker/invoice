@@ -27,7 +27,7 @@ const RENVA_INVOICES = (() => {
 
   // ── Init ─────────────────────────────────────────────────
   async function init(user) {
-    if (!user) return;
+    if (!user || currentUser) return;
     currentUser = user;
 
     try {

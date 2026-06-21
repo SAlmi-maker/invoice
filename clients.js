@@ -234,7 +234,7 @@ const RENVA_CLIENTS = (() => {
   }
 
   function init(user) {
-    if (!user) return;
+    if (!user || currentUser) return;
     currentUser = user;
 
     document.querySelectorAll('.user-email').forEach(el => el.textContent = user.email);

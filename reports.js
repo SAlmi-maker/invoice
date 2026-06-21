@@ -12,6 +12,7 @@ const RENVA_REPORTS = (() => {
   let doughnutChart     = null;
   let selectedYear      = new Date().getFullYear();
   let companySettings   = {};
+  let _initialized = false;
 
   const MONTHS_EN = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const MONTHS_FR = ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'];
@@ -19,7 +20,8 @@ const RENVA_REPORTS = (() => {
 
   // ── Init ─────────────────────────────────────────────────
   async function init(user) {
-    if (!user) return;
+    if (!user || _initialized) return;
+    _initialized = true;
     await loadCompanySettings(user.id);
     renderUserInfo(user);
     populateYearSelector();

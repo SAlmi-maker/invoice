@@ -10,7 +10,7 @@ const RENVA_DASHBOARD = (() => {
 
   // ── Init ─────────────────────────────────────────────────
   async function init(user) {
-    if (!user) return;
+    if (!user || companySettings) return;
     renderUserInfo(user);
     await loadCompanySettings(user.id);
     subscribeToInvoices(user.id);
