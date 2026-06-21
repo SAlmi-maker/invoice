@@ -20,10 +20,46 @@ const RENVA_INVOICES = (() => {
   let invoiceColor     = '#2563EB';
   let invoiceLanguage  = '';
   let pendingViewId    = null;
+  let allCars          = [];
 
   // ── Helpers ────────────────────────────────────────────────
   function lockScroll() { const y=window.scrollY; document.body.dataset.sy=y; document.documentElement.style.overflow='hidden'; document.body.style.position='fixed'; document.body.style.top=`-${y}px`; document.body.style.left='0'; document.body.style.right='0'; }
   function unlockScroll() { const y=parseInt(document.body.dataset.sy||'0'); document.documentElement.style.overflow=''; document.body.style.position=''; document.body.style.top=''; document.body.style.left=''; document.body.style.right=''; window.scrollTo(0,y); delete document.body.dataset.sy; }
+
+  function showPlateSuggestions(query) {
+    const list = document.getElementById('plateSuggestions');
+    if (!list) return;
+    const q = query.trim().toUpperCase();
+    if (!q || !allCars.length) { list.style.display = 'none'; return; }
+    const matches = allCars.filter(c => c.plate && c.plate.includes(q));
+    if (!matches.length) { list.style.display = 'none'; return; }
+    list.innerHTML = matches.map(c =>
+      `<div class="plate-suggestion-item" data-plate="${c.plate}" data-brand="${c.brand || ''}" data-model="${c.model || ''}">
+        <span class="plate-suggestion-plate">${c.plate}</span>
+        <span class="plate-suggestion-info">${[c.brand, c.model].filter(Boolean).join(' ')}</span>
+      </div>`
+    ).join('');
+    list.style.display = 'block';
+    list.querySelectorAll('.plate-suggestion-item').forEach(el => {
+      el.addEventListener('mousedown', e => {
+        e.preventDefault();
+        selectPlate(el.dataset);
+      });
+    });
+  }
+
+  function selectPlate(data) {
+    const plateEl = document.getElementById('inv_plate');
+    if (plateEl) { plateEl.value = data.plate || ''; }
+    const brandEl = document.getElementById('inv_vehicleBrand');
+    if (brandEl) { brandEl.value = data.brand || ''; }
+    const modelEl = document.getElementById('inv_vehicleModel');
+    if (modelEl) { modelEl.value = data.model || ''; }
+    const list = document.getElementById('plateSuggestions');
+    if (list) list.style.display = 'none';
+    renderHTMLPreview();
+    recalculate();
+  }
 
   // ── Init ─────────────────────────────────────────────────
   async function init(user) {
@@ -44,6 +80,13 @@ const RENVA_INVOICES = (() => {
         RENVA_I18N.setCurrency(csData.currency || 'MAD');
       }
     } catch (e) { /* non-critical */ }
+
+    try {
+      const { data: carData } = await sb.from('cars')
+        .select('plate, brand, model')
+        .eq('user_id', user.id);
+      if (carData) allCars = carData;
+    } catch (e) {}
 
     renderUserInfo(user);
     subscribeToInvoices(user.id);
@@ -251,6 +294,16 @@ const RENVA_INVOICES = (() => {
       const pos = e.target.selectionStart;
       e.target.value = e.target.value.toUpperCase();
       e.target.setSelectionRange(pos, pos);
+      showPlateSuggestions(e.target.value);
+    });
+    document.getElementById('inv_plate')?.addEventListener('blur', () => {
+      setTimeout(() => {
+        const el = document.getElementById('plateSuggestions');
+        if (el) el.style.display = 'none';
+      }, 150);
+    });
+    document.getElementById('inv_plate')?.addEventListener('focus', e => {
+      if (e.target.value) showPlateSuggestions(e.target.value);
     });
     document.getElementById('inv_status')?.addEventListener('change', renderHTMLPreview);
     document.addEventListener('keydown', e => {
@@ -546,6 +599,19 @@ const RENVA_INVOICES = (() => {
     setLoading(draftBtn, true);
 
     try {
+      const { data: car } = await sb.from('cars')
+        .select('id, status')
+        .eq('plate', data.plate)
+        .eq('user_id', currentUser.id)
+        .maybeSingle();
+      if (car) {
+        if (car.status === 'available') {
+          await sb.from('cars').update({ status: 'unavailable' }).eq('id', car.id);
+        } else {
+          showToast('error', RENVA_I18N.t('inv.carUnavailable'));
+        }
+      }
+
       const days   = calcDays(data.start_date, data.end_date);
       const rental = days * data.daily_price;
       const total  = rental + data.insurance + data.fuel + data.extra_driver + data.other;
@@ -584,6 +650,19 @@ const RENVA_INVOICES = (() => {
   async function saveAndExport() {
     const data = readForm();
     if (!validateForm(data)) return;
+
+    const { data: car } = await sb.from('cars')
+      .select('id, status')
+      .eq('plate', data.plate)
+      .eq('user_id', currentUser.id)
+      .maybeSingle();
+    if (car) {
+      if (car.status === 'available') {
+        await sb.from('cars').update({ status: 'unavailable' }).eq('id', car.id);
+      } else {
+        showToast('error', RENVA_I18N.t('inv.carUnavailable'));
+      }
+    }
 
     const days   = calcDays(data.start_date, data.end_date);
     const rental = days * data.daily_price;

@@ -837,3 +837,43 @@
 
 /* ── Export print container (hidden on screen, shown in print) ── */
 #RENVA-print-container { display: none; }
+
+/* ── Plate Autocomplete Suggestions ── */
+.plate-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  margin-top: 2px;
+  max-height: 180px;
+  overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+}
+.plate-suggestions .plate-suggestion-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid var(--border-color);
+}
+.plate-suggestions .plate-suggestion-item:last-child { border-bottom: none; }
+.plate-suggestions .plate-suggestion-item:hover,
+.plate-suggestions .plate-suggestion-item.active {
+  background: var(--primary-light);
+}
+.plate-suggestion-plate {
+  font-weight: 700;
+  font-family: monospace;
+  color: var(--text-primary);
+}
+.plate-suggestion-info {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+}
