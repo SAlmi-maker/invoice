@@ -28,7 +28,7 @@ const RENVA_CARS = (() => {
     });
   }
 
-  function makeCar(row) {
+  function makeCar(row, latestEndDate) {
     return {
       id: row.id,
       brand: row.brand || '',
@@ -38,6 +38,7 @@ const RENVA_CARS = (() => {
       status: row.status || 'available',
       image: row.image || '',
       notes: row.notes || '',
+      endDate: latestEndDate || '',
       createdAt: row.created_at ? new Date(row.created_at) : null
     };
   }
@@ -88,6 +89,7 @@ const RENVA_CARS = (() => {
         <div class="car-card-body">
           <div class="car-card-title">${escHtml(c.brand)} ${escHtml(c.model)}</div>
           <div class="car-card-plate">${escHtml(c.plate)}</div>
+          ${c.endDate ? `<div class="car-card-rental-end">${RENVA_I18N.t('cars.rentalEnd')}: ${c.endDate}</div>` : ''}
           <div class="car-card-meta">
             <span class="car-card-price">${price}</span>
             <span class="car-card-status ${statusClass}">${statusLabel}</span>
@@ -225,12 +227,20 @@ const RENVA_CARS = (() => {
     setEmpty(false);
 
     try {
-      const { data, error } = await sb.from('cars')
-        .select('*')
-        .eq('user_id', currentUser.id)
-        .order('created_at', { ascending: false });
-      if (error) throw error;
-      allCars = (data || []).map(makeCar);
+      const [carResult, invResult] = await Promise.all([
+        sb.from('cars').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false }),
+        sb.from('invoices').select('plate, end_date').eq('user_id', currentUser.id).order('end_date', { ascending: false })
+      ]);
+      if (carResult.error) throw carResult.error;
+      const endDateMap = {};
+      if (invResult.data) {
+        invResult.data.forEach(inv => {
+          if (inv.plate && inv.end_date && !endDateMap[inv.plate]) {
+            endDateMap[inv.plate] = inv.end_date.split('T')[0];
+          }
+        });
+      }
+      allCars = (carResult.data || []).map(c => makeCar(c, endDateMap[c.plate] || ''));
       loadingDone();
       render();
     } catch (err) {
