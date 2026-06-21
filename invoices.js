@@ -31,7 +31,7 @@ const RENVA_INVOICES = (() => {
     if (!list) return;
     const q = query.trim().toUpperCase();
     if (!q || !allCars.length) { list.style.display = 'none'; return; }
-    const matches = allCars.filter(c => c.plate && c.plate.includes(q));
+    const matches = allCars.filter(c => c.plate && c.plate.startsWith(q));
     if (!matches.length) { list.style.display = 'none'; return; }
     list.innerHTML = matches.map(c =>
       `<div class="plate-suggestion-item" data-plate="${c.plate}" data-brand="${c.brand || ''}" data-model="${c.model || ''}">
