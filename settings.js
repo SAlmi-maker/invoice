@@ -23,6 +23,7 @@ const RENVA_SETTINGS = (() => {
     loadSettings(user.id);
     wireForm(user.id);
     wireFileUploads();
+    window.addEventListener('focus', () => loadSettings(user.id));
     initSidebar();
   }
 

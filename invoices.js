@@ -51,6 +51,7 @@ const RENVA_INVOICES = (() => {
     initSidebar();
     setTodayAsDefault();
     populateExportModal();
+    window.addEventListener('focus', () => subscribeToInvoices(currentUser.id));
 
     const params = new URLSearchParams(window.location.search);
     const viewId = params.get('view');
@@ -361,6 +362,7 @@ const RENVA_INVOICES = (() => {
       if (error) throw error;
       showToast('success', RENVA_I18N.t('inv.deleted'));
       closeDeleteModal();
+      subscribeToInvoices(currentUser.id);
     } catch (e) {
       console.error(e);
       showToast('error', RENVA_I18N.t('settings.error'));
@@ -568,6 +570,7 @@ const RENVA_INVOICES = (() => {
 
       showToast('success', RENVA_I18N.t('settings.saved'));
       closeModal();
+      subscribeToInvoices(currentUser.id);
     } catch (err) {
       console.error(err);
       showToast('error', RENVA_I18N.t('settings.error'));
@@ -601,6 +604,7 @@ const RENVA_INVOICES = (() => {
         if (error) throw error;
       }
       showToast('success', RENVA_I18N.t('inv.pdfReady'));
+      subscribeToInvoices(currentUser.id);
     } catch (err) {
       console.error(err);
       showToast('error', RENVA_I18N.t('settings.error'));

@@ -28,6 +28,7 @@ const RENVA_REPORTS = (() => {
     initSidebar();
     initAnimations();
     subscribeToInvoices(user.id);
+    window.addEventListener('focus', () => subscribeToInvoices(user.id));
 
     document.getElementById('exportXlsxBtn')?.addEventListener('click', exportXlsx);
     document.getElementById('yearSelect')?.addEventListener('change', e => {

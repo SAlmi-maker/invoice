@@ -145,6 +145,7 @@ const RENVA_CLIENTS = (() => {
         showToast(RENVA_I18N.t('clients.saved'));
       }
       closeModal();
+      subscribe();
     } catch (err) {
       console.error(err);
       showToast(err.message || 'Error', 'error');
@@ -163,6 +164,7 @@ const RENVA_CLIENTS = (() => {
       if (error) throw error;
       showToast(RENVA_I18N.t('clients.deleted'));
       closeDeleteModal();
+      subscribe();
     } catch (err) {
       console.error(err);
       showToast(err.message || 'Error', 'error');
@@ -255,6 +257,7 @@ const RENVA_CLIENTS = (() => {
     countBadge = $('clientCount');
 
     subscribe();
+    window.addEventListener('focus', () => subscribe());
     initSidebar();
 
     $('btnNewClient').addEventListener('click', () => openModal());

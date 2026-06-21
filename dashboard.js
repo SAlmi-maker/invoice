@@ -14,6 +14,7 @@ const RENVA_DASHBOARD = (() => {
     renderUserInfo(user);
     await loadCompanySettings(user.id);
     subscribeToInvoices(user.id);
+    window.addEventListener('focus', () => subscribeToInvoices(user.id));
     initSidebar();
     initAnimations();
     wirePreviewClose();
