@@ -6,7 +6,7 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>RENVA — Cars | Fleet Management for Rental Agencies</title>
+  <title>RENVA — Vehicles | Fleet Management for Rental Agencies</title>
   <meta name="description" content="Manage your car rental fleet: add vehicles, track availability, store photos, and set daily rates." />
   <meta name="keywords" content="fleet management car rental, vehicle tracking Morocco, gestion parc auto location" />
   <link rel="icon" type="image/png" href="renvafavicon.png" sizes="32x32" />
@@ -222,7 +222,7 @@
       </a>
       <a href="cars.html" class="nav-item active">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 17a2 2 0 0 1-2-2V9l2-3h10l3 3v6a2 2 0 0 1-2 2"/><circle cx="7" cy="15" r="2"/><circle cx="17" cy="15" r="2"/><path d="M5 17h14"/></svg>
-        <span data-i18n="nav.cars">Cars</span>
+        <span data-i18n="nav.cars">Vehicles</span>
       </a>
       <div class="nav-section-label" data-i18n="settings.nav.analytics">Analytics</div>
       <a href="reports.html" class="nav-item">
@@ -258,7 +258,7 @@
           <line x1="3" y1="18" x2="21" y2="18"/>
         </svg>
       </button>
-      <h2 class="topbar-title" data-i18n="nav.cars">Cars</h2>
+      <h2 class="topbar-title" data-i18n="nav.cars">Vehicles</h2>
       <span class="topbar-company-name company-name"></span>
       <div class="topbar-actions">
         <div style="display:flex;align-items:center;gap:8px;">
@@ -270,14 +270,14 @@
         </div>
         <button class="btn btn-primary btn-sm" id="btnNewCar" style="gap:6px;">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          <span data-i18n="cars.newCar">New Car</span>
+          <span data-i18n="cars.newCar">New Vehicle</span>
         </button>
       </div>
     </header>
 
     <div class="page-body">
       <div class="page-header">
-        <h1 data-i18n="nav.cars">Cars</h1>
+        <h1 data-i18n="nav.cars">Vehicles</h1>
         <p data-i18n="cars.subtitle">Manage your fleet of vehicles</p>
       </div>
 
@@ -288,14 +288,19 @@
             <input type="text" id="carSearch" class="inv-search-input" data-i18n-placeholder="common.search" placeholder="Search..." />
           </div>
         </div>
-        <div class="inv-count-badge" style="display:flex;align-items:center;gap:6px;padding:0 12px;">
-          <span id="carCount">0</span>
+        <div class="inv-filter-right">
+          <div class="inv-status-tabs" id="carStatusTabs">
+            <button class="inv-tab active" data-status="all" data-i18n="inv.filterAll">All</button>
+            <button class="inv-tab" data-status="available" data-i18n="cars.available">Available</button>
+            <button class="inv-tab" data-status="unavailable" data-i18n="cars.unavailable">Unavailable</button>
+            <button class="inv-tab" data-status="out_of_service" data-i18n="cars.outOfService">Out of Service</button>
+          </div>
         </div>
       </div>
 
       <div class="section-card glass-card visible">
         <div class="section-header">
-          <h3><span data-i18n="nav.cars">Cars</span></h3>
+          <h3><span data-i18n="nav.cars">Vehicles</span></h3>
         </div>
         <div class="inv-loading" id="carLoading">
           <div class="inv-skeleton-row" style="animation-delay:0ms"></div>
@@ -305,8 +310,8 @@
         <div class="cars-grid" id="carsGrid"></div>
         <div class="empty-state" id="carEmpty" style="display:none;">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 17a2 2 0 0 1-2-2V9l2-3h10l3 3v6a2 2 0 0 1-2 2"/><circle cx="7" cy="15" r="2"/><circle cx="17" cy="15" r="2"/><path d="M5 17h14"/></svg>
-          <h4 data-i18n="cars.noCars">No cars yet</h4>
-          <p data-i18n="cars.noCarsDesc">Add your first car using the button above.</p>
+          <h4 data-i18n="cars.noCars">No vehicles yet</h4>
+          <p data-i18n="cars.noCarsDesc">Add your first vehicle using the button above.</p>
         </div>
       </div>
     </div>
@@ -317,7 +322,7 @@
   <div class="modal-panel modal-panel-sm">
     <div class="modal-header">
       <div>
-        <h3 class="modal-title" id="carModalTitle" data-i18n="cars.newCar">New Car</h3>
+        <h3 class="modal-title" id="carModalTitle" data-i18n="cars.newCar">New Vehicle</h3>
       </div>
       <button class="modal-close" id="carModalClose" aria-label="Close">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -387,13 +392,13 @@
 <div class="modal-backdrop modal-backdrop-sm" id="deleteModal" role="dialog" aria-modal="true">
   <div class="modal-panel modal-panel-sm">
     <div class="modal-header">
-      <h3 class="modal-title" data-i18n="cars.deleteTitle">Delete Car</h3>
+      <h3 class="modal-title" data-i18n="cars.deleteTitle">Delete Vehicle</h3>
       <button class="modal-close" id="deleteModalClose">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
     <div class="modal-body">
-      <p style="color:var(--text-secondary);font-size:0.95rem;" data-i18n="cars.deleteConfirm">Are you sure you want to delete this car? This action cannot be undone.</p>
+      <p style="color:var(--text-secondary);font-size:0.95rem;" data-i18n="cars.deleteConfirm">Are you sure you want to delete this vehicle? This action cannot be undone.</p>
     </div>
     <div class="modal-footer">
       <button class="btn btn-ghost" id="deleteCancelBtn" data-i18n="common.cancel">Cancel</button>

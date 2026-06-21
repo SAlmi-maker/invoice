@@ -3,13 +3,14 @@ const RENVA_CARS = (() => {
   let allCars = [];
   let deleteTargetId = null;
   let searchQuery = '';
+  let statusFilter = 'all';
   let pendingImageFile = null;
 
   function lockScroll() { const y=window.scrollY; document.body.dataset.sy=y; document.documentElement.style.overflow='hidden'; document.body.style.position='fixed'; document.body.style.top=`-${y}px`; document.body.style.left='0'; document.body.style.right='0'; }
   function unlockScroll() { const y=parseInt(document.body.dataset.sy||'0'); document.documentElement.style.overflow=''; document.body.style.position=''; document.body.style.top=''; document.body.style.left=''; document.body.style.right=''; window.scrollTo(0,y); delete document.body.dataset.sy; }
 
   const $ = id => document.getElementById(id);
-  let toast, grid, loading, empty, search, countBadge;
+  let toast, grid, loading, empty, search;
 
   function showToast(msg, type = 'success') {
     toast.textContent = msg;
@@ -53,7 +54,19 @@ const RENVA_CARS = (() => {
         (c.brand + ' ' + c.model + ' ' + c.plate + ' ' + c.notes).toLowerCase().includes(q)
       );
     }
-    countBadge.textContent = filtered.length;
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(c => c.status === statusFilter);
+    }
+    const statusTabs = document.getElementById('carStatusTabs');
+    if (statusTabs) {
+      statusTabs.querySelectorAll('.inv-tab').forEach(tab => {
+        const s = tab.dataset.status;
+        const cnt = s === 'all' ? allCars.length : allCars.filter(c => c.status === s).length;
+        const label = RENVA_I18N.t(tab.getAttribute('data-i18n') || '');
+        tab.textContent = `${label} (${cnt})`;
+        tab.classList.toggle('active', s === statusFilter);
+      });
+    }
 
     if (!filtered.length) {
       grid.innerHTML = '';
@@ -265,7 +278,6 @@ const RENVA_CARS = (() => {
     loading    = $('carLoading');
     empty      = $('carEmpty');
     search     = $('carSearch');
-    countBadge = $('carCount');
 
     subscribe();
     window.addEventListener('focus', () => subscribe());
@@ -310,6 +322,16 @@ const RENVA_CARS = (() => {
       render();
     });
     search.addEventListener('search', () => render());
+
+    const statusTabs = $('carStatusTabs');
+    if (statusTabs) {
+      statusTabs.addEventListener('click', e => {
+        const tab = e.target.closest('.inv-tab');
+        if (!tab) return;
+        statusFilter = tab.dataset.status || 'all';
+        render();
+      });
+    }
 
     document.querySelectorAll('.modal-backdrop').forEach(el => {
       el.addEventListener('click', e => {

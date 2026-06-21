@@ -749,3 +749,5 @@ tbody td {
   .topbar { padding: 0 10px; gap: 8px; }
   .topbar-title { font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 }
+
+.topbar-actions .btn-primary { min-width: 130px; }
