@@ -343,9 +343,9 @@ const RENVA_DASHBOARD = (() => {
     s('preview_title', t('pdf.invoice'));
     s('preview_invNumber', `#${inv.invoice_number || inv.id?.slice(-6) || '—'}`);
     s('preview_issueLabel', t('pdf.issue'));
-    s('preview_issueDate', startDate || '—');
+    s('preview_issueDate', startDate ? startDate.split('T')[0] : '—');
     s('preview_dueLabel', t('pdf.due'));
-    s('preview_dueDate', endDate || '—');
+    s('preview_dueDate', endDate ? endDate.split('T')[0] : '—');
     s('preview_billToLabel', t('pdf.billTo'));
     s('preview_clientName', inv.client_name || '—');
     s('preview_clientCIN', inv.cin ? `${t('pdf.cin')}: ${inv.cin}` : '');
