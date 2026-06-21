@@ -652,7 +652,7 @@ const RENVA_INVOICES = (() => {
       subscribeToInvoices(currentUser.id);
     } catch (err) {
       console.error(err);
-      showToast('error', RENVA_I18N.t('settings.error'));
+      showToast('error', err.message || RENVA_I18N.t('settings.error'));
     } finally {
       setLoading(saveBtn,  false);
       setLoading(draftBtn, false);
