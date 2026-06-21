@@ -240,7 +240,14 @@ const RENVA_CARS = (() => {
           }
         });
       }
-      allCars = (carResult.data || []).map(c => makeCar(c, endDateMap[c.plate] || ''));
+      const today = new Date().toISOString().split('T')[0];
+      const rawCars = carResult.data || [];
+      const expired = rawCars.filter(c => c.status === 'unavailable' && endDateMap[c.plate] && endDateMap[c.plate] <= today);
+      if (expired.length) {
+        await Promise.all(expired.map(c => sb.from('cars').update({ status: 'available' }).eq('id', c.id)));
+        expired.forEach(c => { c.status = 'available'; });
+      }
+      allCars = rawCars.map(c => makeCar(c, endDateMap[c.plate] || ''));
       loadingDone();
       render();
     } catch (err) {
