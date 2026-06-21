@@ -293,11 +293,12 @@ const RENVA_CLIENTS = (() => {
 
 document.addEventListener('DOMContentLoaded', () => {
   RENVA_I18N.init();
-  RENVA_AUTH.init();
 
   document.addEventListener('RENVA:authReady', ({ detail }) => {
     if (detail.user) RENVA_CLIENTS.init(detail.user);
   });
+
+  RENVA_AUTH.init();
 
   document.addEventListener('RENVA:langChanged', () => {
     RENVA_I18N.applyToDOM();

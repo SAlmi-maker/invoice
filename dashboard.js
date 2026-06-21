@@ -465,11 +465,12 @@ const RENVA_DASHBOARD = (() => {
 // ── Boot ──────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   RENVA_I18N.init();
-  RENVA_AUTH.init();
 
   document.addEventListener('RENVA:authReady', ({ detail }) => {
     if (detail.user) RENVA_DASHBOARD.init(detail.user);
   });
+
+  RENVA_AUTH.init();
 
   document.addEventListener('RENVA:langChanged', () => {
     // Re-render dynamic content when language changes

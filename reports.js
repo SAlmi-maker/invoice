@@ -532,9 +532,10 @@ const RENVA_REPORTS = (() => {
 // ── Boot ──────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   RENVA_I18N.init();
-  RENVA_AUTH.init();
 
   document.addEventListener('RENVA:authReady', ({ detail }) => {
     if (detail.user) RENVA_REPORTS.init(detail.user);
   });
+
+  RENVA_AUTH.init();
 });

@@ -243,11 +243,12 @@ const RENVA_SETTINGS = (() => {
 // ── Boot ──────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   RENVA_I18N.init();
-  RENVA_AUTH.init();
 
   document.addEventListener('RENVA:authReady', ({ detail }) => {
     if (detail.user) RENVA_SETTINGS.init(detail.user);
   });
+
+  RENVA_AUTH.init();
 
   document.addEventListener('RENVA:langChanged', () => {
     RENVA_I18N.applyToDOM();
