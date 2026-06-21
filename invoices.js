@@ -385,6 +385,7 @@ const RENVA_INVOICES = (() => {
   function populateForm(inv) {
     resetForm();
     const set = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined && val !== null) el.value = val; };
+    const date = (val) => typeof val === 'string' ? val.split('T')[0] : val;
     set('inv_id',           inv.id);
     set('inv_clientName',   inv.client_name);
     set('inv_cin',          inv.cin);
@@ -392,8 +393,8 @@ const RENVA_INVOICES = (() => {
     set('inv_vehicleBrand', inv.vehicle_brand);
     set('inv_vehicleModel', inv.vehicle_model);
     set('inv_plate',        inv.plate);
-    set('inv_startDate',    inv.start_date);
-    set('inv_endDate',      inv.end_date);
+    set('inv_startDate',    date(inv.start_date));
+    set('inv_endDate',      date(inv.end_date));
     set('inv_dailyPrice',   inv.daily_price);
     set('inv_insurance',    inv.insurance   || 0);
     set('inv_fuel',         inv.fuel        || 0);
