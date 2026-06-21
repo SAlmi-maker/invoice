@@ -45,7 +45,7 @@ const RENVA_AUTH = (() => {
   // ── Forgot Password ───────────────────────────────────────
   async function sendPasswordReset(email) {
     const { error } = await sb.auth.resetPasswordForEmail(email, {
-      redirectTo: window.location.origin + '/' + LOGIN_PAGE,
+      redirectTo: window.location.origin + '/reset-password.html',
     });
     if (error) throw error;
   }
