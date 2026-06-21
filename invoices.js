@@ -1049,8 +1049,8 @@ const RENVA_INVOICES = (() => {
     doc.setFontSize(7);
     doc.setTextColor(100, 116, 139);
     const today = new Date();
-    const issueStr = inv.start_date ? new Date(inv.start_date + 'T00:00:00').toLocaleDateString(lang) : today.toLocaleDateString(lang);
-    const dueStr = inv.end_date ? new Date(inv.end_date + 'T00:00:00').toLocaleDateString(lang) : today.toLocaleDateString(lang);
+    const issueStr = inv.start_date ? new Date(inv.start_date).toLocaleDateString(lang) : today.toLocaleDateString(lang);
+    const dueStr = inv.end_date ? new Date(inv.end_date).toLocaleDateString(lang) : today.toLocaleDateString(lang);
     doc.text(`${t('pdf.issue')}: ${issueStr}`, W - M, metaY + 4.5, { align: 'right' });
     doc.text(`${t('pdf.due')}: ${dueStr}`, W - M, metaY + 9, { align: 'right' });
 
@@ -1339,8 +1339,8 @@ const RENVA_INVOICES = (() => {
       y += 6;
     }
 
-    if (companySettings.sealBase64) {
-      doc.addImage(companySettings.sealBase64, 'PNG', W - M - 25, y, 25, 25);
+    if (companySettings.seal_base64) {
+      doc.addImage(companySettings.seal_base64, 'PNG', W - M - 25, y, 25, 25);
     }
 
     doc.setDrawColor(226, 232, 240);
@@ -1366,30 +1366,30 @@ const RENVA_INVOICES = (() => {
     fillAccent();
     doc.rect(0, 0, W, 20, 'F');
     let nameX3 = M;
-    if (companySettings.logoBase64) {
-      doc.addImage(companySettings.logoBase64, 'PNG', M, 2, 18, 18);
+    if (companySettings.logo_base64) {
+      doc.addImage(companySettings.logo_base64, 'PNG', M, 2, 18, 18);
       nameX3 = M + 22;
     }
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(11);
     doc.setTextColor(255, 255, 255);
-    doc.text(companySettings.companyName || 'RENVA', nameX3, 13);
+    doc.text(companySettings.company_name || 'RENVA', nameX3, 13);
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(9);
     doc.setTextColor(255, 255, 255);
-    doc.text(`#${inv.invoiceNumber || inv.id.slice(-6).toUpperCase()}`, W - M, 13, { align: 'right' });
+    doc.text(`#${inv.invoice_number || inv.id.slice(-6).toUpperCase()}`, W - M, 13, { align: 'right' });
     y = 28;
 
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7);
     doc.setTextColor(100, 116, 139);
-    const info = [`${inv.clientName || '—'}  |  ${inv.cin || '—'}`];
+    const info = [`${inv.client_name || '—'}  |  ${inv.cin || '—'}`];
     if (inv.phone) info.push(`${t3('pdf.tel')}: ${inv.phone}`);
     info.forEach(line => { doc.text(line, M, y); y += 4; });
-    doc.text(`${inv.vehicleBrand || ''} ${inv.vehicleModel || ''}`.trim() || '—', W - M, y - 4, { align: 'right' });
+    doc.text(`${inv.vehicle_brand || ''} ${inv.vehicle_model || ''}`.trim() || '—', W - M, y - 4, { align: 'right' });
     if (inv.plate) doc.text(`${t3('pdf.plate')}: ${inv.plate}`, W - M, y, { align: 'right' });
     y += 4;
-    doc.text(`${inv.startDate || '—'} → ${inv.endDate || '—'}  (${inv.days ?? calcDays(inv.startDate, inv.endDate)} ${t3('inv.days')})`, M, y);
+    doc.text(`${inv.start_date || '—'} → ${inv.end_date || '—'}  (${inv.days ?? calcDays(inv.start_date, inv.end_date)} ${t3('inv.days')})`, M, y);
     y += 8;
 
     doc.setDrawColor(203, 213, 225);
@@ -1423,8 +1423,8 @@ const RENVA_INVOICES = (() => {
     drawRow([t3('pdf.description'), t3('pdf.qty'), t3('pdf.ratePerDay'), t3('pdf.amount')], true, [255, 255, 255], 6);
     y += 7;
 
-    const daysN = inv.days ?? calcDays(inv.startDate, inv.endDate);
-    const dp2 = parseFloat(inv.dailyPrice || 0);
+    const daysN = inv.days ?? calcDays(inv.start_date, inv.end_date);
+    const dp2 = parseFloat(inv.daily_price || 0);
     const rental = daysN * dp2;
     const dash = '—';
 
@@ -1436,7 +1436,7 @@ const RENVA_INVOICES = (() => {
     const extras = [
       [t3('inv.field.insurance'), parseFloat(inv.insurance || 0)],
       [t3('inv.field.fuel'), parseFloat(inv.fuel || 0)],
-      [t3('inv.field.extraDriver'), parseFloat(inv.extraDriver || 0)],
+      [t3('inv.field.extraDriver'), parseFloat(inv.extra_driver || 0)],
       [t3('inv.field.other'), parseFloat(inv.other || 0)],
     ];
     extras.forEach(([label, val]) => {
@@ -1471,8 +1471,8 @@ const RENVA_INVOICES = (() => {
       doc.text(inv.notes, M, y);
     }
 
-    if (companySettings.sealBase64) {
-      doc.addImage(companySettings.sealBase64, 'PNG', W - M - 22, y, 22, 22);
+    if (companySettings.seal_base64) {
+      doc.addImage(companySettings.seal_base64, 'PNG', W - M - 22, y, 22, 22);
     }
 
     doc.setFont('helvetica', 'normal');
@@ -1556,9 +1556,15 @@ const RENVA_INVOICES = (() => {
   function escHtml(str) {
     return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
+  document.addEventListener('RENVA:langChanged', () => {
+    RENVA_I18N.applyToDOM();
+    setBrandSubtitle(companySettings.company_name || '');
+    RENVA_INVOICES.populateExportModal();
+  });
 
   return { init, openEdit, openPreview, openDelete, exportSingle, populateExportModal };
 })();
+
 
 
 // ── Boot ──────────────────────────────────────────────────
@@ -1570,10 +1576,4 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   RENVA_AUTH.init();
-
-  document.addEventListener('RENVA:langChanged', () => {
-    RENVA_I18N.applyToDOM();
-    setBrandSubtitle(companySettings.companyName || '');
-    RENVA_INVOICES.populateExportModal();
-  });
 });

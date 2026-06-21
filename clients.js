@@ -291,6 +291,12 @@ const RENVA_CLIENTS = (() => {
     if (client) openModal(client);
   }
 
+  document.addEventListener('RENVA:langChanged', () => {
+    RENVA_I18N.applyToDOM();
+    setBrandSubtitle(RENVA_CLIENTS._cn || '');
+    RENVA_CLIENTS.refresh();
+  });
+
   return { init, openEdit, refresh: () => render(), openDelete: id => { deleteTargetId = id; $('deleteModal').classList.add('open'); lockScroll(); } };
 })();
 
@@ -302,10 +308,4 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   RENVA_AUTH.init();
-
-  document.addEventListener('RENVA:langChanged', () => {
-    RENVA_I18N.applyToDOM();
-    setBrandSubtitle(RENVA_CLIENTS._cn || '');
-    RENVA_CLIENTS.refresh();
-  });
 });

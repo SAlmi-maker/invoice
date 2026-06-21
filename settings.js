@@ -238,9 +238,14 @@ const RENVA_SETTINGS = (() => {
       });
     }
   }
+  document.addEventListener('RENVA:langChanged', () => {
+    RENVA_I18N.applyToDOM();
+    setBrandSubtitle(currentSettings.company_name || '');
+  });
 
   return { init };
 })();
+
 
 
 // ── Boot ──────────────────────────────────────────────────
@@ -252,9 +257,4 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   RENVA_AUTH.init();
-
-  document.addEventListener('RENVA:langChanged', () => {
-    RENVA_I18N.applyToDOM();
-    setBrandSubtitle(currentSettings.company_name || '');
-  });
 });

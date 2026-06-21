@@ -372,7 +372,7 @@ const RENVA_DASHBOARD = (() => {
         tr.innerHTML = `<td>${escHtml(desc)}</td><td>${daysVal}</td><td>${typeof unit === 'number' ? fmt(unit) : unit}</td><td>${fmt(amt)}</td>`;
         tbody.appendChild(tr);
       };
-      addRow(`${t('inv.field.rentalSubtotal')} (${inv.vehicleBrand || ''} ${inv.vehicleModel || ''})`, days, dp, rental);
+      addRow(`${t('inv.field.rentalSubtotal')} (${inv.vehicle_brand || ''} ${inv.vehicle_model || ''})`, days, dp, rental);
       extras.forEach(e => addRow(e.label, dash, dash, e.val));
     }
 
