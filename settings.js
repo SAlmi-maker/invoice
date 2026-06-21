@@ -18,8 +18,8 @@ const RENVA_SETTINGS = (() => {
     if (!user) return;
     document.querySelectorAll('.user-email').forEach(el => el.textContent = user.email);
     document.querySelectorAll('.user-avatar-text').forEach(el => el.textContent = 'RV');
-    loadSettings(user.uid);
-    wireForm(user.uid);
+    loadSettings(user.id);
+    wireForm(user.id);
     wireFileUploads();
     initSidebar();
   }

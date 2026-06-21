@@ -138,7 +138,7 @@ const RENVA_CLIENTS = (() => {
         if (error) throw error;
         showToast(RENVA_I18N.t('clients.updated'));
       } else {
-        data.user_id = currentUser.uid;
+        data.user_id = currentUser.id;
         data.created_at = new Date().toISOString();
         const { error } = await sb.from('clients').insert(data);
         if (error) throw error;
@@ -184,7 +184,7 @@ const RENVA_CLIENTS = (() => {
     try {
       const { data, error } = await sb.from('clients')
         .select('*')
-        .eq('user_id', currentUser.uid)
+        .eq('user_id', currentUser.id)
         .order('created_at', { ascending: false });
       if (error) throw error;
       allClients = (data || []).map(makeClient);
@@ -203,7 +203,7 @@ const RENVA_CLIENTS = (() => {
     try {
       const { data, error } = await sb.from('invoices')
         .select('client_name')
-        .eq('user_id', currentUser.uid);
+        .eq('user_id', currentUser.id);
       if (error) throw error;
       const counts = {};
       (data || []).forEach(d => {
@@ -240,7 +240,7 @@ const RENVA_CLIENTS = (() => {
     document.querySelectorAll('.user-email').forEach(el => el.textContent = user.email);
     document.querySelectorAll('.user-avatar-text').forEach(el => el.textContent = 'RV');
 
-    sb.from('companies').select('company_name').eq('user_id', user.uid).maybeSingle().then(({ data }) => {
+    sb.from('companies').select('company_name').eq('user_id', user.id).maybeSingle().then(({ data }) => {
       const cn = data?.company_name || '';
       setBrandSubtitle(cn);
       RENVA_CLIENTS._cn = cn;

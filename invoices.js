@@ -33,7 +33,7 @@ const RENVA_INVOICES = (() => {
     try {
       const { data: csData, error: csError } = await sb.from('companies')
         .select('*')
-        .eq('user_id', user.uid)
+        .eq('user_id', user.id)
         .maybeSingle();
       if (!csError && csData) {
         companySettings = csData;
@@ -46,7 +46,7 @@ const RENVA_INVOICES = (() => {
     } catch (e) { /* non-critical */ }
 
     renderUserInfo(user);
-    subscribeToInvoices(user.uid);
+    subscribeToInvoices(user.id);
     wireUI();
     initSidebar();
     setTodayAsDefault();
@@ -559,7 +559,7 @@ const RENVA_INVOICES = (() => {
         const { error } = await sb.from('invoices').update(payload).eq('id', editingId);
         if (error) throw error;
       } else {
-        payload.user_id = currentUser.uid;
+        payload.user_id = currentUser.id;
         payload.invoice_number = await generateInvoiceNumber();
         payload.created_at = now;
         const { error } = await sb.from('invoices').insert(payload);
@@ -597,7 +597,7 @@ const RENVA_INVOICES = (() => {
         const { error } = await sb.from('invoices').update({ ...data, days, total, updated_at: now }).eq('id', editingId);
         if (error) throw error;
       } else {
-        const { error } = await sb.from('invoices').insert({ ...data, user_id: currentUser.uid, days, total, invoice_number: invNumber, created_at: now, updated_at: now });
+        const { error } = await sb.from('invoices').insert({ ...data, user_id: currentUser.id, days, total, invoice_number: invNumber, created_at: now, updated_at: now });
         if (error) throw error;
       }
       showToast('success', RENVA_I18N.t('inv.pdfReady'));

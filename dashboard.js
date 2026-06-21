@@ -12,8 +12,8 @@ const RENVA_DASHBOARD = (() => {
   async function init(user) {
     if (!user) return;
     renderUserInfo(user);
-    await loadCompanySettings(user.uid);
-    subscribeToInvoices(user.uid);
+    await loadCompanySettings(user.id);
+    subscribeToInvoices(user.id);
     initSidebar();
     initAnimations();
     wirePreviewClose();

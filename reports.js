@@ -20,12 +20,12 @@ const RENVA_REPORTS = (() => {
   // ── Init ─────────────────────────────────────────────────
   async function init(user) {
     if (!user) return;
-    await loadCompanySettings(user.uid);
+    await loadCompanySettings(user.id);
     renderUserInfo(user);
     populateYearSelector();
     initSidebar();
     initAnimations();
-    subscribeToInvoices(user.uid);
+    subscribeToInvoices(user.id);
 
     document.getElementById('exportXlsxBtn')?.addEventListener('click', exportXlsx);
     document.getElementById('yearSelect')?.addEventListener('change', e => {
