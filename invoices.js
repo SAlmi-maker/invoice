@@ -722,9 +722,9 @@ const RENVA_INVOICES = (() => {
         s('preview_title', t('pdf.invoice'));
         s('preview_invNumber', `#${inv.invoice_number || inv.id?.slice(-6) || '—'}`);
         s('preview_issueLabel', t('pdf.issue'));
-        s('preview_issueDate', inv.start_date || '—');
+        s('preview_issueDate', inv.start_date ? inv.start_date.split('T')[0] : '—');
         s('preview_dueLabel', t('pdf.due'));
-        s('preview_dueDate', inv.end_date || '—');
+        s('preview_dueDate', inv.end_date ? inv.end_date.split('T')[0] : '—');
         s('preview_billToLabel', t('pdf.billTo'));
         s('preview_clientName', inv.client_name || '—');
         s('preview_clientCIN', inv.cin ? `${t('pdf.cin')}: ${inv.cin}` : '');
@@ -924,16 +924,16 @@ const RENVA_INVOICES = (() => {
     s('preview_title', t('pdf.invoice'));
     s('preview_invNumber', `#${inv.invoice_number || inv.id?.slice(-6) || '—'}`);
     s('preview_issueLabel', t('pdf.issue'));
-    s('preview_issueDate', inv.start_date || '—');
-    s('preview_dueLabel', t('pdf.due'));
-    s('preview_dueDate', inv.end_date || '—');
-    s('preview_billToLabel', t('pdf.billTo'));
-    s('preview_clientName', inv.client_name || '—');
-    s('preview_clientCIN', inv.cin ? `${t('pdf.cin')}: ${inv.cin}` : '');
-    s('preview_clientPhone', inv.phone ? `${t('pdf.tel')}: ${inv.phone}` : '');
-    s('preview_clientVehicle', `${inv.vehicle_brand || ''} ${inv.vehicle_model || ''}`.trim() || '');
-    s('preview_clientPlate', inv.plate ? `${t('pdf.plate')}: ${inv.plate}` : '');
-    s('preview_descLabel', t('pdf.description'));
+        s('preview_issueDate', inv.start_date ? inv.start_date.split('T')[0] : '—');
+        s('preview_dueLabel', t('pdf.due'));
+        s('preview_dueDate', inv.end_date ? inv.end_date.split('T')[0] : '—');
+        s('preview_billToLabel', t('pdf.billTo'));
+        s('preview_clientName', inv.client_name || '—');
+        s('preview_clientCIN', inv.cin ? `${t('pdf.cin')}: ${inv.cin}` : '');
+        s('preview_clientPhone', inv.phone ? `${t('pdf.tel')}: ${inv.phone}` : '');
+        s('preview_clientVehicle', `${inv.vehicle_brand || ''} ${inv.vehicle_model || ''}`.trim() || '');
+        s('preview_clientPlate', inv.plate ? `${t('pdf.plate')}: ${inv.plate}` : '');
+        s('preview_descLabel', t('pdf.description'));
     s('preview_qtyLabel', t('pdf.qty'));
     s('preview_unitLabel', t('pdf.ratePerDay'));
     s('preview_amtLabel', t('pdf.amount'));
@@ -1087,7 +1087,8 @@ const RENVA_INVOICES = (() => {
     doc.setFontSize(7.5);
     doc.setTextColor(100, 116, 139);
     const daysN = inv.days ?? calcDays(inv.start_date, inv.end_date);
-    doc.text(`${t('pdf.rentalPeriod')}: ${inv.start_date || '—'} → ${inv.end_date || '—'}  |  ${daysN} ${t('inv.days')}`, M, y);
+    const ps = (v) => v ? v.split('T')[0] : '—';
+    doc.text(`${t('pdf.rentalPeriod')}: ${ps(inv.start_date)} → ${ps(inv.end_date)}  |  ${daysN} ${t('inv.days')}`, M, y);
     y += 6;
 
     // ── Items table ───────────────────────────────────────────
@@ -1266,7 +1267,8 @@ const RENVA_INVOICES = (() => {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7.5);
     doc.setTextColor(100, 116, 139);
-    doc.text(`${inv.start_date || '—'}  →  ${inv.end_date || '—'}`, M + 10, y + 8);
+    const ps = (v) => v ? v.split('T')[0] : '—';
+    doc.text(`${ps(inv.start_date)}  →  ${ps(inv.end_date)}`, M + 10, y + 8);
     const daysN = inv.days ?? calcDays(inv.start_date, inv.end_date);
     doc.setFont('helvetica', 'bold');
     setAccent();
@@ -1389,7 +1391,8 @@ const RENVA_INVOICES = (() => {
     doc.text(`${inv.vehicle_brand || ''} ${inv.vehicle_model || ''}`.trim() || '—', W - M, y - 4, { align: 'right' });
     if (inv.plate) doc.text(`${t3('pdf.plate')}: ${inv.plate}`, W - M, y, { align: 'right' });
     y += 4;
-    doc.text(`${inv.start_date || '—'} → ${inv.end_date || '—'}  (${inv.days ?? calcDays(inv.start_date, inv.end_date)} ${t3('inv.days')})`, M, y);
+    const ps = (v) => v ? v.split('T')[0] : '—';
+    doc.text(`${ps(inv.start_date)} → ${ps(inv.end_date)}  (${inv.days ?? calcDays(inv.start_date, inv.end_date)} ${t3('inv.days')})`, M, y);
     y += 8;
 
     doc.setDrawColor(203, 213, 225);
