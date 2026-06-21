@@ -608,7 +608,7 @@ const RENVA_INVOICES = (() => {
         if (car.status === 'available') {
           await sb.from('cars').update({ status: 'unavailable' }).eq('id', car.id);
         } else {
-          showToast('error', RENVA_I18N.t('inv.carUnavailable'));
+          throw new Error(RENVA_I18N.t('inv.carUnavailable'));
         }
       }
 
@@ -663,42 +663,42 @@ const RENVA_INVOICES = (() => {
     const data = readForm();
     if (!validateForm(data)) return;
 
-    const { data: car } = await sb.from('cars')
-      .select('id, status')
-      .eq('plate', data.plate)
-      .eq('user_id', currentUser.id)
-      .maybeSingle();
-    if (car) {
-      if (car.status === 'available') {
-        await sb.from('cars').update({ status: 'unavailable' }).eq('id', car.id);
-      } else {
-        showToast('error', RENVA_I18N.t('inv.carUnavailable'));
-      }
-    }
-
-    const overlapQuery = sb.from('invoices')
-      .select('id', { count: 'exact', head: true })
-      .eq('plate', data.plate)
-      .eq('user_id', currentUser.id)
-      .lt('start_date', data.end_date)
-      .gt('end_date', data.start_date);
-    if (editingId) overlapQuery.neq('id', editingId);
-    const { count } = await overlapQuery;
-    if (count && count > 0) {
-      showToast('error', RENVA_I18N.t('inv.dateOverlapWarning'));
-    }
-
-    const days   = calcDays(data.start_date, data.end_date);
-    const rental = days * data.daily_price;
-    const total  = rental + data.insurance + data.fuel + data.extra_driver + data.other;
-
-    const invNumber = editingId
-      ? (allInvoices.find(i => i.id === editingId)?.invoice_number || editingId.slice(-6).toUpperCase())
-      : `INV-${new Date().getFullYear()}${String(new Date().getMonth()+1).padStart(2,'0')}-${String(allInvoices.length+1).padStart(4,'0')}`;
-    const tempInv = { id: editingId || 'new', invoice_number: invNumber, days, total, ...data };
-    printInvoice(tempInv);
-
     try {
+      const { data: car } = await sb.from('cars')
+        .select('id, status')
+        .eq('plate', data.plate)
+        .eq('user_id', currentUser.id)
+        .maybeSingle();
+      if (car) {
+        if (car.status === 'available') {
+          await sb.from('cars').update({ status: 'unavailable' }).eq('id', car.id);
+        } else {
+          throw new Error(RENVA_I18N.t('inv.carUnavailable'));
+        }
+      }
+
+      const overlapQuery = sb.from('invoices')
+        .select('id', { count: 'exact', head: true })
+        .eq('plate', data.plate)
+        .eq('user_id', currentUser.id)
+        .lt('start_date', data.end_date)
+        .gt('end_date', data.start_date);
+      if (editingId) overlapQuery.neq('id', editingId);
+      const { count } = await overlapQuery;
+      if (count && count > 0) {
+        showToast('error', RENVA_I18N.t('inv.dateOverlapWarning'));
+      }
+
+      const days   = calcDays(data.start_date, data.end_date);
+      const rental = days * data.daily_price;
+      const total  = rental + data.insurance + data.fuel + data.extra_driver + data.other;
+
+      const invNumber = editingId
+        ? (allInvoices.find(i => i.id === editingId)?.invoice_number || editingId.slice(-6).toUpperCase())
+        : `INV-${new Date().getFullYear()}${String(new Date().getMonth()+1).padStart(2,'0')}-${String(allInvoices.length+1).padStart(4,'0')}`;
+      const tempInv = { id: editingId || 'new', invoice_number: invNumber, days, total, ...data };
+      printInvoice(tempInv);
+
       const now = new Date().toISOString();
       if (editingId) {
         const { error } = await sb.from('invoices').update({ ...data, days, total, updated_at: now }).eq('id', editingId);
@@ -711,7 +711,7 @@ const RENVA_INVOICES = (() => {
       subscribeToInvoices(currentUser.id);
     } catch (err) {
       console.error(err);
-      showToast('error', RENVA_I18N.t('settings.error'));
+      showToast('error', err.message || RENVA_I18N.t('settings.error'));
     }
   }
 
