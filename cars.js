@@ -65,9 +65,10 @@ const RENVA_CARS = (() => {
     grid.innerHTML = filtered.map(c => {
       const imgHtml = c.image
         ? `<img src="${escHtml(c.image)}" alt="${escHtml(c.brand)}" class="car-card-img" />`
-        : `<div class="car-card-img-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.5a2 2 0 0 0-1.9 1.4L2 14v3a1 1 0 0 0 1 1h1m10 0H9m6 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-8 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4z"/></svg></div>`;
-      const statusClass = c.status === 'available' ? 'available' : 'unavailable';
-      const statusLabel = c.status === 'available' ? RENVA_I18N.t('cars.available') : RENVA_I18N.t('cars.unavailable');
+        : `<div class="car-card-img-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 17a2 2 0 0 1-2-2V9l2-3h10l3 3v6a2 2 0 0 1-2 2"/><circle cx="7" cy="15" r="2"/><circle cx="17" cy="15" r="2"/><path d="M5 17h14"/></svg></div>`;
+      const statusLabels = { available: 'cars.available', unavailable: 'cars.unavailable', out_of_service: 'cars.outOfService' };
+      const statusClass = statusLabels[c.status] ? c.status : 'unavailable';
+      const statusLabel = RENVA_I18N.t(statusLabels[c.status] || 'cars.unavailable');
       const price = window.formatCurrency ? window.formatCurrency(c.dailyPrice, 'MAD', 'en') : c.dailyPrice;
       return `<div class="car-card">
         ${imgHtml}
@@ -292,6 +293,12 @@ const RENVA_CARS = (() => {
         };
         reader.readAsDataURL(file);
       }
+    });
+    $('carImageRemove').addEventListener('click', () => {
+      pendingImageFile = null;
+      $('car_image').value = '';
+      $('carImagePreviewWrap').style.display = 'none';
+      $('carImagePreview').src = '';
     });
 
     $('deleteModalClose').addEventListener('click', closeDeleteModal);
