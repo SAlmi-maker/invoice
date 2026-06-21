@@ -27,14 +27,17 @@ const RENVA_SETTINGS = (() => {
   // ── Load Settings ─────────────────────────────────────────
   async function loadSettings(uid) {
     try {
-      const doc = await db.collection('users').doc(uid)
-                          .collection('settings').doc('company').get();
-      if (doc.exists) {
-        currentSettings = doc.data();
+      const { data, error } = await supabase.from('companies')
+        .select('*')
+        .eq('user_id', uid)
+        .maybeSingle();
+      if (error) throw error;
+      if (data) {
+        currentSettings = data;
         populateForm(currentSettings);
-        if (currentSettings.companyName) {
-          document.querySelectorAll('.user-avatar-text').forEach(el => el.textContent = currentSettings.companyName.slice(0, 2).toUpperCase());
-          setBrandSubtitle(currentSettings.companyName);
+        if (currentSettings.company_name) {
+          document.querySelectorAll('.user-avatar-text').forEach(el => el.textContent = currentSettings.company_name.slice(0, 2).toUpperCase());
+          setBrandSubtitle(currentSettings.company_name);
         }
       }
     } catch (err) {
@@ -43,10 +46,12 @@ const RENVA_SETTINGS = (() => {
   }
 
   function populateForm(data) {
-    const fields = ['companyName', 'address', 'phone', 'email', 'website'];
+    const fields = ['company_name', 'address', 'phone', 'email', 'website'];
+
+    const fieldIds = { company_name: 'companyName', address: 'address', phone: 'phone', email: 'email', website: 'website' };
 
     fields.forEach(f => {
-      const el = document.getElementById(`field_${f}`);
+      const el = document.getElementById(`field_${fieldIds[f]}`);
       if (el && data[f]) {
         el.value = data[f];
       }
@@ -58,29 +63,27 @@ const RENVA_SETTINGS = (() => {
       RENVA_I18N.setCurrency(data.currency);
     }
 
-    // Logo Preview
-    if (data.logoBase64) {
+    if (data.logo_base64) {
       const preview = document.getElementById('logoPreview');
       if (preview) {
-        preview.src = data.logoBase64;
+        preview.src = data.logo_base64;
         preview.style.display = 'block';
       }
     }
 
-    // Invoice color mode
-    const colorMode = data.invoiceColorMode || 'bw';
+    const colorMode = data.invoice_color_mode || 'bw';
     const colorRadio = document.querySelector(`input[name="invoiceColorMode"][value="${colorMode}"]`);
     if (colorRadio) colorRadio.checked = true;
-    const colorVal = data.invoiceColor || '#2563EB';
+    const colorVal = data.invoice_color || '#2563EB';
     const colorInput = document.getElementById('invoiceColorInput');
     const colorText = document.getElementById('invoiceColorText');
     if (colorInput) colorInput.value = colorVal;
     if (colorText) colorText.value = colorVal;
     toggleColorPicker(colorMode === 'custom');
     const langSel = document.getElementById('invoiceLanguage');
-    if (langSel) langSel.value = data.invoiceLanguage || '';
+    if (langSel) langSel.value = data.invoice_language || '';
     const excelSel = document.getElementById('excelLang');
-    if (excelSel) excelSel.value = data.excelLang || '';
+    if (excelSel) excelSel.value = data.excel_lang || '';
   }
 
   function toggleColorPicker(show) {
@@ -116,30 +119,29 @@ const RENVA_SETTINGS = (() => {
 
       try {
         const updates = {
-          companyName: document.getElementById('field_companyName')?.value.trim() || '',
-          address:     document.getElementById('field_address')?.value.trim()     || '',
-          phone:       document.getElementById('field_phone')?.value.trim()       || '',
-          email:       document.getElementById('field_email')?.value.trim()       || '',
-          website:     document.getElementById('field_website')?.value.trim()     || '',
-          invoiceTemplate: 'classic',
-          invoiceColorMode: document.querySelector('input[name="invoiceColorMode"]:checked')?.value || 'bw',
-          invoiceColor: document.getElementById('invoiceColorInput')?.value || '#2563EB',
-          invoiceLanguage: document.getElementById('invoiceLanguage')?.value || '',
-          excelLang: document.getElementById('excelLang')?.value || '',
-          currency: document.getElementById('field_currency')?.value || 'MAD',
-          updatedAt:   firebase.firestore.FieldValue.serverTimestamp()
+          company_name:       document.getElementById('field_companyName')?.value.trim() || '',
+          address:            document.getElementById('field_address')?.value.trim()     || '',
+          phone:              document.getElementById('field_phone')?.value.trim()       || '',
+          email:              document.getElementById('field_email')?.value.trim()       || '',
+          website:            document.getElementById('field_website')?.value.trim()     || '',
+          currency:           document.getElementById('field_currency')?.value || 'MAD',
+          invoice_color_mode: document.querySelector('input[name="invoiceColorMode"]:checked')?.value || 'bw',
+          invoice_color:      document.getElementById('invoiceColorInput')?.value || '#2563EB',
+          invoice_language:   document.getElementById('invoiceLanguage')?.value || '',
+          excel_lang:         document.getElementById('excelLang')?.value || '',
+          updated_at:         new Date().toISOString()
         };
 
-        // Save logo as Base64
         if (pendingLogoFile) {
-          updates.logoBase64 = await fileToBase64(pendingLogoFile);
+          updates.logo_base64 = await fileToBase64(pendingLogoFile);
           pendingLogoFile = null;
-        } else if (currentSettings.logoBase64) {
-          updates.logoBase64 = currentSettings.logoBase64;
+        } else if (currentSettings.logo_base64) {
+          updates.logo_base64 = currentSettings.logo_base64;
         }
 
-        await db.collection('users').doc(uid)
-                .collection('settings').doc('company').set(updates, { merge: true });
+        const { error } = await supabase.from('companies')
+          .upsert({ user_id: uid, ...updates }, { onConflict: 'user_id' });
+        if (error) throw error;
 
         currentSettings = { ...currentSettings, ...updates };
         RENVA_I18N.setCurrency(updates.currency);
@@ -249,6 +251,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.addEventListener('RENVA:langChanged', () => {
     RENVA_I18N.applyToDOM();
-    setBrandSubtitle(currentSettings.companyName || '');
+    setBrandSubtitle(currentSettings.company_name || '');
   });
 });

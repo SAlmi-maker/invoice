@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# Firebase CLI cache (if you run firebase commands)
+.firebase/
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Editor files
+.vscode/
+.idea/
+*.sublime-*

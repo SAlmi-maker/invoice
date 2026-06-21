@@ -1,6 +1,6 @@
 // ============================================================
 // RENVA - Reports Module
-// Depends on: firebase.js, i18n.js, auth.js
+// Depends on: supabase.js, i18n.js, auth.js
 // External:   Chart.js 4, SheetJS (xlsx)
 // ============================================================
 
@@ -8,7 +8,6 @@ const RENVA_REPORTS = (() => {
 
   // ── State ─────────────────────────────────────────────────
   let allInvoices       = [];
-  let unsubscribe       = null;
   let barChart          = null;
   let doughnutChart     = null;
   let selectedYear      = new Date().getFullYear();
@@ -35,7 +34,7 @@ const RENVA_REPORTS = (() => {
     });
 
     document.addEventListener('RENVA:langChanged', () => {
-      setBrandSubtitle(companySettings.companyName || '');
+      setBrandSubtitle(companySettings.company_name || '');
       renderAll();
     });
   }
@@ -43,13 +42,16 @@ const RENVA_REPORTS = (() => {
   // ── Company Settings ──────────────────────────────────────
   async function loadCompanySettings(uid) {
     try {
-      const doc = await db.collection('users').doc(uid)
-                          .collection('settings').doc('company').get();
-      if (doc.exists) {
-        companySettings = doc.data();
+      const { data, error } = await supabase.from('companies')
+        .select('*')
+        .eq('user_id', uid)
+        .maybeSingle();
+      if (error) throw error;
+      if (data) {
+        companySettings = data;
         RENVA_I18N.setCurrency(companySettings.currency || 'MAD');
-        if (companySettings.companyName) {
-          setBrandSubtitle(companySettings.companyName);
+        if (companySettings.company_name) {
+          setBrandSubtitle(companySettings.company_name);
         }
       }
     } catch (err) {
@@ -65,7 +67,7 @@ const RENVA_REPORTS = (() => {
   }
 
   function renderUserInfo(user) {
-    const name = companySettings?.companyName || '';
+    const name = companySettings?.company_name || '';
     const initials = name ? name.slice(0, 2).toUpperCase() : 'RV';
     document.querySelectorAll('.user-email').forEach(el => el.textContent = user.email);
     document.querySelectorAll('.user-avatar-text').forEach(el => el.textContent = initials);
@@ -87,22 +89,22 @@ const RENVA_REPORTS = (() => {
     }
   }
 
-  // ── Firestore Subscription ────────────────────────────────
-  function subscribeToInvoices(uid) {
-    if (unsubscribe) unsubscribe();
+  async function subscribeToInvoices(uid) {
     setLoading(true);
 
-    unsubscribe = db.collection('users').doc(uid)
-      .collection('invoices')
-      .orderBy('createdAt', 'desc')
-      .onSnapshot(snapshot => {
-        allInvoices = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-        renderAll();
-        setLoading(false);
-      }, err => {
-        console.error('Reports subscription error:', err);
-        setLoading(false);
-      });
+    try {
+      const { data, error } = await supabase.from('invoices')
+        .select('*')
+        .eq('user_id', uid)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      allInvoices = (data || []).map(d => ({ id: d.id, ...d }));
+      renderAll();
+      setLoading(false);
+    } catch (err) {
+      console.error('Reports load error:', err);
+      setLoading(false);
+    }
   }
 
   // ── Render All ────────────────────────────────────────────
@@ -131,7 +133,7 @@ const RENVA_REPORTS = (() => {
     const toNum = inv => parseFloat(inv.total || inv.amount || 0);
 
     const todayRev = paid
-      .filter(inv => (inv.paidAt || inv.createdAt?.toDate?.()?.toISOString() || '').startsWith(todayStr))
+      .filter(inv => (inv.paid_at || inv.created_at || '').startsWith(todayStr))
       .reduce((s, inv) => s + toNum(inv), 0);
 
     const monthRev = paid
@@ -384,7 +386,7 @@ const RENVA_REPORTS = (() => {
       return;
     }
 
-    const xl = companySettings.excelLang || RENVA_I18N.getLang();
+    const xl = companySettings.excel_lang || RENVA_I18N.getLang();
     const currency = RENVA_I18N.t('common.currency');
     const months   = getMonthLabels(xl);
 
@@ -426,8 +428,8 @@ const RENVA_REPORTS = (() => {
       ...yearInvoices.map(inv => {
         const d = getDate(inv);
         return [
-          inv.invoiceNumber || inv.id.slice(-6).toUpperCase(),
-          inv.clientName || '—',
+          inv.invoice_number || inv.id.slice(-6).toUpperCase(),
+          inv.client_name || '—',
           d ? d.toLocaleDateString() : '—',
           inv.status || 'draft',
           parseFloat(inv.total || inv.amount || 0).toFixed(2)
@@ -439,7 +441,7 @@ const RENVA_REPORTS = (() => {
     XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(summaryRows), `Summary ${selectedYear}`);
     XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(invoiceRows), `Invoices ${selectedYear}`);
 
-    const companyName = (companySettings.companyName || 'RENVA').replace(/[<>:"/\\|?*]/g, '');
+    const companyName = (companySettings.company_name || 'RENVA').replace(/[<>:"/\\|?*]/g, '');
     XLSX.writeFile(wb, `${companyName}_Report_${selectedYear}.xlsx`);
     showToast('success', `Report exported for ${selectedYear}`);
   }
@@ -472,9 +474,8 @@ const RENVA_REPORTS = (() => {
 
   // ── Helpers ───────────────────────────────────────────────
   function getDate(inv) {
-    if (inv.startDate)         return new Date(inv.startDate);
-    if (inv.createdAt?.toDate) return inv.createdAt.toDate();
-    if (inv.date)              return new Date(inv.date);
+    if (inv.start_date)        return new Date(inv.start_date);
+    if (inv.created_at)        return new Date(inv.created_at);
     return null;
   }
 

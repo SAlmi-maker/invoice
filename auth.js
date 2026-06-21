@@ -1,5 +1,5 @@
 // ============================================================
-// RENVA - Authentication Module
+// RENVA - Authentication Module (Supabase)
 // ============================================================
 
 const RENVA_AUTH = (() => {
@@ -7,11 +7,16 @@ const RENVA_AUTH = (() => {
   const LOGIN_PAGE      = 'login.html';
   const HOME_PAGE       = 'dashboard.html';
 
+  let _currentUser = null;
+
   // ── Route Guard ──────────────────────────────────────────
   function guardRoute() {
     const page = window.location.pathname.split('/').pop() || 'index.html';
 
-    auth.onAuthStateChanged(user => {
+    supabase.auth.onAuthStateChange((event, session) => {
+      const user = session?.user ?? null;
+      _currentUser = user;
+
       const isProtected = PROTECTED_PAGES.some(p => page.includes(p));
       const isLoginPage  = page.includes(LOGIN_PAGE) || page === '' || page === 'index.html';
 
@@ -21,31 +26,33 @@ const RENVA_AUTH = (() => {
         window.location.href = HOME_PAGE;
       }
 
-      // Trigger page-ready event so modules can initialize
       document.dispatchEvent(new CustomEvent('RENVA:authReady', { detail: { user } }));
     });
   }
 
   // ── Login ─────────────────────────────────────────────────
   async function login(email, password) {
-    await auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL);
-    return auth.signInWithEmailAndPassword(email, password);
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
   }
 
   // ── Logout ────────────────────────────────────────────────
   async function logout() {
-    await auth.signOut();
+    await supabase.auth.signOut();
     window.location.href = LOGIN_PAGE;
   }
 
   // ── Forgot Password ───────────────────────────────────────
   async function sendPasswordReset(email) {
-    return auth.sendPasswordResetEmail(email);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + '/' + LOGIN_PAGE,
+    });
+    if (error) throw error;
   }
 
   // ── Current User ─────────────────────────────────────────
   function currentUser() {
-    return auth.currentUser;
+    return _currentUser;
   }
 
   // ── Init ─────────────────────────────────────────────────
@@ -68,9 +75,8 @@ const RENVA_AUTH = (() => {
 
         try {
           await login(email, password);
-          // onAuthStateChanged in guardRoute will redirect
         } catch (err) {
-          errBox.textContent = translateAuthError(err.code);
+          errBox.textContent = translateAuthError(err.message);
           errBox.classList.add('show');
           setLoading(btn, false);
         }
@@ -95,7 +101,7 @@ const RENVA_AUTH = (() => {
           msg.textContent = RENVA_I18N.t('auth.resetSent');
           msg.classList.add('success');
         } catch (err) {
-          msg.textContent = translateAuthError(err.code);
+          msg.textContent = translateAuthError(err.message);
           msg.classList.add('error');
         } finally {
           setLoading(btn, false);
@@ -116,16 +122,18 @@ const RENVA_AUTH = (() => {
     btn.classList.toggle('loading', state);
   }
 
-  function translateAuthError(code) {
+  function translateAuthError(message) {
     const map = {
-      'auth/user-not-found':    RENVA_I18N.t('auth.userNotFound'),
-      'auth/wrong-password':    RENVA_I18N.t('auth.wrongPassword'),
-      'auth/invalid-email':     RENVA_I18N.t('auth.invalidEmail'),
-      'auth/too-many-requests': RENVA_I18N.t('auth.tooManyRequests'),
-      'auth/user-disabled':     RENVA_I18N.t('auth.userDisabled'),
-      'auth/invalid-credential':RENVA_I18N.t('auth.wrongPassword'),
+      'Invalid login credentials':           RENVA_I18N.t('auth.wrongPassword'),
+      'Email not confirmed':                 RENVA_I18N.t('auth.genericError'),
+      'Invalid email':                       RENVA_I18N.t('auth.invalidEmail'),
+      'User not found':                      RENVA_I18N.t('auth.userNotFound'),
+      'Too many requests':                   RENVA_I18N.t('auth.tooManyRequests'),
+      'User is disabled':                    RENVA_I18N.t('auth.userDisabled'),
+      'Email rate limit exceeded':           RENVA_I18N.t('auth.tooManyRequests'),
+      'Password should be at least 6 characters': RENVA_I18N.t('auth.genericError'),
     };
-    return map[code] || RENVA_I18N.t('auth.genericError');
+    return map[message] || RENVA_I18N.t('auth.genericError');
   }
 
   return { init, login, logout, sendPasswordReset, currentUser, guardRoute };

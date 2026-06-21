@@ -1,6 +1,6 @@
 // ============================================================
 // RENVA — Invoices Module
-// Handles: create/edit/delete invoices, Firestore CRUD,
+// Handles: create/edit/delete invoices,
 //           live totals, filtering, search, InvoicePro export.
 // ============================================================
 
@@ -16,7 +16,6 @@ const RENVA_INVOICES = (() => {
   let searchQuery    = '';
   let editingId      = null;
   let deleteTargetId = null;
-  let unsubscribe    = null;
   let invoiceColorMode = 'bw';
   let invoiceColor     = '#2563EB';
   let invoiceLanguage  = '';
@@ -32,15 +31,17 @@ const RENVA_INVOICES = (() => {
     currentUser = user;
 
     try {
-      const snap = await db.collection('users').doc(user.uid)
-                           .collection('settings').doc('company').get();
-      if (snap.exists) {
-        companySettings = snap.data();
-        pdfTemplate = companySettings.invoiceTemplate || 'classic';
-        invoiceColorMode = companySettings.invoiceColorMode || 'bw';
-        invoiceColor     = companySettings.invoiceColor || '#2563EB';
-        invoiceLanguage  = companySettings.invoiceLanguage || '';
-        RENVA_I18N.setCurrency(companySettings.currency || 'MAD');
+      const { data: csData, error: csError } = await supabase.from('companies')
+        .select('*')
+        .eq('user_id', user.uid)
+        .maybeSingle();
+      if (!csError && csData) {
+        companySettings = csData;
+        pdfTemplate = 'classic';
+        invoiceColorMode = csData.invoice_color_mode || 'bw';
+        invoiceColor     = csData.invoice_color || '#2563EB';
+        invoiceLanguage  = csData.invoice_language || '';
+        RENVA_I18N.setCurrency(csData.currency || 'MAD');
       }
     } catch (e) { /* non-critical */ }
 
@@ -68,38 +69,38 @@ const RENVA_INVOICES = (() => {
   }
 
   function renderUserInfo(user) {
-    const name = companySettings?.companyName || '';
+    const name = companySettings?.company_name || '';
     const initials = name ? name.slice(0, 2).toUpperCase() : 'RV';
     document.querySelectorAll('.user-email').forEach(el => el.textContent = user.email);
     document.querySelectorAll('.user-avatar-text').forEach(el => el.textContent = initials);
     setBrandSubtitle(name);
   }
 
-  // ── Firestore real-time subscription ─────────────────────
-  function subscribeToInvoices(uid) {
-    if (unsubscribe) unsubscribe();
+  async function subscribeToInvoices(uid) {
     showLoading(true);
 
-    unsubscribe = db.collection('users').doc(uid)
-      .collection('invoices')
-      .orderBy('createdAt', 'desc')
-      .onSnapshot(snapshot => {
-        allInvoices = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-        applyFilters();
-        showLoading(false);
+    try {
+      const { data, error } = await supabase.from('invoices')
+        .select('*')
+        .eq('user_id', uid)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      allInvoices = (data || []).map(d => ({ id: d.id, ...d }));
+      applyFilters();
+      showLoading(false);
 
-        const badge = document.getElementById('navInvoiceCount');
-        if (badge) badge.textContent = allInvoices.length;
+      const badge = document.getElementById('navInvoiceCount');
+      if (badge) badge.textContent = allInvoices.length;
 
-        if (pendingViewId) {
-          openPreview(pendingViewId);
-          pendingViewId = null;
-        }
-      }, err => {
-        console.error('Invoice subscription error:', err);
-        showLoading(false);
-        showToast('error', RENVA_I18N.t('settings.error'));
-      });
+      if (pendingViewId) {
+        openPreview(pendingViewId);
+        pendingViewId = null;
+      }
+    } catch (err) {
+      console.error('Invoice load error:', err);
+      showLoading(false);
+      showToast('error', RENVA_I18N.t('settings.error'));
+    }
   }
 
   // ── Filter & search ───────────────────────────────────────
@@ -113,12 +114,12 @@ const RENVA_INVOICES = (() => {
     if (searchQuery.trim()) {
       const q = searchQuery.trim().toLowerCase();
       list = list.filter(inv =>
-        (inv.clientName  || '').toLowerCase().includes(q) ||
-        (inv.cin         || '').toLowerCase().includes(q) ||
-        (inv.vehicleBrand|| '').toLowerCase().includes(q) ||
-        (inv.vehicleModel|| '').toLowerCase().includes(q) ||
-        (inv.plate       || '').toLowerCase().includes(q) ||
-        (inv.invoiceNumber || '').toLowerCase().includes(q)
+        (inv.client_name   || '').toLowerCase().includes(q) ||
+        (inv.cin           || '').toLowerCase().includes(q) ||
+        (inv.vehicle_brand || '').toLowerCase().includes(q) ||
+        (inv.vehicle_model || '').toLowerCase().includes(q) ||
+        (inv.plate         || '').toLowerCase().includes(q) ||
+        (inv.invoice_number || '').toLowerCase().includes(q)
       );
     }
 
@@ -151,26 +152,26 @@ const RENVA_INVOICES = (() => {
       tr.style.animationDelay = `${i * 40}ms`;
       tr.classList.add('fade-in-row');
 
-      const date = toDate(inv.createdAt);
+      const date = toDate(inv.created_at);
       const dateStr = date ? date.toLocaleDateString(lang) : '—';
 
-      const startStr = inv.startDate || '—';
-      const endStr   = inv.endDate   || '—';
-      const period   = (inv.startDate && inv.endDate)
-        ? `${formatShortDate(inv.startDate, lang)} → ${formatShortDate(inv.endDate, lang)}`
+      const startStr = inv.start_date || '—';
+      const endStr   = inv.end_date   || '—';
+      const period   = (inv.start_date && inv.end_date)
+        ? `${formatShortDate(inv.start_date, lang)} → ${formatShortDate(inv.end_date, lang)}`
         : '—';
 
       const total    = parseFloat(inv.total || 0);
       const status   = inv.status || 'draft';
       const statusLabel = RENVA_I18N.t(`dash.${status}`);
 
-      const num = inv.invoiceNumber || inv.id.slice(-6).toUpperCase();
-      const vehicle = [inv.vehicleBrand, inv.vehicleModel].filter(Boolean).join(' ') || '—';
+      const num = inv.invoice_number || inv.id.slice(-6).toUpperCase();
+      const vehicle = [inv.vehicle_brand, inv.vehicle_model].filter(Boolean).join(' ') || '—';
 
       tr.innerHTML = `
         <td><span class="invoice-num">#${escHtml(num)}</span></td>
         <td>
-          <div style="font-weight:600;font-size:0.875rem;">${escHtml(inv.clientName || '—')}</div>
+          <div style="font-weight:600;font-size:0.875rem;">${escHtml(inv.client_name || '—')}</div>
           <div style="font-size:0.75rem;color:var(--text-tertiary);">${escHtml(inv.cin || '')}</div>
         </td>
         <td>
@@ -306,7 +307,7 @@ const RENVA_INVOICES = (() => {
     editingId = id;
     populateForm(inv);
     recalculate();
-    document.getElementById('modalTitle').textContent = `${RENVA_I18N.t('common.edit')} #${inv.invoiceNumber || id.slice(-6).toUpperCase()}`;
+    document.getElementById('modalTitle').textContent = `${RENVA_I18N.t('common.edit')} #${inv.invoice_number || id.slice(-6).toUpperCase()}`;
     document.getElementById('invoiceModal').classList.add('open');
     lockScroll();
     document.getElementById('invPreviewWrap')?.classList.add('open');
@@ -356,8 +357,8 @@ const RENVA_INVOICES = (() => {
     const btn = document.getElementById('deleteConfirmBtn');
     btn.disabled = true;
     try {
-      await db.collection('users').doc(currentUser.uid)
-              .collection('invoices').doc(deleteTargetId).delete();
+      const { error } = await supabase.from('invoices').delete().eq('id', deleteTargetId);
+      if (error) throw error;
       showToast('success', RENVA_I18N.t('inv.deleted'));
       closeDeleteModal();
     } catch (e) {
@@ -383,18 +384,18 @@ const RENVA_INVOICES = (() => {
     resetForm();
     const set = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined && val !== null) el.value = val; };
     set('inv_id',           inv.id);
-    set('inv_clientName',   inv.clientName);
+    set('inv_clientName',   inv.client_name);
     set('inv_cin',          inv.cin);
     set('inv_phone',        inv.phone);
-    set('inv_vehicleBrand', inv.vehicleBrand);
-    set('inv_vehicleModel', inv.vehicleModel);
+    set('inv_vehicleBrand', inv.vehicle_brand);
+    set('inv_vehicleModel', inv.vehicle_model);
     set('inv_plate',        inv.plate);
-    set('inv_startDate',    inv.startDate);
-    set('inv_endDate',      inv.endDate);
-    set('inv_dailyPrice',   inv.dailyPrice);
+    set('inv_startDate',    inv.start_date);
+    set('inv_endDate',      inv.end_date);
+    set('inv_dailyPrice',   inv.daily_price);
     set('inv_insurance',    inv.insurance   || 0);
     set('inv_fuel',         inv.fuel        || 0);
-    set('inv_extraDriver',  inv.extraDriver || 0);
+    set('inv_extraDriver',  inv.extra_driver || 0);
     set('inv_other',        inv.other       || 0);
     set('inv_status',       inv.status);
     set('inv_notes',        inv.notes);
@@ -404,27 +405,27 @@ const RENVA_INVOICES = (() => {
     const g = id => document.getElementById(id)?.value ?? '';
     const n = id => parseFloat(document.getElementById(id)?.value || 0) || 0;
     return {
-      clientName:   g('inv_clientName').trim(),
-      cin:          g('inv_cin').trim(),
-      phone:        g('inv_phone').trim(),
-      vehicleBrand: g('inv_vehicleBrand').trim(),
-      vehicleModel: g('inv_vehicleModel').trim(),
-      plate:        g('inv_plate').trim().toUpperCase(),
-      startDate:    g('inv_startDate'),
-      endDate:      g('inv_endDate'),
-      dailyPrice:   n('inv_dailyPrice'),
-      insurance:    n('inv_insurance'),
-      fuel:         n('inv_fuel'),
-      extraDriver:  n('inv_extraDriver'),
-      other:        n('inv_other'),
-      status:       g('inv_status') || 'draft',
-      notes:        g('inv_notes').trim(),
+      client_name:   g('inv_clientName').trim(),
+      cin:           g('inv_cin').trim(),
+      phone:         g('inv_phone').trim(),
+      vehicle_brand: g('inv_vehicleBrand').trim(),
+      vehicle_model: g('inv_vehicleModel').trim(),
+      plate:         g('inv_plate').trim().toUpperCase(),
+      start_date:    g('inv_startDate'),
+      end_date:      g('inv_endDate'),
+      daily_price:   n('inv_dailyPrice'),
+      insurance:     n('inv_insurance'),
+      fuel:          n('inv_fuel'),
+      extra_driver:  n('inv_extraDriver'),
+      other:         n('inv_other'),
+      status:        g('inv_status') || 'draft',
+      notes:         g('inv_notes').trim(),
     };
   }
 
   function validateForm(data) {
-    const required = ['clientName','cin','vehicleBrand','vehicleModel','plate','startDate','endDate'];
-    for (const key of required) {
+    const required = { client_name: 'clientName', cin: 'cin', vehicle_brand: 'vehicleBrand', vehicle_model: 'vehicleModel', plate: 'plate', start_date: 'startDate', end_date: 'endDate' };
+    for (const [key, fieldId] of Object.entries(required)) {
       if (!data[key]) {
         const labelMap = {
           clientName:   'inv.field.clientName',
@@ -435,17 +436,17 @@ const RENVA_INVOICES = (() => {
           startDate:    'inv.field.startDate',
           endDate:      'inv.field.endDate',
         };
-        showToast('error', `${RENVA_I18N.t(labelMap[key] || key)} ${RENVA_I18N.t('inv.isRequired')}`);
-        document.getElementById(`inv_${key}`)?.focus();
+        showToast('error', `${RENVA_I18N.t(labelMap[fieldId] || fieldId)} ${RENVA_I18N.t('inv.isRequired')}`);
+        document.getElementById(`inv_${fieldId}`)?.focus();
         return false;
       }
     }
-    if (data.dailyPrice <= 0) {
+    if (data.daily_price <= 0) {
       showToast('error', RENVA_I18N.t('inv.dailyPriceRequired'));
       document.getElementById('inv_dailyPrice')?.focus();
       return false;
     }
-    if (data.startDate > data.endDate) {
+    if (data.start_date > data.end_date) {
       showToast('error', RENVA_I18N.t('inv.dateRangeError'));
       return false;
     }
@@ -542,27 +543,27 @@ const RENVA_INVOICES = (() => {
     setLoading(draftBtn, true);
 
     try {
-      const days   = calcDays(data.startDate, data.endDate);
-      const rental = days * data.dailyPrice;
-      const total  = rental + data.insurance + data.fuel + data.extraDriver + data.other;
+      const days   = calcDays(data.start_date, data.end_date);
+      const rental = days * data.daily_price;
+      const total  = rental + data.insurance + data.fuel + data.extra_driver + data.other;
+      const now    = new Date().toISOString();
 
       const payload = {
         ...data,
         days,
-        rentalSubtotal: rental,
         total,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        updated_at: now,
       };
 
-      const col = db.collection('users').doc(currentUser.uid).collection('invoices');
-
       if (editingId) {
-        await col.doc(editingId).update(payload);
+        const { error } = await supabase.from('invoices').update(payload).eq('id', editingId);
+        if (error) throw error;
       } else {
-        const invNumber = await generateInvoiceNumber();
-        payload.invoiceNumber = invNumber;
-        payload.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-        await col.add(payload);
+        payload.user_id = currentUser.uid;
+        payload.invoice_number = await generateInvoiceNumber();
+        payload.created_at = now;
+        const { error } = await supabase.from('invoices').insert(payload);
+        if (error) throw error;
       }
 
       showToast('success', RENVA_I18N.t('settings.saved'));
@@ -580,28 +581,24 @@ const RENVA_INVOICES = (() => {
     const data = readForm();
     if (!validateForm(data)) return;
 
-    // Calculate before any async work
-    const days   = calcDays(data.startDate, data.endDate);
-    const rental = days * data.dailyPrice;
-    const total  = rental + data.insurance + data.fuel + data.extraDriver + data.other;
+    const days   = calcDays(data.start_date, data.end_date);
+    const rental = days * data.daily_price;
+    const total  = rental + data.insurance + data.fuel + data.extra_driver + data.other;
 
     const invNumber = editingId
-      ? (allInvoices.find(i => i.id === editingId)?.invoiceNumber || editingId.slice(-6).toUpperCase())
+      ? (allInvoices.find(i => i.id === editingId)?.invoice_number || editingId.slice(-6).toUpperCase())
       : `INV-${new Date().getFullYear()}${String(new Date().getMonth()+1).padStart(2,'0')}-${String(allInvoices.length+1).padStart(4,'0')}`;
-    const tempInv = { id: editingId || 'new', invoiceNumber: invNumber, days, rentalSubtotal: rental, total, ...data };
+    const tempInv = { id: editingId || 'new', invoice_number: invNumber, days, total, ...data };
     printInvoice(tempInv);
 
-    // Save to Firestore (async — happens after print dialog closes)
     try {
-      const col = db.collection('users').doc(currentUser.uid).collection('invoices');
-      let docId;
+      const now = new Date().toISOString();
       if (editingId) {
-        docId = editingId;
-        await col.doc(editingId).update({ ...data, days, rentalSubtotal: rental, total, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+        const { error } = await supabase.from('invoices').update({ ...data, days, total, updated_at: now }).eq('id', editingId);
+        if (error) throw error;
       } else {
-        const ref = await col.add({ ...data, days, rentalSubtotal: rental, total, invoiceNumber: invNumber, createdAt: firebase.firestore.FieldValue.serverTimestamp(), updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
-        docId = ref.id;
-        editingId = docId;
+        const { error } = await supabase.from('invoices').insert({ ...data, user_id: currentUser.uid, days, total, invoice_number: invNumber, created_at: now, updated_at: now });
+        if (error) throw error;
       }
       showToast('success', RENVA_I18N.t('inv.pdfReady'));
     } catch (err) {
@@ -648,24 +645,16 @@ const RENVA_INVOICES = (() => {
 
     const matched = allInvoices.filter(inv => {
       let d = null;
-      if (inv.startDate) {
-        if (inv.startDate.toDate) {
-          d = inv.startDate.toDate();
-        } else if (typeof inv.startDate === 'string') {
-          // Parse date string as local time to avoid UTC timezone offset shifting the month
-          const parts = inv.startDate.split('-');
-          if (parts.length === 3) {
-            d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
-          } else {
-            d = new Date(inv.startDate);
-          }
+      if (inv.start_date) {
+        const parts = inv.start_date.split('-');
+        if (parts.length === 3) {
+          d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
         } else {
-          d = new Date(inv.startDate);
+          d = new Date(inv.start_date);
         }
       }
       if (!d || isNaN(d.getTime())) {
-        if (inv.createdAt?.toDate) d = inv.createdAt.toDate();
-        else if (inv.date) d = new Date(inv.date);
+        if (inv.created_at) d = new Date(inv.created_at);
       }
       if (!d || isNaN(d.getTime())) return false;
       return months.includes(d.getMonth() + 1) && d.getFullYear() === year;
@@ -705,20 +694,20 @@ const RENVA_INVOICES = (() => {
           if (el) el.textContent = val ?? '';
         };
 
-        const days = inv.days ?? calcDays(inv.startDate, inv.endDate);
-        const dp = parseFloat(inv.dailyPrice || 0);
+        const days = inv.days ?? calcDays(inv.start_date, inv.end_date);
+        const dp = parseFloat(inv.daily_price || 0);
         const rental = days * dp;
         const total = parseFloat(inv.total || 0);
 
         const extras = [
           { label: tl('inv.field.insurance'), val: parseFloat(inv.insurance || 0) },
           { label: tl('inv.field.fuel'), val: parseFloat(inv.fuel || 0) },
-          { label: tl('inv.field.extraDriver'), val: parseFloat(inv.extraDriver || 0) },
+          { label: tl('inv.field.extraDriver'), val: parseFloat(inv.extra_driver || 0) },
           { label: tl('inv.field.other'), val: parseFloat(inv.other || 0) },
         ].filter(e => e.val > 0);
 
         const t = tl;
-        const coName = companySettings.companyName || 'RENVA';
+        const coName = companySettings.company_name || 'RENVA';
 
         s('preview_companyName', coName);
         s('preview_companyAddr', companySettings.address || '');
@@ -726,16 +715,16 @@ const RENVA_INVOICES = (() => {
         s('preview_companyPhone', companySettings.phone || '');
         s('preview_companyWebsite', companySettings.website || '');
         s('preview_title', t('pdf.invoice'));
-        s('preview_invNumber', `#${inv.invoiceNumber || inv.id?.slice(-6) || '—'}`);
+        s('preview_invNumber', `#${inv.invoice_number || inv.id?.slice(-6) || '—'}`);
         s('preview_issueLabel', t('pdf.issue'));
-        s('preview_issueDate', inv.startDate || '—');
+        s('preview_issueDate', inv.start_date || '—');
         s('preview_dueLabel', t('pdf.due'));
-        s('preview_dueDate', inv.endDate || '—');
+        s('preview_dueDate', inv.end_date || '—');
         s('preview_billToLabel', t('pdf.billTo'));
-        s('preview_clientName', inv.clientName || '—');
+        s('preview_clientName', inv.client_name || '—');
         s('preview_clientCIN', inv.cin ? `${t('pdf.cin')}: ${inv.cin}` : '');
         s('preview_clientPhone', inv.phone ? `${t('pdf.tel')}: ${inv.phone}` : '');
-        s('preview_clientVehicle', `${inv.vehicleBrand || ''} ${inv.vehicleModel || ''}`.trim() || '');
+        s('preview_clientVehicle', `${inv.vehicle_brand || ''} ${inv.vehicle_model || ''}`.trim() || '');
         s('preview_clientPlate', inv.plate ? `${t('pdf.plate')}: ${inv.plate}` : '');
         s('preview_descLabel', t('pdf.description'));
         s('preview_qtyLabel', t('pdf.qty'));
@@ -751,7 +740,7 @@ const RENVA_INVOICES = (() => {
             tr.innerHTML = `<td>${escHtml(desc)}</td><td>${daysVal}</td><td>${typeof unit === 'number' ? fmt(unit) : unit}</td><td>${fmt(amt)}</td>`;
             tbody.appendChild(tr);
           };
-          addRow(`${t('inv.field.rentalSubtotal')} (${inv.vehicleBrand || ''} ${inv.vehicleModel || ''})`, days, dp, rental);
+          addRow(`${t('inv.field.rentalSubtotal')} (${inv.vehicle_brand || ''} ${inv.vehicle_model || ''})`, days, dp, rental);
           extras.forEach(e => addRow(e.label, dash, dash, e.val));
         }
 
@@ -780,8 +769,8 @@ const RENVA_INVOICES = (() => {
         }
 
         const logoEl = invEl.querySelector('#preview_logo');
-        if (companySettings.logoBase64 && logoEl) {
-          logoEl.src = companySettings.logoBase64;
+        if (companySettings.logo_base64 && logoEl) {
+          logoEl.src = companySettings.logo_base64;
           logoEl.style.display = 'block';
         } else if (logoEl) {
           logoEl.style.display = 'none';
@@ -891,12 +880,12 @@ const RENVA_INVOICES = (() => {
     const lang = getPDFLang();
     const currency = RENVA_I18N.t('common.currency');
     const fmt = (n) => formatCurrency(n, currency, lang);
-    const coName = companySettings.companyName || 'RENVA';
+    const coName = companySettings.company_name || 'RENVA';
     const coAddr = companySettings.address || '';
     const coEmail = companySettings.email || '';
     const coPhone = companySettings.phone || '';
-    const days = inv.days ?? calcDays(inv.startDate, inv.endDate);
-    const dp = parseFloat(inv.dailyPrice || 0);
+    const days = inv.days ?? calcDays(inv.start_date, inv.end_date);
+    const dp = parseFloat(inv.daily_price || 0);
     const rental = days * dp;
     const total = parseFloat(inv.total || 0);
     const status = inv.status || 'draft';
@@ -904,7 +893,7 @@ const RENVA_INVOICES = (() => {
     const extras = [
       { label: t('inv.field.insurance'), val: parseFloat(inv.insurance || 0) },
       { label: t('inv.field.fuel'), val: parseFloat(inv.fuel || 0) },
-      { label: t('inv.field.extraDriver'), val: parseFloat(inv.extraDriver || 0) },
+      { label: t('inv.field.extraDriver'), val: parseFloat(inv.extra_driver || 0) },
       { label: t('inv.field.other'), val: parseFloat(inv.other || 0) },
     ].filter(e => e.val > 0);
 
@@ -916,8 +905,8 @@ const RENVA_INVOICES = (() => {
     }
 
     const logoEl = document.getElementById('preview_logo');
-    if (companySettings.logoBase64 && logoEl) {
-      logoEl.src = companySettings.logoBase64;
+    if (companySettings.logo_base64 && logoEl) {
+      logoEl.src = companySettings.logo_base64;
       logoEl.style.display = 'block';
     } else if (logoEl) {
       logoEl.style.display = 'none';
@@ -928,16 +917,16 @@ const RENVA_INVOICES = (() => {
     s('preview_companyPhone', coPhone);
     s('preview_companyWebsite', companySettings.website || '');
     s('preview_title', t('pdf.invoice'));
-    s('preview_invNumber', `#${inv.invoiceNumber || inv.id?.slice(-6) || '—'}`);
+    s('preview_invNumber', `#${inv.invoice_number || inv.id?.slice(-6) || '—'}`);
     s('preview_issueLabel', t('pdf.issue'));
-    s('preview_issueDate', inv.startDate || '—');
+    s('preview_issueDate', inv.start_date || '—');
     s('preview_dueLabel', t('pdf.due'));
-    s('preview_dueDate', inv.endDate || '—');
+    s('preview_dueDate', inv.end_date || '—');
     s('preview_billToLabel', t('pdf.billTo'));
-    s('preview_clientName', inv.clientName || '—');
+    s('preview_clientName', inv.client_name || '—');
     s('preview_clientCIN', inv.cin ? `${t('pdf.cin')}: ${inv.cin}` : '');
     s('preview_clientPhone', inv.phone ? `${t('pdf.tel')}: ${inv.phone}` : '');
-    s('preview_clientVehicle', `${inv.vehicleBrand || ''} ${inv.vehicleModel || ''}`.trim() || '');
+    s('preview_clientVehicle', `${inv.vehicle_brand || ''} ${inv.vehicle_model || ''}`.trim() || '');
     s('preview_clientPlate', inv.plate ? `${t('pdf.plate')}: ${inv.plate}` : '');
     s('preview_descLabel', t('pdf.description'));
     s('preview_qtyLabel', t('pdf.qty'));
@@ -953,7 +942,7 @@ const RENVA_INVOICES = (() => {
         tr.innerHTML = `<td>${escHtml(desc)}</td><td>${daysVal}</td><td>${typeof unit === 'number' ? fmt(unit) : unit}</td><td>${fmt(amt)}</td>`;
         tbody.appendChild(tr);
       };
-      addRow(`${t('inv.field.rentalSubtotal')} (${inv.vehicleBrand || ''} ${inv.vehicleModel || ''})`, days, dp, rental);
+      addRow(`${t('inv.field.rentalSubtotal')} (${inv.vehicle_brand || ''} ${inv.vehicle_model || ''})`, days, dp, rental);
       extras.forEach(e => addRow(e.label, dash, dash, e.val));
     }
 
@@ -986,24 +975,24 @@ const RENVA_INVOICES = (() => {
     if (!wrap || !wrap.classList.contains('open')) return;
 
     const d = readForm();
-    const days = calcDays(d.startDate, d.endDate);
-    const dp = parseFloat(d.dailyPrice || 0);
+    const days = calcDays(d.start_date, d.end_date);
+    const dp = parseFloat(d.daily_price || 0);
     const ins = parseFloat(d.insurance || 0);
     const fuel = parseFloat(d.fuel || 0);
-    const ed = parseFloat(d.extraDriver || 0);
+    const ed = parseFloat(d.extra_driver || 0);
     const oth = parseFloat(d.other || 0);
     const rental = days * dp;
     const total = rental + ins + fuel + ed + oth;
     const status = document.getElementById('inv_status')?.value || 'draft';
     const invNum = editingId
-      ? (allInvoices.find(i => i.id === editingId)?.invoiceNumber || editingId.slice(-6).toUpperCase())
+      ? (allInvoices.find(i => i.id === editingId)?.invoice_number || editingId.slice(-6).toUpperCase())
       : `INV-${new Date().getFullYear()}${String(new Date().getMonth()+1).padStart(2,'0')}-${String(allInvoices.length+1).padStart(4,'0')}`;
 
-    const hasData = d.clientName || d.vehicleBrand || d.startDate || dp > 0;
+    const hasData = d.client_name || d.vehicle_brand || d.start_date || dp > 0;
     if (emptyEl) emptyEl.classList.toggle('hidden', hasData);
     if (!hasData) return;
 
-    const inv = { ...d, days, rentalSubtotal: rental, total, invoiceNumber: invNum, status };
+    const inv = { ...d, days, total, invoice_number: invNum, status };
     populatePreview(inv);
   }
 
@@ -1021,14 +1010,14 @@ const RENVA_INVOICES = (() => {
 
     // ── Header: Logo left, Company left ───────────────────────
     let nameX = M;
-    if (companySettings.logoBase64) {
-      doc.addImage(companySettings.logoBase64, 'PNG', M, 6, 24, 24);
+    if (companySettings.logo_base64) {
+      doc.addImage(companySettings.logo_base64, 'PNG', M, 6, 24, 24);
       nameX = M + 28;
     }
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(16);
     doc.setTextColor(15, 23, 42);
-    doc.text(companySettings.companyName || 'RENVA', nameX, 14);
+    doc.text(companySettings.company_name || 'RENVA', nameX, 14);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7.5);
     doc.setTextColor(100, 116, 139);
@@ -1050,13 +1039,13 @@ const RENVA_INVOICES = (() => {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(8.5);
     doc.setTextColor(15, 23, 42);
-    doc.text(`#${inv.invoiceNumber || inv.id.slice(-6).toUpperCase()}`, W - M, metaY, { align: 'right' });
+    doc.text(`#${inv.invoice_number || inv.id.slice(-6).toUpperCase()}`, W - M, metaY, { align: 'right' });
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7);
     doc.setTextColor(100, 116, 139);
     const today = new Date();
-    const issueStr = inv.startDate ? new Date(inv.startDate + 'T00:00:00').toLocaleDateString(lang) : today.toLocaleDateString(lang);
-    const dueStr = inv.endDate ? new Date(inv.endDate + 'T00:00:00').toLocaleDateString(lang) : today.toLocaleDateString(lang);
+    const issueStr = inv.start_date ? new Date(inv.start_date + 'T00:00:00').toLocaleDateString(lang) : today.toLocaleDateString(lang);
+    const dueStr = inv.end_date ? new Date(inv.end_date + 'T00:00:00').toLocaleDateString(lang) : today.toLocaleDateString(lang);
     doc.text(`${t('pdf.issue')}: ${issueStr}`, W - M, metaY + 4.5, { align: 'right' });
     doc.text(`${t('pdf.due')}: ${dueStr}`, W - M, metaY + 9, { align: 'right' });
 
@@ -1077,14 +1066,14 @@ const RENVA_INVOICES = (() => {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(9);
     doc.setTextColor(15, 23, 42);
-    doc.text(inv.clientName || '—', billToX, y);
+    doc.text(inv.client_name || '—', billToX, y);
     y += 4.5;
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7.5);
     doc.setTextColor(100, 116, 139);
     if (inv.cin) { doc.text(`${t('pdf.cin')}: ${inv.cin}`, billToX, y); y += 4; }
     if (inv.phone) { doc.text(`${t('pdf.tel')}: ${inv.phone}`, billToX, y); y += 4; }
-    doc.text(`${inv.vehicleBrand || ''} ${inv.vehicleModel || ''}`.trim() || '—', billToX, y); y += 4;
+    doc.text(`${inv.vehicle_brand || ''} ${inv.vehicle_model || ''}`.trim() || '—', billToX, y); y += 4;
     if (inv.plate) { doc.text(`${t('pdf.plate')}: ${inv.plate}`, billToX, y); y += 4; }
     y += 8;
 
@@ -1092,8 +1081,8 @@ const RENVA_INVOICES = (() => {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7.5);
     doc.setTextColor(100, 116, 139);
-    const daysN = inv.days ?? calcDays(inv.startDate, inv.endDate);
-    doc.text(`${t('pdf.rentalPeriod')}: ${inv.startDate || '—'} → ${inv.endDate || '—'}  |  ${daysN} ${t('inv.days')}`, M, y);
+    const daysN = inv.days ?? calcDays(inv.start_date, inv.end_date);
+    doc.text(`${t('pdf.rentalPeriod')}: ${inv.start_date || '—'} → ${inv.end_date || '—'}  |  ${daysN} ${t('inv.days')}`, M, y);
     y += 6;
 
     // ── Items table ───────────────────────────────────────────
@@ -1112,12 +1101,12 @@ const RENVA_INVOICES = (() => {
     doc.text(t('pdf.amount'), colX[3] + 8, y + 5.5);
     y += 8;
 
-    const dailyPrice = parseFloat(inv.dailyPrice || 0);
+    const dailyPrice = parseFloat(inv.daily_price || 0);
     const rental = daysN * dailyPrice;
     const extras = [
       { label: t('inv.field.insurance'), val: parseFloat(inv.insurance || 0) },
       { label: t('inv.field.fuel'), val: parseFloat(inv.fuel || 0) },
-      { label: t('inv.field.extraDriver'), val: parseFloat(inv.extraDriver || 0) },
+      { label: t('inv.field.extraDriver'), val: parseFloat(inv.extra_driver || 0) },
       { label: t('inv.field.other'), val: parseFloat(inv.other || 0) },
     ];
     const activeExtras = extras.filter(e => e.val > 0);
@@ -1140,7 +1129,7 @@ const RENVA_INVOICES = (() => {
       y += 9;
     };
 
-    drawRow(`${t('inv.field.rentalSubtotal')} (${inv.vehicleBrand || ''} ${inv.vehicleModel || ''})`, daysN, dailyPrice, rental, 0);
+    drawRow(`${t('inv.field.rentalSubtotal')} (${inv.vehicle_brand || ''} ${inv.vehicle_model || ''})`, daysN, dailyPrice, rental, 0);
     activeExtras.forEach((e, i) => {
       drawRow(e.label, dash2, e.val, e.val, i + 1);
     });
@@ -1189,8 +1178,8 @@ const RENVA_INVOICES = (() => {
     }
 
     // ── Footer ────────────────────────────────────────────────
-    if (companySettings.sealBase64) {
-      doc.addImage(companySettings.sealBase64, 'PNG', W - M - 28, 240 - 28, 28, 28);
+    if (companySettings.logo_base64) {
+      doc.addImage(companySettings.logo_base64, 'PNG', W - M - 28, 240 - 28, 28, 28);
     }
     doc.setDrawColor(226, 232, 240);
     doc.line(M, 255, W - M, 255);
@@ -1218,14 +1207,14 @@ const RENVA_INVOICES = (() => {
     doc.rect(0, 0, 8, 297, 'F');
 
     let nameX2 = M + 4;
-    if (companySettings.logoBase64) {
-      doc.addImage(companySettings.logoBase64, 'PNG', M + 4, 4, 20, 20);
+    if (companySettings.logo_base64) {
+      doc.addImage(companySettings.logo_base64, 'PNG', M + 4, 4, 20, 20);
       nameX2 = M + 28;
     }
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(20);
     doc.setTextColor(15, 23, 42);
-    doc.text(companySettings.companyName || 'RENVA', nameX2, 20);
+    doc.text(companySettings.company_name || 'RENVA', nameX2, 20);
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7.5);
     doc.setTextColor(100, 116, 139);
@@ -1235,7 +1224,7 @@ const RENVA_INVOICES = (() => {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(11);
     setAccent();
-    doc.text(`#${inv.invoiceNumber || inv.id.slice(-6).toUpperCase()}`, W - M, numY, { align: 'right' });
+    doc.text(`#${inv.invoice_number || inv.id.slice(-6).toUpperCase()}`, W - M, numY, { align: 'right' });
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7);
     doc.setTextColor(148, 163, 184);
@@ -1256,8 +1245,8 @@ const RENVA_INVOICES = (() => {
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(9.5);
     doc.setTextColor(15, 23, 42);
-    doc.text(inv.clientName || '—', col1, y);
-    doc.text(`${inv.vehicleBrand || ''} ${inv.vehicleModel || ''}`.trim() || '—', col2, y);
+    doc.text(inv.client_name || '—', col1, y);
+    doc.text(`${inv.vehicle_brand || ''} ${inv.vehicle_model || ''}`.trim() || '—', col2, y);
     y += 5;
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8);
@@ -1272,8 +1261,8 @@ const RENVA_INVOICES = (() => {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7.5);
     doc.setTextColor(100, 116, 139);
-    doc.text(`${inv.startDate || '—'}  →  ${inv.endDate || '—'}`, M + 10, y + 8);
-    const daysN = inv.days ?? calcDays(inv.startDate, inv.endDate);
+    doc.text(`${inv.start_date || '—'}  →  ${inv.end_date || '—'}`, M + 10, y + 8);
+    const daysN = inv.days ?? calcDays(inv.start_date, inv.end_date);
     doc.setFont('helvetica', 'bold');
     setAccent();
     doc.text(`${daysN} ${t2('inv.days')}`, W - M - 8, y + 8, { align: 'right' });
@@ -1293,13 +1282,13 @@ const RENVA_INVOICES = (() => {
     y += 7;
 
     const dash3 = '—';
-    const dp = parseFloat(inv.dailyPrice || 0);
+    const dp = parseFloat(inv.daily_price || 0);
     const rental = daysN * dp;
     const items = [
       { desc: t2('inv.field.rentalSubtotal'), qty: daysN, unit: dp, total: rental },
       ...(parseFloat(inv.insurance || 0) > 0 ? [{ desc: t2('inv.field.insurance'), qty: dash3, unit: parseFloat(inv.insurance), total: parseFloat(inv.insurance) }] : []),
       ...(parseFloat(inv.fuel || 0) > 0 ? [{ desc: t2('inv.field.fuel'), qty: dash3, unit: parseFloat(inv.fuel), total: parseFloat(inv.fuel) }] : []),
-      ...(parseFloat(inv.extraDriver || 0) > 0 ? [{ desc: t2('inv.field.extraDriver'), qty: dash3, unit: parseFloat(inv.extraDriver), total: parseFloat(inv.extraDriver) }] : []),
+      ...(parseFloat(inv.extra_driver || 0) > 0 ? [{ desc: t2('inv.field.extraDriver'), qty: dash3, unit: parseFloat(inv.extra_driver), total: parseFloat(inv.extra_driver) }] : []),
       ...(parseFloat(inv.other || 0) > 0 ? [{ desc: t2('inv.field.other'), qty: dash3, unit: parseFloat(inv.other), total: parseFloat(inv.other) }] : []),
     ];
     items.forEach((row) => {
@@ -1553,11 +1542,10 @@ const RENVA_INVOICES = (() => {
     }
   }
 
-  function toDate(ts) {
-    if (!ts) return null;
-    if (ts.toDate) return ts.toDate();
-    if (ts instanceof Date) return ts;
-    return null;
+  function toDate(val) {
+    if (!val) return null;
+    if (val instanceof Date) return val;
+    return new Date(val);
   }
 
   function escHtml(str) {

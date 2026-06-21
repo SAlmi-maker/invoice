@@ -4,7 +4,6 @@ const RENVA_CLIENTS = (() => {
   let currentUser = null;
   let allClients = [];
   let deleteTargetId = null;
-  let unsubscribe = null;
   let searchQuery = '';
 
   function lockScroll() { const y=window.scrollY; document.body.dataset.sy=y; document.documentElement.style.overflow='hidden'; document.body.style.position='fixed'; document.body.style.top=`-${y}px`; document.body.style.left='0'; document.body.style.right='0'; }
@@ -29,17 +28,16 @@ const RENVA_CLIENTS = (() => {
     });
   }
 
-  function makeClient(doc) {
-    const d = doc.data();
+  function makeClient(row) {
     return {
-      id: doc.id,
-      name: d.name || '',
-      cin: d.cin || '',
-      phone: d.phone || '',
-      email: d.email || '',
-      address: d.address || '',
-      notes: d.notes || '',
-      createdAt: d.createdAt ? d.createdAt.toDate() : null
+      id: row.id,
+      name: row.name || '',
+      cin: row.cin || '',
+      phone: row.phone || '',
+      email: row.email || '',
+      address: row.address || '',
+      notes: row.notes || '',
+      createdAt: row.created_at ? new Date(row.created_at) : null
     };
   }
 
@@ -132,17 +130,18 @@ const RENVA_CLIENTS = (() => {
         email: $('client_email').value.trim(),
         address: $('client_address').value.trim(),
         notes: $('client_notes').value.trim(),
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        updated_at: new Date().toISOString()
       };
 
-      const col = db.collection('users').doc(currentUser.uid).collection('clients');
-
       if (id) {
-        await col.doc(id).update(data);
+        const { error } = await supabase.from('clients').update(data).eq('id', id);
+        if (error) throw error;
         showToast(RENVA_I18N.t('clients.updated'));
       } else {
-        data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
-        await col.add(data);
+        data.user_id = currentUser.uid;
+        data.created_at = new Date().toISOString();
+        const { error } = await supabase.from('clients').insert(data);
+        if (error) throw error;
         showToast(RENVA_I18N.t('clients.saved'));
       }
       closeModal();
@@ -160,7 +159,8 @@ const RENVA_CLIENTS = (() => {
     const btn = $('deleteConfirmBtn');
     btn.disabled = true;
     try {
-      await db.collection('users').doc(currentUser.uid).collection('clients').doc(deleteTargetId).delete();
+      const { error } = await supabase.from('clients').delete().eq('id', deleteTargetId);
+      if (error) throw error;
       showToast(RENVA_I18N.t('clients.deleted'));
       closeDeleteModal();
     } catch (err) {
@@ -177,35 +177,42 @@ const RENVA_CLIENTS = (() => {
     deleteTargetId = null;
   }
 
-  function subscribe() {
-    if (unsubscribe) unsubscribe();
+  async function subscribe() {
     loading.style.display = 'flex';
     setEmpty(false);
 
-    const col = db.collection('users').doc(currentUser.uid).collection('clients');
-    unsubscribe = col.orderBy('createdAt', 'desc').onSnapshot(snap => {
-      allClients = snap.docs.map(makeClient);
+    try {
+      const { data, error } = await supabase.from('clients')
+        .select('*')
+        .eq('user_id', currentUser.uid)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      allClients = (data || []).map(makeClient);
       loadingDone();
       render();
       loadInvoiceCounts();
-    }, err => {
-      console.error('Clients snapshot error', err);
+    } catch (err) {
+      console.error('Clients load error', err);
       loadingDone();
       setEmpty(true);
-    });
+    }
   }
 
-  function loadInvoiceCounts() {
+  async function loadInvoiceCounts() {
     if (!currentUser) return;
-    db.collection('users').doc(currentUser.uid).collection('invoices').get().then(snap => {
+    try {
+      const { data, error } = await supabase.from('invoices')
+        .select('client_name')
+        .eq('user_id', currentUser.uid);
+      if (error) throw error;
       const counts = {};
-      snap.forEach(d => {
-        const name = d.data().clientName || '';
+      (data || []).forEach(d => {
+        const name = d.client_name || '';
         if (name) counts[name] = (counts[name] || 0) + 1;
       });
       window.clientInvoiceCounts = counts;
       render();
-    }).catch(() => {});
+    } catch (e) {}
   }
 
   function initSidebar() {
@@ -233,8 +240,8 @@ const RENVA_CLIENTS = (() => {
     document.querySelectorAll('.user-email').forEach(el => el.textContent = user.email);
     document.querySelectorAll('.user-avatar-text').forEach(el => el.textContent = 'RV');
 
-    db.collection('users').doc(user.uid).collection('settings').doc('company').get().then(snap => {
-      const cn = snap.exists ? snap.data().companyName || '' : '';
+    supabase.from('companies').select('company_name').eq('user_id', user.uid).maybeSingle().then(({ data }) => {
+      const cn = data?.company_name || '';
       setBrandSubtitle(cn);
       RENVA_CLIENTS._cn = cn;
     }).catch(() => {});
