@@ -612,6 +612,18 @@ const RENVA_INVOICES = (() => {
         }
       }
 
+      const overlapQuery = sb.from('invoices')
+        .select('id', { count: 'exact', head: true })
+        .eq('plate', data.plate)
+        .eq('user_id', currentUser.id)
+        .lt('start_date', data.end_date)
+        .gt('end_date', data.start_date);
+      if (editingId) overlapQuery.neq('id', editingId);
+      const { count } = await overlapQuery;
+      if (count && count > 0) {
+        showToast('error', RENVA_I18N.t('inv.dateOverlapWarning'));
+      }
+
       const days   = calcDays(data.start_date, data.end_date);
       const rental = days * data.daily_price;
       const total  = rental + data.insurance + data.fuel + data.extra_driver + data.other;
@@ -662,6 +674,18 @@ const RENVA_INVOICES = (() => {
       } else {
         showToast('error', RENVA_I18N.t('inv.carUnavailable'));
       }
+    }
+
+    const overlapQuery = sb.from('invoices')
+      .select('id', { count: 'exact', head: true })
+      .eq('plate', data.plate)
+      .eq('user_id', currentUser.id)
+      .lt('start_date', data.end_date)
+      .gt('end_date', data.start_date);
+    if (editingId) overlapQuery.neq('id', editingId);
+    const { count } = await overlapQuery;
+    if (count && count > 0) {
+      showToast('error', RENVA_I18N.t('inv.dateOverlapWarning'));
     }
 
     const days   = calcDays(data.start_date, data.end_date);
