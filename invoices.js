@@ -795,7 +795,7 @@ const RENVA_INVOICES = (() => {
     // Small delay to ensure the element is painted before html2canvas captures it
     setTimeout(() => {
       html2pdf()
-        .set({ filename, margin: { top: 10, right: 10, bottom: 10, left: 10 }, image: { type: 'jpeg', quality: 0.95 }, html2canvas: { scale: 2, useCORS: true, logging: false } })
+        .set({ filename, margin: 10, image: { type: 'jpeg', quality: 0.95 }, html2canvas: { scale: 2, useCORS: true, logging: false } })
         .from(invoiceEl)
         .save()
         .then(() => {
@@ -827,6 +827,10 @@ const RENVA_INVOICES = (() => {
   }
 
   function doExportPDF() {
+    // Remove any leftover container from a previous export that wasn't cleaned up
+    const oldContainer = document.getElementById('RENVA-print-container');
+    if (oldContainer) oldContainer.remove();
+
     const checked = document.querySelectorAll('#exportMonthGrid input[type="checkbox"]:checked');
     const yearEl  = document.getElementById('exportYear');
     if (!checked.length) { showToast('error', 'Select at least one month'); return; }
@@ -851,30 +855,37 @@ const RENVA_INVOICES = (() => {
       return months.includes(d.getMonth() + 1) && d.getFullYear() === year;
     });
 
-    if (!matched.length) { showToast('error', 'No invoices found for the selected period'); return; }
+    // Deduplicate by id
+    const seen = new Set();
+    const unique = [];
+    matched.forEach(inv => {
+      if (!seen.has(inv.id)) { seen.add(inv.id); unique.push(inv); }
+    });
+
+    if (!unique.length) { showToast('error', 'No invoices found for the selected period'); return; }
 
     closeExportModal();
 
-    // Grab the template once
+    // Grab the template outer HTML once
     const templateEl = document.querySelector('.ip-invoice');
     if (!templateEl) { showToast('error', 'Invoice template not found'); return; }
-    const templateHTML = templateEl.outerHTML;
+
+    // Build from a fresh clone of the template to avoid stale DOM state
+    const baseHTML = templateEl.cloneNode(true).outerHTML;
 
     const lang = getPDFLang();
     const isRTL = lang === 'ar';
     const currency = RENVA_I18N.t('common.currency');
     const fmt = (n) => formatCurrency(n, currency, lang);
 
-    // Build all invoice HTML strings upfront, then write everything at once
     const invoiceHTMLs = [];
     let written = 0;
-    matched.forEach((inv, idx) => {
+    unique.forEach((inv, idx) => {
       try {
         const container = document.createElement('div');
-        container.innerHTML = templateHTML;
+        container.innerHTML = baseHTML;
         const invEl = container.firstElementChild;
         if (!invEl) return;
-        // page-break is handled by the print CSS on .ip-invoice; no inline override needed
         if (isRTL) invEl.setAttribute('dir', 'rtl');
 
         const accentHex = invoiceColorMode === 'bw' ? '#1e293b' : (invoiceColor || '#2563EB');
