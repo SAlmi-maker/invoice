@@ -1750,6 +1750,8 @@ const RENVA_INVOICES = (() => {
     RENVA_I18N.applyToDOM();
     setBrandSubtitle(companySettings.company_name || '');
     RENVA_INVOICES.populateExportModal();
+    const user = (typeof RENVA_AUTH !== 'undefined') ? RENVA_AUTH.currentUser() : null;
+    if (user) subscribeToInvoices(user.id);
   });
 
   return { init, openEdit, openPreview, openDelete, exportSingle, populateExportModal };

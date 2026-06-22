@@ -453,7 +453,11 @@ const RENVA_DASHBOARD = (() => {
     return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   }
 
-  return { init, viewInvoice };
+  function refresh(uid) {
+    if (uid) subscribeToInvoices(uid);
+  }
+
+  return { init, viewInvoice, refresh };
 })();
 
 
@@ -468,8 +472,7 @@ document.addEventListener('DOMContentLoaded', () => {
   RENVA_AUTH.init();
 
   document.addEventListener('RENVA:langChanged', () => {
-    // Re-render dynamic content when language changes
     const user = RENVA_AUTH.currentUser();
-    if (user) RENVA_DASHBOARD.init(user);
+    if (user) RENVA_DASHBOARD.refresh(user.id);
   });
 });
