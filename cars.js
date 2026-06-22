@@ -89,6 +89,7 @@ const RENVA_CARS = (() => {
         <div class="car-card-body">
           <div class="car-card-title">${escHtml(c.brand)} ${escHtml(c.model)}</div>
           <div class="car-card-plate">${escHtml(c.plate)}</div>
+          ${c.endDate ? `<div class="car-card-rental-end">${RENVA_I18N.t('cars.rentalEnd')}: ${c.endDate}</div>` : ''}
           <div class="car-card-meta">
             <span class="car-card-price">${price}</span>
             <span class="car-card-status ${statusClass}">${statusLabel}</span>
@@ -132,13 +133,6 @@ const RENVA_CARS = (() => {
     }
     $('car_image').value = '';
     $('carModalTitle').textContent = car ? RENVA_I18N.t('cars.editCar') : RENVA_I18N.t('cars.newCar');
-    const endDateEl = $('carRentalEnd');
-    if (car && car.endDate) {
-      endDateEl.textContent = RENVA_I18N.t('cars.rentalEnd') + ': ' + car.endDate;
-      endDateEl.style.display = 'block';
-    } else {
-      endDateEl.style.display = 'none';
-    }
     modal.classList.add('open');
     lockScroll();
   }

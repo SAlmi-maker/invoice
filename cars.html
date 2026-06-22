@@ -70,6 +70,11 @@
       font-family: monospace;
       margin-bottom: 8px;
     }
+    .car-card-rental-end {
+      font-size: 0.72rem;
+      color: var(--red);
+      margin-bottom: 8px;
+    }
     .car-card-meta {
       display: flex;
       align-items: center;
@@ -367,8 +372,6 @@
           </div>
         </div>
 
-        <div class="form-group" id="carRentalEnd" style="display:none;padding:10px 14px;background:var(--red-light);border-radius:var(--radius-md);font-size:0.85rem;font-weight:600;color:var(--red);margin-bottom:12px;"></div>
-
         <div class="form-group">
           <label class="form-label" for="car_status" data-i18n="cars.status">Status</label>
           <select id="car_status" class="form-input">
@@ -429,6 +432,6 @@
 <script src="supabase.js"></script>
 <script src="i18n.js?v=4"></script>
 <script src="auth.js?v=3"></script>
-<script src="cars.js"></script>
+<script src="cars.js?v=3"></script>
 </body>
 </html>
