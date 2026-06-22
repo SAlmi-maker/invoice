@@ -104,7 +104,7 @@
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-xl);
   min-width: 180px;
-  z-index: 50;
+  z-index: 500;
   display: none;
   overflow: hidden;
 }
@@ -572,10 +572,11 @@
   .modal-footer { padding: 14px 18px; }
   #invTable thead th:nth-child(2),
   #invTable tbody td:nth-child(2) { display: none; }
-  .inv-filter-bar { flex-direction: row; flex-wrap: nowrap; gap: 8px; padding: 10px 12px; background: transparent; border: none; box-shadow: none; }
+  .inv-filter-bar { flex-direction: row; flex-wrap: nowrap; gap: 8px; padding: 10px 12px; background: transparent; border: none; box-shadow: none; align-items: center; }
   .inv-filter-left { min-width: 0; flex: 1; }
   .inv-search-wrap { max-width: 100%; }
   .mobile-filter-dropdown { display: block; }
+  .mobile-filter-btn { padding: 8px 12px; font-size: 0.78rem; min-height: 0; }
   .inv-tab { padding: 6px 8px; font-size: 0.72rem; white-space: nowrap; }
   .section-card table:not(#invTable) thead th:nth-child(3),
   .section-card table:not(#invTable) tbody td:nth-child(3) { display: none; }
