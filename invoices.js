@@ -746,7 +746,47 @@ const RENVA_INVOICES = (() => {
   function exportSingle(id) {
     const inv = allInvoices.find(i => i.id === id);
     if (!inv) return;
-    printInvoice(inv);
+    if (window.innerWidth < 768) {
+      downloadPDF(inv);
+    } else {
+      printInvoice(inv);
+    }
+  }
+
+  function downloadPDF(inv) {
+    const modal = document.getElementById('invoiceModal');
+    const wasOpen = modal?.classList.contains('open');
+
+    populatePreview(inv);
+    void document.querySelector('.ip-invoice')?.offsetHeight;
+
+    if (!wasOpen) {
+      const wrap = document.getElementById('invPreviewWrap');
+      if (wrap) wrap.classList.remove('open');
+      if (modal) modal.classList.remove('open');
+      unlockScroll();
+    }
+
+    const invoiceEl = document.querySelector('.ip-invoice');
+    if (!invoiceEl) return;
+
+    const clone = invoiceEl.cloneNode(true);
+    if (getPDFLang() === 'ar') clone.setAttribute('dir', 'rtl');
+
+    const temp = document.createElement('div');
+    temp.style.cssText = 'position:fixed;left:0;top:0;width:794px;z-index:-1;opacity:0.01;pointer-events:none;';
+    temp.appendChild(clone);
+    document.body.appendChild(temp);
+
+    const num = inv.invoice_number || `INV-${Date.now()}`;
+    const filename = `${num}.pdf`;
+
+    html2pdf()
+      .set({ filename, margin: { top: 10, right: 10, bottom: 10, left: 10 }, image: { type: 'jpeg', quality: 0.95 }, html2canvas: { scale: 2, useCORS: true, logging: false } })
+      .from(clone)
+      .save()
+      .then(() => { document.body.removeChild(temp); })
+      .catch(() => { document.body.removeChild(temp); });
   }
 
   // ── Export selection modal ────────────────────────────────
@@ -966,37 +1006,20 @@ const RENVA_INVOICES = (() => {
     const clone = invoiceEl.cloneNode(true);
     if (getPDFLang() === 'ar') clone.setAttribute('dir', 'rtl');
 
-    // Build a standalone print document in an off-screen iframe
-    const iframe = document.createElement('iframe');
-    iframe.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:210mm;height:297mm;border:none;';
-    document.body.appendChild(iframe);
+    // Inject directly into the page body (reliable on mobile)
+    const container = document.createElement('div');
+    container.id = 'RENVA-print-container';
+    container.appendChild(clone);
+    document.body.appendChild(container);
 
-    const printDoc = iframe.contentWindow.document;
-    printDoc.open();
-    printDoc.write('<!DOCTYPE html><html><head><meta charset="utf-8">');
+    window.print();
 
-    // Copy all stylesheet links and inline styles
-    document.querySelectorAll('link[rel="stylesheet"]').forEach(el => {
-      if (el.href) printDoc.write(`<link rel="stylesheet" href="${el.href}">`);
-    });
-    document.querySelectorAll('style').forEach(el => {
-      printDoc.write(`<style>${el.textContent}</style>`);
-    });
-
-    printDoc.write('</head><body>');
-    printDoc.write('<div id="RENVA-print-container">');
-    printDoc.write(clone.outerHTML);
-    printDoc.write('</div>');
-    printDoc.write('</body></html>');
-    printDoc.close();
-
-    // Wait for fonts/styles to load, then print
-    setTimeout(() => {
-      iframe.contentWindow.focus();
-      iframe.contentWindow.print();
-      // Cleanup after print dialog closes
-      setTimeout(() => { document.body.removeChild(iframe); }, 1000);
-    }, 500);
+    const cleanup = () => { document.body.removeChild(container); };
+    if ('onafterprint' in window) {
+      window.onafterprint = cleanup;
+    } else {
+      setTimeout(cleanup, 3000);
+    }
   }
 
   // ── Populate InvoicePro preview elements ────────────────
