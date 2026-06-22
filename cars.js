@@ -82,7 +82,7 @@ const RENVA_CARS = (() => {
       const statusLabels = { available: 'cars.available', unavailable: 'cars.unavailable', out_of_service: 'cars.outOfService' };
       const statusClass = statusLabels[c.status] ? c.status : 'unavailable';
       const statusLabel = RENVA_I18N.t(statusLabels[c.status] || 'cars.unavailable');
-      const price = window.formatCurrency ? window.formatCurrency(c.dailyPrice, 'MAD', 'en') : c.dailyPrice;
+      const price = (() => { const n=new Intl.NumberFormat(RENVA_I18N.getLang(),{minimumFractionDigits:0,maximumFractionDigits:2}).format(c.dailyPrice); return n+' '+RENVA_I18N.t('common.currency'); })();
       return `<div class="car-card">
         ${imgHtml}
         <div class="car-card-body">

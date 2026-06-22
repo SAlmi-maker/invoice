@@ -349,7 +349,10 @@
           </div>
           <div class="form-group">
             <label class="form-label" for="car_dailyPrice" data-i18n="cars.dailyPrice">Daily Price <span class="req">*</span></label>
-            <input type="number" id="car_dailyPrice" class="form-input" step="0.01" min="0" required />
+            <div style="position:relative;">
+              <input type="number" id="car_dailyPrice" class="form-input" step="0.01" min="0" required />
+              <span class="currency-suffix" data-i18n="common.currency" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:0.82rem;color:var(--text-muted);pointer-events:none;">MAD</span>
+            </div>
           </div>
         </div>
 
