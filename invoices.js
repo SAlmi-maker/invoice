@@ -599,31 +599,6 @@ const RENVA_INVOICES = (() => {
     setLoading(draftBtn, true);
 
     try {
-      const { data: car } = await sb.from('cars')
-        .select('id, status')
-        .eq('plate', data.plate)
-        .eq('user_id', currentUser.id)
-        .maybeSingle();
-      if (car) {
-        if (car.status === 'available') {
-          await sb.from('cars').update({ status: 'unavailable' }).eq('id', car.id);
-        } else {
-          throw new Error(RENVA_I18N.t('inv.carUnavailable'));
-        }
-      }
-
-      const overlapQuery = sb.from('invoices')
-        .select('id', { count: 'exact', head: true })
-        .eq('plate', data.plate)
-        .eq('user_id', currentUser.id)
-        .lt('start_date', data.end_date)
-        .gt('end_date', data.start_date);
-      if (editingId) overlapQuery.neq('id', editingId);
-      const { count } = await overlapQuery;
-      if (count && count > 0) {
-        showToast('error', RENVA_I18N.t('inv.dateOverlapWarning'));
-      }
-
       const days   = calcDays(data.start_date, data.end_date);
       const rental = days * data.daily_price;
       const total  = rental + data.insurance + data.fuel + data.extra_driver + data.other;
@@ -664,31 +639,6 @@ const RENVA_INVOICES = (() => {
     if (!validateForm(data)) return;
 
     try {
-      const { data: car } = await sb.from('cars')
-        .select('id, status')
-        .eq('plate', data.plate)
-        .eq('user_id', currentUser.id)
-        .maybeSingle();
-      if (car) {
-        if (car.status === 'available') {
-          await sb.from('cars').update({ status: 'unavailable' }).eq('id', car.id);
-        } else {
-          throw new Error(RENVA_I18N.t('inv.carUnavailable'));
-        }
-      }
-
-      const overlapQuery = sb.from('invoices')
-        .select('id', { count: 'exact', head: true })
-        .eq('plate', data.plate)
-        .eq('user_id', currentUser.id)
-        .lt('start_date', data.end_date)
-        .gt('end_date', data.start_date);
-      if (editingId) overlapQuery.neq('id', editingId);
-      const { count } = await overlapQuery;
-      if (count && count > 0) {
-        showToast('error', RENVA_I18N.t('inv.dateOverlapWarning'));
-      }
-
       const days   = calcDays(data.start_date, data.end_date);
       const rental = days * data.daily_price;
       const total  = rental + data.insurance + data.fuel + data.extra_driver + data.other;
