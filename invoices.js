@@ -765,56 +765,53 @@ const RENVA_INVOICES = (() => {
     const wrap = document.getElementById('invPreviewWrap');
     const modal = document.getElementById('invoiceModal');
     const wasOpen = modal?.classList.contains('open');
+    const previewBody = wrap?.querySelector('.inv-preview-body');
 
     populatePreview(inv);
+
+    // Temporarily show the preview at full scale so html2pdf captures it at A4 size
+    if (wrap) wrap.classList.add('open');
+    if (previewBody) previewBody.style.transform = 'none';
+    const invoiceEl = document.querySelector('.ip-invoice');
+    if (invoiceEl) invoiceEl.style.overflow = 'hidden';
     void document.querySelector('.ip-invoice')?.offsetHeight;
 
-    // Close preview if it wasn't already open
-    if (!wasOpen) {
-      if (wrap) wrap.classList.remove('open');
-      if (modal) modal.classList.remove('open');
-      unlockScroll();
-    }
-
-    const invoiceEl = document.querySelector('.ip-invoice');
     if (!invoiceEl) {
+      if (wrap && !wasOpen) wrap.classList.remove('open');
+      if (previewBody) previewBody.style.transform = '';
       showToast('error', 'Invoice preview not found');
       return;
     }
 
     if (typeof html2pdf !== 'function') {
+      if (wrap && !wasOpen) wrap.classList.remove('open');
+      if (previewBody) previewBody.style.transform = '';
+      if (invoiceEl) invoiceEl.style.overflow = '';
       showToast('error', 'PDF library not loaded, using print...');
       printInvoice(inv);
       return;
     }
-
-    // Clone the element and clamp its height to exactly A4 to prevent overflow to a second page
-    const clone = invoiceEl.cloneNode(true);
-    clone.style.height = '1123px';
-    clone.style.overflow = 'hidden';
-    clone.style.setProperty('--ip-primary', inv.color || invoiceColor || '#2563EB');
-    if (getPDFLang() === 'ar') clone.setAttribute('dir', 'rtl');
-
-    // Place clone off-screen (visible to html2canvas, invisible to user)
-    const temp = document.createElement('div');
-    temp.style.cssText = 'position:absolute;left:-9999px;top:0;width:794px;';
-    temp.appendChild(clone);
-    document.body.appendChild(temp);
 
     const filename = getPDFFileName(inv);
 
     setTimeout(() => {
       html2pdf()
         .set({ filename, margin: 0, image: { type: 'jpeg', quality: 0.95 }, html2canvas: { scale: 2, useCORS: true, logging: false }, jsPDF: { format: 'a4', unit: 'mm' } })
-        .from(clone)
+        .from(invoiceEl)
         .save()
         .then(() => {
-          try { document.body.removeChild(temp); } catch(e) {}
+          if (invoiceEl) invoiceEl.style.overflow = '';
+          if (previewBody) previewBody.style.transform = '';
+          if (wrap && !wasOpen) wrap.classList.remove('open');
+          if (modal && !wasOpen) { modal.classList.remove('open'); unlockScroll(); }
         })
         .catch(err => {
           console.error('html2pdf error:', err);
           showToast('error', 'PDF failed: ' + (err.message || 'unknown'));
-          try { document.body.removeChild(temp); } catch(e) {}
+          if (invoiceEl) invoiceEl.style.overflow = '';
+          if (previewBody) previewBody.style.transform = '';
+          if (wrap && !wasOpen) wrap.classList.remove('open');
+          if (modal && !wasOpen) { modal.classList.remove('open'); unlockScroll(); }
         });
     }, 100);
   }
