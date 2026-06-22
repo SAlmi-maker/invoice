@@ -122,14 +122,16 @@ const RENVA_CARS = (() => {
     $('car_status').value = car ? car.status : 'available';
     $('car_notes').value = car ? car.notes : '';
     pendingImageFile = null;
-    const wrap = $('carImagePreviewWrap');
     const preview = $('carImagePreview');
+    const removeBtn = $('carImageRemove');
     if (car && car.image) {
       preview.src = car.image;
-      wrap.style.display = 'block';
+      preview.style.display = 'block';
+      if (removeBtn) removeBtn.style.display = 'inline-flex';
     } else {
-      wrap.style.display = 'none';
       preview.src = '';
+      preview.style.display = 'none';
+      if (removeBtn) removeBtn.style.display = 'none';
     }
     $('car_image').value = '';
     $('carModalTitle').textContent = car ? RENVA_I18N.t('cars.editCar') : RENVA_I18N.t('cars.newCar');
@@ -143,7 +145,12 @@ const RENVA_CARS = (() => {
     $('carForm').reset();
     $('car_id').value = '';
     pendingImageFile = null;
-    $('carImagePreviewWrap').style.display = 'none';
+    const preview = $('carImagePreview');
+    if (preview) { preview.src = ''; preview.style.display = 'none'; }
+    const removeBtn = $('carImageRemove');
+    if (removeBtn) removeBtn.style.display = 'none';
+    const zone = $('carImageDropZone');
+    if (zone) zone.classList.remove('drag-over');
   }
 
   async function saveCar(e) {
@@ -299,29 +306,53 @@ const RENVA_CARS = (() => {
     $('carSaveBtn').addEventListener('click', saveCar);
     $('carForm').addEventListener('submit', saveCar);
 
-    $('car_image').addEventListener('change', e => {
-      const file = e.target.files[0];
-      if (file) {
+    (function wireDropZone() {
+      const zone    = $('carImageDropZone');
+      const input   = $('car_image');
+      const preview = $('carImagePreview');
+      const remove  = $('carImageRemove');
+      if (!zone || !input) return;
+
+      zone.addEventListener('click', () => input.click());
+      zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('drag-over'); });
+      zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+      zone.addEventListener('drop', e => {
+        e.preventDefault();
+        zone.classList.remove('drag-over');
+        const file = e.dataTransfer.files[0];
+        if (file) handleFile(file);
+      });
+      input.addEventListener('change', () => {
+        const file = input.files[0];
+        if (file) handleFile(file);
+      });
+
+      function handleFile(file) {
         if (file.size > 500 * 1024) {
           showToast(RENVA_I18N.t('cars.imageTooLarge'), 'error');
-          e.target.value = '';
+          input.value = '';
           return;
         }
         pendingImageFile = file;
         const reader = new FileReader();
-        reader.onload = ev => {
-          $('carImagePreview').src = ev.target.result;
-          $('carImagePreviewWrap').style.display = 'block';
+        reader.onload = e => {
+          preview.src = e.target.result;
+          preview.style.display = 'block';
+          if (remove) remove.style.display = 'inline-flex';
         };
         reader.readAsDataURL(file);
       }
-    });
-    $('carImageRemove').addEventListener('click', () => {
-      pendingImageFile = null;
-      $('car_image').value = '';
-      $('carImagePreviewWrap').style.display = 'none';
-      $('carImagePreview').src = '';
-    });
+
+      if (remove) {
+        remove.addEventListener('click', () => {
+          pendingImageFile = null;
+          input.value = '';
+          preview.src = '';
+          preview.style.display = 'none';
+          remove.style.display = 'none';
+        });
+      }
+    })();
 
     $('deleteModalClose').addEventListener('click', closeDeleteModal);
     $('deleteCancelBtn').addEventListener('click', closeDeleteModal);
