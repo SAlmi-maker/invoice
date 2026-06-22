@@ -762,6 +762,8 @@ const RENVA_INVOICES = (() => {
   }
 
   function downloadPDF(inv) {
+    showToast('success', tl('inv.generatingPDF'));
+
     const wrap = document.getElementById('invPreviewWrap');
     const modal = document.getElementById('invoiceModal');
     const wasOpen = modal?.classList.contains('open');
