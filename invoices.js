@@ -716,7 +716,11 @@ const RENVA_INVOICES = (() => {
         ? (allInvoices.find(i => i.id === editingId)?.invoice_number || editingId.slice(-6).toUpperCase())
         : `INV-${new Date().getFullYear()}${String(new Date().getMonth()+1).padStart(2,'0')}-${String(allInvoices.length+1).padStart(4,'0')}`;
       const tempInv = { id: editingId || 'new', invoice_number: invNumber, days, total, ...data };
-      printInvoice(tempInv);
+      if (window.innerWidth < 768) {
+        downloadPDF(tempInv);
+      } else {
+        printInvoice(tempInv);
+      }
 
       const now = new Date().toISOString();
       if (editingId) {
@@ -753,40 +757,60 @@ const RENVA_INVOICES = (() => {
     }
   }
 
+  function getPDFFileName(inv) {
+    return (inv.invoice_number || `INV-${Date.now()}`) + '.pdf';
+  }
+
   function downloadPDF(inv) {
+    const wrap = document.getElementById('invPreviewWrap');
     const modal = document.getElementById('invoiceModal');
     const wasOpen = modal?.classList.contains('open');
+    const previewBody = wrap?.querySelector('.inv-preview-body');
 
     populatePreview(inv);
+
+    // Temporarily show and un-scale the preview so html2pdf captures it at full A4 size
+    if (wrap) wrap.classList.add('open');
+    if (previewBody) previewBody.style.transform = 'none';
     void document.querySelector('.ip-invoice')?.offsetHeight;
 
-    if (!wasOpen) {
-      const wrap = document.getElementById('invPreviewWrap');
-      if (wrap) wrap.classList.remove('open');
-      if (modal) modal.classList.remove('open');
-      unlockScroll();
+    const invoiceEl = document.querySelector('.ip-invoice');
+    if (!invoiceEl) {
+      if (wrap && !wasOpen) wrap.classList.remove('open');
+      if (previewBody) previewBody.style.transform = '';
+      showToast('error', 'Invoice preview not found');
+      return;
     }
 
-    const invoiceEl = document.querySelector('.ip-invoice');
-    if (!invoiceEl) return;
+    if (typeof html2pdf !== 'function') {
+      if (wrap && !wasOpen) wrap.classList.remove('open');
+      if (previewBody) previewBody.style.transform = '';
+      showToast('error', 'PDF library not loaded, using print...');
+      printInvoice(inv);
+      return;
+    }
 
-    const clone = invoiceEl.cloneNode(true);
-    if (getPDFLang() === 'ar') clone.setAttribute('dir', 'rtl');
+    const filename = getPDFFileName(inv);
 
-    const temp = document.createElement('div');
-    temp.style.cssText = 'position:fixed;left:0;top:0;width:794px;z-index:-1;opacity:0.01;pointer-events:none;';
-    temp.appendChild(clone);
-    document.body.appendChild(temp);
-
-    const num = inv.invoice_number || `INV-${Date.now()}`;
-    const filename = `${num}.pdf`;
-
-    html2pdf()
-      .set({ filename, margin: { top: 10, right: 10, bottom: 10, left: 10 }, image: { type: 'jpeg', quality: 0.95 }, html2canvas: { scale: 2, useCORS: true, logging: false } })
-      .from(clone)
-      .save()
-      .then(() => { document.body.removeChild(temp); })
-      .catch(() => { document.body.removeChild(temp); });
+    // Small delay to ensure the element is painted before html2canvas captures it
+    setTimeout(() => {
+      html2pdf()
+        .set({ filename, margin: { top: 10, right: 10, bottom: 10, left: 10 }, image: { type: 'jpeg', quality: 0.95 }, html2canvas: { scale: 2, useCORS: true, logging: false } })
+        .from(invoiceEl)
+        .save()
+        .then(() => {
+          if (previewBody) previewBody.style.transform = '';
+          if (wrap && !wasOpen) wrap.classList.remove('open');
+          if (modal && !wasOpen) { modal.classList.remove('open'); unlockScroll(); }
+        })
+        .catch(err => {
+          console.error('html2pdf error:', err);
+          showToast('error', 'PDF failed: ' + (err.message || 'unknown'));
+          if (previewBody) previewBody.style.transform = '';
+          if (wrap && !wasOpen) wrap.classList.remove('open');
+          if (modal && !wasOpen) { modal.classList.remove('open'); unlockScroll(); }
+        });
+    }, 100);
   }
 
   // ── Export selection modal ────────────────────────────────
