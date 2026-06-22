@@ -277,7 +277,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 40px 24px;
+  padding: 20px;
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--t-base);
@@ -508,7 +508,7 @@
 
 @media (max-width: 480px) {
   .modal-panel { border-radius: var(--radius-xl); }
-  .modal-backdrop { padding: 24px 16px; }
+  .modal-backdrop { padding: 10px; }
   .inv-total-value { font-size: 1.25rem; }
   .modal-header { padding: 16px 18px 14px; }
   .modal-body { padding: 18px; }
