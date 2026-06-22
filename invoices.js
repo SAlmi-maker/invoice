@@ -795,7 +795,7 @@ const RENVA_INVOICES = (() => {
     // Small delay to ensure the element is painted before html2canvas captures it
     setTimeout(() => {
       html2pdf()
-        .set({ filename, margin: 10, image: { type: 'jpeg', quality: 0.95 }, html2canvas: { scale: 2, useCORS: true, logging: false } })
+        .set({ filename, margin: 0, image: { type: 'jpeg', quality: 0.95 }, html2canvas: { scale: 2, useCORS: true, logging: false }, jsPDF: { format: 'a4', unit: 'mm' } })
         .from(invoiceEl)
         .save()
         .then(() => {
