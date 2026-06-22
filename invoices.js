@@ -716,11 +716,7 @@ const RENVA_INVOICES = (() => {
         ? (allInvoices.find(i => i.id === editingId)?.invoice_number || editingId.slice(-6).toUpperCase())
         : `INV-${new Date().getFullYear()}${String(new Date().getMonth()+1).padStart(2,'0')}-${String(allInvoices.length+1).padStart(4,'0')}`;
       const tempInv = { id: editingId || 'new', invoice_number: invNumber, days, total, ...data };
-      if (window.innerWidth < 768) {
-        downloadPDF(tempInv);
-      } else {
-        printInvoice(tempInv);
-      }
+      printInvoice(tempInv);
 
       const now = new Date().toISOString();
       if (editingId) {
@@ -750,11 +746,7 @@ const RENVA_INVOICES = (() => {
   function exportSingle(id) {
     const inv = allInvoices.find(i => i.id === id);
     if (!inv) return;
-    if (window.innerWidth < 768) {
-      downloadPDF(inv);
-    } else {
-      printInvoice(inv);
-    }
+    printInvoice(inv);
   }
 
   function getPDFFileName(inv) {
@@ -990,40 +982,6 @@ const RENVA_INVOICES = (() => {
         console.error('Export invoice error (idx=' + idx + '):', err);
       }
     });
-
-    const isMobile = window.innerWidth < 768;
-
-    if (isMobile && typeof html2pdf === 'function') {
-      showToast('success', RENVA_I18N.t('inv.generatingPDF'));
-      const tempContainer = document.createElement('div');
-      tempContainer.id = 'RENVA-export-temp';
-      tempContainer.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;background:#fff;padding:0;margin:0;';
-      tempContainer.innerHTML = invoiceHTMLs.join('\n');
-      // Apply primary color and fix dimensions/direction for each invoice
-      const lang = getPDFLang();
-      const accentHex = invoiceColorMode === 'bw' ? '#1e293b' : (invoiceColor || '#2563EB');
-      tempContainer.querySelectorAll('.ip-invoice').forEach(el => {
-        el.style.setProperty('--ip-primary', accentHex);
-        el.style.overflow = 'hidden';
-        el.style.minHeight = '1123px';
-        el.style.width = '794px';
-        if (lang === 'ar') el.setAttribute('dir', 'rtl');
-      });
-      document.body.appendChild(tempContainer);
-      setTimeout(() => {
-        html2pdf()
-          .set({ filename: `invoices-${new Date().getFullYear()}.pdf`, margin: 0, image: { type: 'jpeg', quality: 0.95 }, html2canvas: { scale: 2, useCORS: true, logging: false }, jsPDF: { format: 'a4', unit: 'mm' } })
-          .from(tempContainer)
-          .save()
-          .then(() => { if (tempContainer.parentNode) tempContainer.remove(); })
-          .catch(() => { if (tempContainer.parentNode) tempContainer.remove(); });
-      }, 100);
-      return;
-    }
-
-    if (isMobile) {
-      showToast('error', 'PDF library not loaded, using print...');
-    }
 
     // Inject invoices into the main page and call window.print()
     // The @media print CSS in invoices.css hides all UI and shows #RENVA-print-container
