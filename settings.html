@@ -6,7 +6,7 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>RENVA — Settings | Company Profile & Invoice Customization</title>
+  <title data-i18n="page.title.settings">RENVA — Settings | Company Profile & Invoice Customization</title>
   <meta name="description" content="Configure your car rental company profile: company name, logo, currency, invoice template, colors, and language preferences." />
   <meta name="keywords" content="invoice settings rental company, company profile car rental Morocco, facture personnalisée Maroc" />
   <link rel="icon" type="image/png" href="renvafavicon.png" sizes="32x32" />
@@ -28,7 +28,7 @@
       </div>
       <div class="sidebar-brand">
         <div class="sidebar-brand-name">RENVA</div>
-        <div class="sidebar-brand-sub company-name">Vehicle Rental</div>
+        <div class="sidebar-brand-sub company-name" data-i18n="brand.subtitle">Vehicle Rental</div>
       </div>
     </div>
 
@@ -67,7 +67,7 @@
         <div class="user-avatar">
           <span class="user-avatar-text">RV</span>
         </div>
-        <button class="logout-btn" data-action="logout" title="Sign out">
+        <button class="logout-btn" data-action="logout" title="Sign out" data-i18n-attr="title">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
         </button>
         <div class="user-email">user@renva.space</div>
@@ -210,10 +210,10 @@
                   <label class="form-label" for="invoiceLanguage" data-i18n="settings.invoiceLang">Invoice Language</label>
                   <p style="font-size:0.82rem;color:var(--text-tertiary);margin-bottom:10px;" data-i18n="settings.invoiceLangDesc">Language used for dates and numbers on the PDF invoice</p>
                   <select id="invoiceLanguage" class="form-input form-select" style="max-width:200px;">
-                    <option value="">Same as website</option>
-                    <option value="en">English</option>
-                    <option value="fr">Fran&ccedil;ais</option>
-                    <option value="ar">العربية</option>
+                    <option value="" data-i18n="settings.langSame">Same as website</option>
+                    <option value="en" data-i18n="settings.langEnglish">English</option>
+                    <option value="fr" data-i18n="settings.langFrench">Fran&ccedil;ais</option>
+                    <option value="ar" data-i18n="settings.langArabic">العربية</option>
                   </select>
                 </div>
 
@@ -221,10 +221,10 @@
                   <label class="form-label" for="excelLang" data-i18n="settings.excelLang">Excel Export Language</label>
                   <p style="font-size:0.82rem;color:var(--text-tertiary);margin-bottom:10px;" data-i18n="settings.excelLangDesc">Language used for the Monthly Breakdown Excel file (month names &amp; headers)</p>
                   <select id="excelLang" class="form-input form-select" style="max-width:200px;">
-                    <option value="">Same as website</option>
-                    <option value="en">English</option>
-                    <option value="fr">Fran&ccedil;ais</option>
-                    <option value="ar">العربية</option>
+                    <option value="" data-i18n="settings.langSame">Same as website</option>
+                    <option value="en" data-i18n="settings.langEnglish">English</option>
+                    <option value="fr" data-i18n="settings.langFrench">Fran&ccedil;ais</option>
+                    <option value="ar" data-i18n="settings.langArabic">العربية</option>
                   </select>
                 </div>
               </div>
@@ -240,13 +240,13 @@
                 <div class="form-group">
                   <label class="form-label" for="field_currency" data-i18n="settings.currencyLabel">Currency</label>
                   <select class="form-input" id="field_currency" name="currency">
-                    <option value="MAD">MAD — Moroccan Dirham (درهم)</option>
-                    <option value="EUR">EUR — Euro (€)</option>
-                    <option value="USD">USD — US Dollar ($)</option>
-                    <option value="GBP">GBP — British Pound (£)</option>
-                    <option value="CAD">CAD — Canadian Dollar (C$)</option>
-                    <option value="CHF">CHF — Swiss Franc (₣)</option>
-                    <option value="AED">AED — UAE Dirham (د.إ)</option>
+                    <option value="MAD" data-i18n="settings.currencyMAD">MAD — Moroccan Dirham (درهم)</option>
+                    <option value="EUR" data-i18n="settings.currencyEUR">EUR — Euro (€)</option>
+                    <option value="USD" data-i18n="settings.currencyUSD">USD — US Dollar ($)</option>
+                    <option value="GBP" data-i18n="settings.currencyGBP">GBP — British Pound (£)</option>
+                    <option value="CAD" data-i18n="settings.currencyCAD">CAD — Canadian Dollar (C$)</option>
+                    <option value="CHF" data-i18n="settings.currencyCHF">CHF — Swiss Franc (₣)</option>
+                    <option value="AED" data-i18n="settings.currencyAED">AED — UAE Dirham (د.إ)</option>
                   </select>
                 </div>
               </div>
@@ -261,16 +261,16 @@
                 <div class="form-row">
                   <div class="form-group">
                     <label class="form-label" for="field_phone" data-i18n="settings.phone">Phone Number</label>
-                    <input class="form-input" type="tel" id="field_phone" name="phone" placeholder="+212 600 000 000" />
+                    <input class="form-input" type="tel" id="field_phone" name="phone" placeholder="+212 600 000 000" data-i18n-placeholder="settings.phonePlaceholder" />
                   </div>
                   <div class="form-group">
                     <label class="form-label" for="field_email" data-i18n="settings.email">Email Address</label>
-                    <input class="form-input" type="email" id="field_email" name="email" placeholder="contact@company.ma" />
+                    <input class="form-input" type="email" id="field_email" name="email" placeholder="contact@company.ma" data-i18n-placeholder="settings.emailPlaceholder" />
                   </div>
                 </div>
                 <div class="form-group">
                   <label class="form-label" for="field_website" data-i18n="settings.website">Website</label>
-                  <input class="form-input" type="url" id="field_website" name="website" placeholder="https://yourcompany.ma" />
+                  <input class="form-input" type="url" id="field_website" name="website" placeholder="https://yourcompany.ma" data-i18n-placeholder="settings.websitePlaceholder" />
                 </div>
               </div>
               <div class="settings-save-bar">
@@ -293,7 +293,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <script src="supabase.js"></script>
-  <script src="i18n.js?v=6"></script>
+  <script src="i18n.js?v=7"></script>
   <script src="auth.js?v=3"></script>
   <script src="settings.js?v=3"></script>
 

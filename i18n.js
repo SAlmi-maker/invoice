@@ -64,6 +64,14 @@ const RENVA_I18N = (() => {
       'auth.resetInvalid':      'This reset link is invalid',
       'auth.weakPassword':      'Password is too weak',
 
+      // Login page
+      'login.footer':         '\u00a9 RENVA. Car Rental Invoice Management.',
+
+      // Redirect
+      'redirect.clickHere':   'Click here if not redirected.',
+      'redirect.toLogin':     'Redirecting to Login...',
+      'redirect.toSettings':  'Redirecting to Settings...',
+
       // Navigation
       'nav.dashboard':  'Dashboard',
       'nav.invoices':   'Invoices',
@@ -72,6 +80,16 @@ const RENVA_I18N = (() => {
       'nav.reports':    'Reports',
       'nav.settings':   'Settings',
       'nav.logout':     'Sign Out',
+
+      // Page titles
+      'page.title.dashboard':   'RENVA — Dashboard | Car Rental Revenue & Invoice Overview',
+      'page.title.invoices':    'RENVA — Invoices | Create & Manage Car Rental Invoices',
+      'page.title.clients':     'RENVA — Clients | Customer Management for Rental Agencies',
+      'page.title.cars':        'RENVA — Vehicles | Fleet Management for Rental Agencies',
+      'page.title.settings':    'RENVA — Settings | Company Profile & Invoice Customization',
+      'page.title.reports':     'RENVA — Reports | Revenue & Performance Analytics',
+      'page.title.resetPassword':'RENVA — Reset Password',
+      'page.title.login':       'RENVA — Sign In | Car Rental Invoice Management Morocco',
 
       // Dashboard
       'dash.welcome':         'Welcome back',
@@ -137,6 +155,20 @@ const RENVA_I18N = (() => {
       'settings.section.contactDesc':    'Shown on invoices and client communications',
       'settings.invoiceLang':     'Invoice Language',
       'settings.invoiceLangDesc': 'Language used for dates and numbers on the PDF invoice',
+      'settings.langSame':        'Same as website',
+      'settings.langEnglish':     'English',
+      'settings.langFrench':      'French',
+      'settings.langArabic':      'Arabic',
+      'settings.currencyMAD': 'MAD — Moroccan Dirham (درهم)',
+      'settings.currencyEUR': 'EUR — Euro (€)',
+      'settings.currencyUSD': 'USD — US Dollar ($)',
+      'settings.currencyGBP': 'GBP — British Pound (£)',
+      'settings.currencyCAD': 'CAD — Canadian Dollar (C$)',
+      'settings.currencyCHF': 'CHF — Swiss Franc (₣)',
+      'settings.currencyAED': 'AED — UAE Dirham (د.إ)',
+      'settings.phonePlaceholder':   '+212 600 000 000',
+      'settings.emailPlaceholder':   'contact@company.ma',
+      'settings.websitePlaceholder': 'https://yourcompany.ma',
 
       // Invoices / PDF
       'inv.days':           'days',
@@ -146,6 +178,7 @@ const RENVA_I18N = (() => {
       'inv.col.status':     'Status',
       'inv.col.total':      'Total',
       'inv.filterAll':      'All',
+      'inv.col.number':       '#',
       'inv.pageSubtitle':   'Create, manage, and export car rental invoices.',
       'inv.export':         'Export',
       'inv.exportDesc':     'Select months and year to export',
@@ -267,6 +300,7 @@ const RENVA_I18N = (() => {
       'reports.revenue':         'Revenue',
       'reports.invoiceNumber':   'Invoice #',
       'reports.date':            'Date',
+      'reports.percent':      '%',
 
       // Template / Color settings
       'template.colorMode':   'Invoice Settings',
@@ -286,6 +320,10 @@ const RENVA_I18N = (() => {
       'common.edit':     'Edit',
       'common.search':   'Search...',
       'common.currency': 'MAD',
+      'common.signOut':       'Sign out',
+      'common.exportInvoices':'Export invoices',
+      'common.toggleTheme':   'Toggle theme',
+      'common.exportXLSX':    'XLSX',
 
       // Legal
       'legal.title':            'Legal',
@@ -634,6 +672,14 @@ const RENVA_I18N = (() => {
       'auth.resetInvalid':      'Ce lien de réinitialisation est invalide',
       'auth.weakPassword':      'Le mot de passe est trop faible',
 
+      // Login page
+      'login.footer':         '\u00a9 RENVA. Gestion de Factures de Location.',
+
+      // Redirect
+      'redirect.clickHere':   'Cliquez ici si vous n\'êtes pas redirigé.',
+      'redirect.toLogin':     'Redirection vers la Connexion...',
+      'redirect.toSettings':  'Redirection vers les Paramètres...',
+
       'nav.dashboard':  'Tableau de Bord',
       'nav.invoices':   'Factures',
       'nav.clients':    'Clients',
@@ -641,6 +687,16 @@ const RENVA_I18N = (() => {
       'nav.reports':    'Rapports',
       'nav.settings':   'Paramètres',
       'nav.logout':     'Déconnexion',
+
+      // Page titles
+      'page.title.dashboard':   'RENVA — Tableau de Bord | Aperçu des Revenus & Factures de Location',
+      'page.title.invoices':    'RENVA — Factures | Créer & Gérer les Factures de Location',
+      'page.title.clients':     'RENVA — Clients | Gestion des Clients pour Agences de Location',
+      'page.title.cars':        'RENVA — Véhicules | Gestion de Parc pour Agences de Location',
+      'page.title.settings':    'RENVA — Paramètres | Profil Entreprise & Personnalisation des Factures',
+      'page.title.reports':     'RENVA — Rapports | Analyses des Revenus & Performances',
+      'page.title.resetPassword':'RENVA — Réinitialiser le Mot de Passe',
+      'page.title.login':       'RENVA — Connexion | Gestion de Factures de Location Maroc',
 
       'dash.welcome':         'Bon retour',
       'dash.overviewTitle':   'Aperçu des Revenus',
@@ -704,6 +760,20 @@ const RENVA_I18N = (() => {
       'settings.section.contactDesc':    'Affichées sur les factures et communications clients',
       'settings.invoiceLang':     'Langue de la Facture',
       'settings.invoiceLangDesc': 'Langue utilisée pour les dates et nombres sur la facture PDF',
+      'settings.langSame':        'Comme le site web',
+      'settings.langEnglish':     'Anglais',
+      'settings.langFrench':      'Français',
+      'settings.langArabic':      'Arabe',
+      'settings.currencyMAD': 'MAD — Dirham Marocain (درهم)',
+      'settings.currencyEUR': 'EUR — Euro (€)',
+      'settings.currencyUSD': 'USD — Dollar Américain ($)',
+      'settings.currencyGBP': 'GBP — Livre Sterling (£)',
+      'settings.currencyCAD': 'CAD — Dollar Canadien (C$)',
+      'settings.currencyCHF': 'CHF — Franc Suisse (₣)',
+      'settings.currencyAED': 'AED — Dirham Émirati (د.إ)',
+      'settings.phonePlaceholder':   '+212 600 000 000',
+      'settings.emailPlaceholder':   'contact@company.ma',
+      'settings.websitePlaceholder': 'https://yourcompany.ma',
 
       // Invoices / PDF
       'inv.days':           'jours',
@@ -713,6 +783,7 @@ const RENVA_I18N = (() => {
       'inv.col.status':     'Statut',
       'inv.col.total':      'Total',
       'inv.filterAll':      'Tous',
+      'inv.col.number':       '#',
       'inv.pageSubtitle':   'Créez, gérez et exportez des factures de location de voitures.',
       'inv.export':         'Exporter',
       'inv.exportDesc':     'Sélectionnez les mois et l\'année',
@@ -833,6 +904,7 @@ const RENVA_I18N = (() => {
       'reports.revenue':         'Revenu',
       'reports.invoiceNumber':   'N° Facture',
       'reports.date':            'Date',
+      'reports.percent':      '%',
 
       // Template / Color settings
       'template.colorMode':   'Paramètres Facture',
@@ -851,6 +923,10 @@ const RENVA_I18N = (() => {
       'common.edit':     'Modifier',
       'common.search':   'Rechercher...',
       'common.currency': 'MAD',
+      'common.signOut':       'Déconnexion',
+      'common.exportInvoices':'Exporter les factures',
+      'common.toggleTheme':   'Changer le thème',
+      'common.exportXLSX':    'XLSX',
 
       // Legal
       'legal.title':            'Mentions Légales',
@@ -1199,6 +1275,14 @@ const RENVA_I18N = (() => {
       'auth.resetInvalid':      'رابط إعادة التعيين غير صالح',
       'auth.weakPassword':      'كلمة المرور ضعيفة جداً',
 
+      // Login page
+      'login.footer':         '\u00a9 RENVA. إدارة فواتير تأجير المركبات.',
+
+      // Redirect
+      'redirect.clickHere':   'انقر هنا إذا لم تتم إعادة التوجيه.',
+      'redirect.toLogin':     'جاري إعادة التوجيه إلى تسجيل الدخول...',
+      'redirect.toSettings':  'جاري إعادة التوجيه إلى الإعدادات...',
+
       'nav.dashboard':  'لوحة التحكم',
       'nav.invoices':   'الفواتير',
       'nav.clients':    'العملاء',
@@ -1206,6 +1290,16 @@ const RENVA_I18N = (() => {
       'nav.reports':    'التقارير',
       'nav.settings':   'الإعدادات',
       'nav.logout':     'تسجيل الخروج',
+
+      // Page titles
+      'page.title.dashboard':   'RENVA — لوحة التحكم | نظرة عامة على الإيرادات والفواتير',
+      'page.title.invoices':    'RENVA — الفواتير | إنشاء وإدارة فواتير الإيجار',
+      'page.title.clients':     'RENVA — العملاء | إدارة العملاء لوكالات الإيجار',
+      'page.title.cars':        'RENVA — المركبات | إدارة الأسطول لوكالات الإيجار',
+      'page.title.settings':    'RENVA — الإعدادات | ملف الشركة وتخصيص الفواتير',
+      'page.title.reports':     'RENVA — التقارير | تحليلات الإيرادات والأداء',
+      'page.title.resetPassword':'RENVA — إعادة تعيين كلمة المرور',
+      'page.title.login':       'RENVA — تسجيل الدخول | إدارة فواتير الإيجار المغرب',
 
       'dash.welcome':         'مرحباً',
       'dash.overviewTitle':   'نظرة عامة على الإيرادات',
@@ -1269,6 +1363,20 @@ const RENVA_I18N = (() => {
       'settings.section.contactDesc':    'تظهر على الفواتير واتصالات العملاء',
       'settings.invoiceLang':     'لغة الفاتورة',
       'settings.invoiceLangDesc': 'اللغة المستخدمة للتواريخ والأرقام في فاتورة PDF',
+      'settings.langSame':        'مثل الموقع',
+      'settings.langEnglish':     'الإنجليزية',
+      'settings.langFrench':      'الفرنسية',
+      'settings.langArabic':      'العربية',
+      'settings.currencyMAD': 'MAD — الدرهم المغربي (درهم)',
+      'settings.currencyEUR': 'EUR — اليورو (€)',
+      'settings.currencyUSD': 'USD — الدولار الأمريكي ($)',
+      'settings.currencyGBP': 'GBP — الجنيه الإسترليني (£)',
+      'settings.currencyCAD': 'CAD — الدولار الكندي (C$)',
+      'settings.currencyCHF': 'CHF — الفرنك السويسري (₣)',
+      'settings.currencyAED': 'AED — الدرهم الإماراتي (د.إ)',
+      'settings.phonePlaceholder':   '+212 600 000 000',
+      'settings.emailPlaceholder':   'contact@company.ma',
+      'settings.websitePlaceholder': 'https://yourcompany.ma',
 
       // Invoices / PDF
       'inv.days':           'أيام',
@@ -1278,6 +1386,7 @@ const RENVA_I18N = (() => {
       'inv.col.status':     'الحالة',
       'inv.col.total':      'المجموع',
       'inv.filterAll':      'الكل',
+      'inv.col.number':       '#',
       'inv.pageSubtitle':   'إنشاء وإدارة وتصدير فواتير تأجير السيارات.',
       'inv.export':         'تصدير',
       'inv.exportDesc':     'اختر الأشهر والسنة للتصدير',
@@ -1398,6 +1507,7 @@ const RENVA_I18N = (() => {
       'reports.revenue':         'الإيرادات',
       'reports.invoiceNumber':   'رقم الفاتورة',
       'reports.date':            'التاريخ',
+      'reports.percent':      '%',
 
       // Template / Color settings
       'template.colorMode':   'إعدادات الفاتورة',
@@ -1416,6 +1526,10 @@ const RENVA_I18N = (() => {
       'common.edit':     'تعديل',
       'common.search':   'بحث...',
       'common.currency': 'درهم',
+      'common.signOut':       'تسجيل الخروج',
+      'common.exportInvoices':'تصدير الفواتير',
+      'common.toggleTheme':   'تغيير المظهر',
+      'common.exportXLSX':    'XLSX',
 
       // Legal
       'legal.title':            'القانوني',
