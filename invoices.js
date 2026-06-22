@@ -762,33 +762,36 @@ const RENVA_INVOICES = (() => {
   }
 
   function downloadPDF(inv) {
-    showToast('success', tl('inv.generatingPDF'));
+    showToast('success', RENVA_I18N.t('inv.generatingPDF'));
 
     const wrap = document.getElementById('invPreviewWrap');
     const modal = document.getElementById('invoiceModal');
     const wasOpen = modal?.classList.contains('open');
-    const previewBody = wrap?.querySelector('.inv-preview-body');
 
     populatePreview(inv);
 
     // Temporarily show the preview at full scale so html2pdf captures it at A4 size
     if (wrap) wrap.classList.add('open');
-    if (previewBody) previewBody.style.transform = 'none';
     const invoiceEl = document.querySelector('.ip-invoice');
-    if (invoiceEl) invoiceEl.style.overflow = 'hidden';
+    if (invoiceEl) {
+      invoiceEl.style.transform = 'none';
+      invoiceEl.style.overflow = 'hidden';
+      invoiceEl.style.minHeight = '1123px';
+      // Ensure RTL direction is applied for Arabic invoices
+      const lang = getPDFLang();
+      if (lang === 'ar') invoiceEl.setAttribute('dir', 'rtl');
+    }
     void document.querySelector('.ip-invoice')?.offsetHeight;
 
     if (!invoiceEl) {
       if (wrap && !wasOpen) wrap.classList.remove('open');
-      if (previewBody) previewBody.style.transform = '';
       showToast('error', 'Invoice preview not found');
       return;
     }
 
     if (typeof html2pdf !== 'function') {
+      if (invoiceEl) { invoiceEl.style.transform = ''; invoiceEl.style.overflow = ''; invoiceEl.style.minHeight = ''; }
       if (wrap && !wasOpen) wrap.classList.remove('open');
-      if (previewBody) previewBody.style.transform = '';
-      if (invoiceEl) invoiceEl.style.overflow = '';
       showToast('error', 'PDF library not loaded, using print...');
       printInvoice(inv);
       return;
@@ -802,16 +805,14 @@ const RENVA_INVOICES = (() => {
         .from(invoiceEl)
         .save()
         .then(() => {
-          if (invoiceEl) invoiceEl.style.overflow = '';
-          if (previewBody) previewBody.style.transform = '';
+          if (invoiceEl) { invoiceEl.style.transform = ''; invoiceEl.style.overflow = ''; invoiceEl.style.minHeight = ''; }
           if (wrap && !wasOpen) wrap.classList.remove('open');
           if (modal && !wasOpen) { modal.classList.remove('open'); unlockScroll(); }
         })
         .catch(err => {
           console.error('html2pdf error:', err);
           showToast('error', 'PDF failed: ' + (err.message || 'unknown'));
-          if (invoiceEl) invoiceEl.style.overflow = '';
-          if (previewBody) previewBody.style.transform = '';
+          if (invoiceEl) { invoiceEl.style.transform = ''; invoiceEl.style.overflow = ''; invoiceEl.style.minHeight = ''; }
           if (wrap && !wasOpen) wrap.classList.remove('open');
           if (modal && !wasOpen) { modal.classList.remove('open'); unlockScroll(); }
         });
@@ -993,16 +994,20 @@ const RENVA_INVOICES = (() => {
     const isMobile = window.innerWidth < 768;
 
     if (isMobile && typeof html2pdf === 'function') {
-      showToast('success', tl('inv.generatingPDF'));
+      showToast('success', RENVA_I18N.t('inv.generatingPDF'));
       const tempContainer = document.createElement('div');
       tempContainer.id = 'RENVA-export-temp';
-      tempContainer.style.cssText = 'position:fixed;left:-9999px;top:0;width:210mm;background:#fff;padding:0;margin:0;';
+      tempContainer.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;background:#fff;padding:0;margin:0;';
       tempContainer.innerHTML = invoiceHTMLs.join('\n');
-      // Apply primary color to each invoice
+      // Apply primary color and fix dimensions/direction for each invoice
+      const lang = getPDFLang();
       const accentHex = invoiceColorMode === 'bw' ? '#1e293b' : (invoiceColor || '#2563EB');
       tempContainer.querySelectorAll('.ip-invoice').forEach(el => {
         el.style.setProperty('--ip-primary', accentHex);
         el.style.overflow = 'hidden';
+        el.style.minHeight = '1123px';
+        el.style.width = '794px';
+        if (lang === 'ar') el.setAttribute('dir', 'rtl');
       });
       document.body.appendChild(tempContainer);
       setTimeout(() => {
