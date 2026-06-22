@@ -716,11 +716,7 @@ const RENVA_INVOICES = (() => {
         ? (allInvoices.find(i => i.id === editingId)?.invoice_number || editingId.slice(-6).toUpperCase())
         : `INV-${new Date().getFullYear()}${String(new Date().getMonth()+1).padStart(2,'0')}-${String(allInvoices.length+1).padStart(4,'0')}`;
       const tempInv = { id: editingId || 'new', invoice_number: invNumber, days, total, ...data };
-      if (window.innerWidth < 768) {
-        downloadPDF(tempInv);
-      } else {
-        printInvoice(tempInv);
-      }
+      printInvoice(tempInv);
 
       const now = new Date().toISOString();
       if (editingId) {
@@ -750,11 +746,7 @@ const RENVA_INVOICES = (() => {
   function exportSingle(id) {
     const inv = allInvoices.find(i => i.id === id);
     if (!inv) return;
-    if (window.innerWidth < 768) {
-      downloadPDF(inv);
-    } else {
-      printInvoice(inv);
-    }
+    printInvoice(inv);
   }
 
   function getPDFFileName(inv) {
