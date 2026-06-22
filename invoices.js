@@ -995,7 +995,10 @@ const RENVA_INVOICES = (() => {
     window.print();
 
     // Clean up after print dialog is dismissed
-    const cleanup = () => { document.body.removeChild(printContainer); };
+    const cleanup = () => {
+      const el = document.getElementById('RENVA-print-container');
+      if (el) el.remove();
+    };
     if ('onafterprint' in window) {
       window.onafterprint = cleanup;
     } else {
@@ -1038,6 +1041,10 @@ const RENVA_INVOICES = (() => {
     const invoiceEl = document.querySelector('.ip-invoice');
     if (!invoiceEl) { window.print(); return; }
 
+    // Remove any leftover container from a previous print/export
+    const old = document.getElementById('RENVA-print-container');
+    if (old) old.remove();
+
     const clone = invoiceEl.cloneNode(true);
     if (getPDFLang() === 'ar') clone.setAttribute('dir', 'rtl');
 
@@ -1049,7 +1056,10 @@ const RENVA_INVOICES = (() => {
 
     window.print();
 
-    const cleanup = () => { document.body.removeChild(container); };
+    const cleanup = () => {
+      const el = document.getElementById('RENVA-print-container');
+      if (el) el.remove();
+    };
     if ('onafterprint' in window) {
       window.onafterprint = cleanup;
     } else {
