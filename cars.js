@@ -71,11 +71,12 @@ const RENVA_CARS = (() => {
     const mobileLabel = document.getElementById('carMobileFilterLabel');
     const mobileCount = document.getElementById('carMobileFilterCount');
     const menu = document.getElementById('carMobileFilterMenu');
-    const activeTab = statusTabs?.querySelector('.inv-tab.active');
+    const activeTab = statusTabs?.querySelector(`.inv-tab[data-status="${statusFilter}"]`);
     if (mobileLabel && activeTab) {
       const s = activeTab.dataset.status;
       const cnt = s === 'all' ? allCars.length : allCars.filter(c => c.status === s).length;
-      mobileLabel.textContent = RENVA_I18N.t(activeTab.getAttribute('data-i18n') || '');
+      const label = RENVA_I18N.t(activeTab.getAttribute('data-i18n') || '');
+      mobileLabel.textContent = label;
       mobileCount.textContent = `(${cnt})`;
     }
     if (menu && statusTabs) {

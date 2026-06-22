@@ -212,6 +212,21 @@ const RENVA_INVOICES = (() => {
 
     const badge = document.getElementById('invCountBadge');
     if (badge) badge.textContent = filteredInvoices.length;
+
+    updateMobileFilterLabel();
+  }
+
+  function updateMobileFilterLabel() {
+    const tabs = document.getElementById('invStatusTabs');
+    const mobileLabel = document.getElementById('invMobileFilterLabel');
+    const mobileCount = document.getElementById('invMobileFilterCount');
+    const activeTab = tabs?.querySelector(`.inv-tab[data-status="${activeStatus}"]`);
+    if (mobileLabel && mobileCount && activeTab) {
+      const s = activeTab.dataset.status;
+      const cnt = s === 'all' ? allInvoices.length : allInvoices.filter(inv => inv.status === s).length;
+      mobileLabel.textContent = RENVA_I18N.t(activeTab.getAttribute('data-i18n') || '');
+      mobileCount.textContent = `(${cnt})`;
+    }
   }
 
   // ── Render table ──────────────────────────────────────────
