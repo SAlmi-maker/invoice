@@ -572,7 +572,7 @@
   .modal-footer { padding: 14px 18px; }
   #invTable thead th:nth-child(2),
   #invTable tbody td:nth-child(2) { display: none; }
-  .inv-filter-bar { flex-direction: row; flex-wrap: nowrap; gap: 8px; padding: 10px 12px; background: transparent; border: none; box-shadow: none; align-items: center; }
+  .inv-filter-bar { flex-direction: row; flex-wrap: nowrap; gap: 8px; padding: 10px 12px; background: transparent; border: none; box-shadow: none; align-items: center; position: relative; z-index: 10; }
   .inv-filter-left { min-width: 0; flex: 1; }
   .inv-search-wrap { max-width: 100%; }
   .mobile-filter-dropdown { display: block; }
