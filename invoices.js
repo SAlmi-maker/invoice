@@ -130,6 +130,7 @@ const RENVA_INVOICES = (() => {
         .order('created_at', { ascending: false });
       if (error) throw error;
       allInvoices = (data || []).map(d => ({ id: d.id, ...d }));
+      updateTabCounts();
       applyFilters();
       showLoading(false);
 
@@ -145,6 +146,17 @@ const RENVA_INVOICES = (() => {
       showLoading(false);
       showToast('error', RENVA_I18N.t('settings.error'));
     }
+  }
+
+  function updateTabCounts() {
+    const tabs = document.getElementById('invStatusTabs');
+    if (!tabs) return;
+    tabs.querySelectorAll('.inv-tab').forEach(tab => {
+      const s = tab.dataset.status;
+      const cnt = s === 'all' ? allInvoices.length : allInvoices.filter(inv => inv.status === s).length;
+      const label = RENVA_I18N.t(tab.getAttribute('data-i18n') || '');
+      tab.textContent = `${label} (${cnt})`;
+    });
   }
 
   // ── Filter & search ───────────────────────────────────────
