@@ -522,6 +522,11 @@
   .modal-footer { padding: 14px 18px; }
   #invTable thead th:nth-child(2),
   #invTable tbody td:nth-child(2) { display: none; }
+  .inv-filter-bar { flex-direction: row; flex-wrap: nowrap; gap: 8px; }
+  .inv-filter-left { min-width: 0; flex: 1; }
+  .inv-search-wrap { max-width: 100%; }
+  .inv-status-tabs { overflow-x: auto; flex-shrink: 0; max-width: 55%; }
+  .inv-tab { padding: 6px 8px; font-size: 0.72rem; white-space: nowrap; }
   .section-card table:not(#invTable) thead th:nth-child(3),
   .section-card table:not(#invTable) tbody td:nth-child(3) { display: none; }
 }
