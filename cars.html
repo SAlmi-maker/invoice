@@ -246,6 +246,14 @@
             <button class="inv-tab" data-status="unavailable" data-i18n="cars.unavailable">Unavailable</button>
             <button class="inv-tab" data-status="out_of_service" data-i18n="cars.outOfService">Out of Service</button>
           </div>
+          <div class="mobile-filter-dropdown" id="carMobileFilter">
+            <button class="mobile-filter-btn" id="carMobileFilterBtn">
+              <span id="carMobileFilterLabel">All</span>
+              <span id="carMobileFilterCount"></span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="mobile-filter-menu" id="carMobileFilterMenu"></div>
+          </div>
         </div>
       </div>
 
@@ -365,6 +373,6 @@
 <script src="supabase.js"></script>
 <script src="i18n.js?v=5"></script>
 <script src="auth.js?v=3"></script>
-<script src="cars.js?v=5"></script>
+<script src="cars.js?v=6"></script>
 </body>
 </html>

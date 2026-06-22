@@ -121,6 +121,14 @@
             <button class="inv-tab" data-status="overdue" data-i18n="dash.overdue">Overdue</button>
             <button class="inv-tab" data-status="draft" data-i18n="dash.draft">Draft</button>
           </div>
+          <div class="mobile-filter-dropdown" id="invMobileFilter">
+            <button class="mobile-filter-btn" id="invMobileFilterBtn">
+              <span id="invMobileFilterLabel">All</span>
+              <span id="invMobileFilterCount"></span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="mobile-filter-menu" id="invMobileFilterMenu"></div>
+          </div>
         </div>
       </div>
 
@@ -503,6 +511,6 @@
   <script src="supabase.js"></script>
   <script src="i18n.js?v=5"></script>
   <script src="auth.js?v=4"></script>
-  <script src="invoices.js?v=6"></script>
+  <script src="invoices.js?v=7"></script>
 </body>
 </html>

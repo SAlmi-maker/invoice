@@ -68,6 +68,31 @@ const RENVA_CARS = (() => {
         tab.classList.toggle('active', s === statusFilter);
       });
     }
+    const mobileLabel = document.getElementById('carMobileFilterLabel');
+    const mobileCount = document.getElementById('carMobileFilterCount');
+    const menu = document.getElementById('carMobileFilterMenu');
+    const activeTab = statusTabs?.querySelector('.inv-tab.active');
+    if (mobileLabel && activeTab) {
+      const s = activeTab.dataset.status;
+      const cnt = s === 'all' ? allCars.length : allCars.filter(c => c.status === s).length;
+      mobileLabel.textContent = RENVA_I18N.t(activeTab.getAttribute('data-i18n') || '');
+      mobileCount.textContent = `(${cnt})`;
+    }
+    if (menu && statusTabs) {
+      menu.innerHTML = '';
+      statusTabs.querySelectorAll('.inv-tab').forEach(tab => {
+        const opt = document.createElement('button');
+        opt.className = 'mobile-filter-option' + (tab.classList.contains('active') ? ' active' : '');
+        opt.textContent = tab.textContent;
+        opt.dataset.status = tab.dataset.status;
+        opt.addEventListener('click', () => {
+          statusFilter = tab.dataset.status;
+          render();
+          menu.classList.remove('open');
+        });
+        menu.appendChild(opt);
+      });
+    }
 
     if (!filtered.length) {
       grid.innerHTML = '';
@@ -357,6 +382,21 @@ const RENVA_CARS = (() => {
     $('deleteModalClose').addEventListener('click', closeDeleteModal);
     $('deleteCancelBtn').addEventListener('click', closeDeleteModal);
     $('deleteConfirmBtn').addEventListener('click', confirmDelete);
+
+    const carMobileBtn = document.getElementById('carMobileFilterBtn');
+    const carMobileMenu = document.getElementById('carMobileFilterMenu');
+    if (carMobileBtn && carMobileMenu) {
+      carMobileBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        carMobileMenu.classList.toggle('open');
+        carMobileBtn.classList.toggle('open');
+      });
+      document.addEventListener('click', () => {
+        carMobileMenu.classList.remove('open');
+        carMobileBtn.classList.remove('open');
+      }, { passive: true });
+      carMobileMenu.addEventListener('click', e => e.stopPropagation());
+    }
 
     search.addEventListener('input', e => {
       searchQuery = e.target.value;

@@ -157,6 +157,34 @@ const RENVA_INVOICES = (() => {
       const label = RENVA_I18N.t(tab.getAttribute('data-i18n') || '');
       tab.textContent = `${label} (${cnt})`;
     });
+    const mobileLabel = document.getElementById('invMobileFilterLabel');
+    const mobileCount = document.getElementById('invMobileFilterCount');
+    const activeTab = tabs.querySelector('.inv-tab.active');
+    if (mobileLabel && activeTab) {
+      const s = activeTab.dataset.status;
+      const cnt = s === 'all' ? allInvoices.length : allInvoices.filter(inv => inv.status === s).length;
+      const label = RENVA_I18N.t(activeTab.getAttribute('data-i18n') || '');
+      mobileLabel.textContent = label;
+      mobileCount.textContent = `(${cnt})`;
+    }
+    const menu = document.getElementById('invMobileFilterMenu');
+    if (menu) {
+      menu.innerHTML = '';
+      tabs.querySelectorAll('.inv-tab').forEach(tab => {
+        const opt = document.createElement('button');
+        opt.className = 'mobile-filter-option' + (tab.classList.contains('active') ? ' active' : '');
+        opt.textContent = tab.textContent;
+        opt.dataset.status = tab.dataset.status;
+        opt.addEventListener('click', () => {
+          tabs.querySelectorAll('.inv-tab').forEach(b => { b.classList.remove('active'); });
+          tab.classList.add('active');
+          activeStatus = tab.dataset.status;
+          applyFilters();
+          menu.classList.remove('open');
+        });
+        menu.appendChild(opt);
+      });
+    }
   }
 
   // ── Filter & search ───────────────────────────────────────
@@ -292,6 +320,20 @@ const RENVA_INVOICES = (() => {
         applyFilters();
       });
     });
+    const mobileBtn = document.getElementById('invMobileFilterBtn');
+    const mobileMenu = document.getElementById('invMobileFilterMenu');
+    if (mobileBtn && mobileMenu) {
+      mobileBtn.addEventListener('click', e => {
+        e.stopPropagation();
+        mobileMenu.classList.toggle('open');
+        mobileBtn.classList.toggle('open');
+      });
+      document.addEventListener('click', () => {
+        mobileMenu.classList.remove('open');
+        mobileBtn.classList.remove('open');
+      }, { passive: true });
+      mobileMenu.addEventListener('click', e => e.stopPropagation());
+    }
     const priceFields = ['inv_dailyPrice','inv_startDate','inv_endDate','inv_insurance','inv_fuel','inv_extraDriver','inv_other'];
     priceFields.forEach(id => {
       document.getElementById(id)?.addEventListener('input', () => { recalculate(); renderHTMLPreview(); });

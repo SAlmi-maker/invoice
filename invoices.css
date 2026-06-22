@@ -75,6 +75,56 @@
 }
 .inv-tab:hover:not(.active) { background: var(--border-color); }
 
+/* ── Mobile filter dropdown ─────────────────────────────── */
+.mobile-filter-dropdown { display: none; position: relative; }
+.mobile-filter-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-full);
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: border-color var(--t-fast);
+  min-height: 44px;
+}
+.mobile-filter-btn:hover,
+.mobile-filter-btn.open { border-color: var(--primary); }
+.mobile-filter-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  min-width: 180px;
+  z-index: 50;
+  display: none;
+  overflow: hidden;
+}
+.mobile-filter-menu.open { display: block; }
+.mobile-filter-option {
+  display: block;
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-align: left;
+  transition: background var(--t-fast);
+}
+.mobile-filter-option:hover { background: var(--bg-subtle); }
+.mobile-filter-option.active { color: var(--primary); font-weight: 700; }
+.mobile-filter-option + .mobile-filter-option { border-top: 1px solid var(--border-color); }
+
 /* ── Count badge in section header ─────────────────────── */
 .inv-count-badge {
   display: inline-flex;
@@ -522,13 +572,14 @@
   .modal-footer { padding: 14px 18px; }
   #invTable thead th:nth-child(2),
   #invTable tbody td:nth-child(2) { display: none; }
-  .inv-filter-bar { flex-direction: row; flex-wrap: nowrap; gap: 8px; }
+  .inv-filter-bar { flex-direction: row; flex-wrap: nowrap; gap: 8px; padding: 10px 12px; background: transparent; border: none; box-shadow: none; }
   .inv-filter-left { min-width: 0; flex: 1; }
   .inv-search-wrap { max-width: 100%; }
-  .inv-status-tabs { overflow-x: auto; flex-shrink: 0; max-width: 55%; }
+  .mobile-filter-dropdown { display: block; }
   .inv-tab { padding: 6px 8px; font-size: 0.72rem; white-space: nowrap; }
   .section-card table:not(#invTable) thead th:nth-child(3),
   .section-card table:not(#invTable) tbody td:nth-child(3) { display: none; }
+  .inv-status-tabs { display: none; }
 }
 
 @media (max-width: 400px) {
