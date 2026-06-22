@@ -28,7 +28,7 @@ const RENVA_CARS = (() => {
     });
   }
 
-  function makeCar(row) {
+  function makeCar(row, latestEndDate) {
     return {
       id: row.id,
       brand: row.brand || '',
@@ -38,6 +38,7 @@ const RENVA_CARS = (() => {
       status: row.status || 'available',
       image: row.image || '',
       notes: row.notes || '',
+      endDate: latestEndDate || '',
       createdAt: row.created_at ? new Date(row.created_at) : null
     };
   }
@@ -131,6 +132,13 @@ const RENVA_CARS = (() => {
     }
     $('car_image').value = '';
     $('carModalTitle').textContent = car ? RENVA_I18N.t('cars.editCar') : RENVA_I18N.t('cars.newCar');
+    const endDateEl = $('carRentalEnd');
+    if (car && car.endDate) {
+      endDateEl.textContent = RENVA_I18N.t('cars.rentalEnd') + ': ' + car.endDate;
+      endDateEl.style.display = 'block';
+    } else {
+      endDateEl.style.display = 'none';
+    }
     modal.classList.add('open');
     lockScroll();
   }
@@ -225,12 +233,20 @@ const RENVA_CARS = (() => {
     setEmpty(false);
 
     try {
-      const { data, error } = await sb.from('cars')
-        .select('*')
-        .eq('user_id', currentUser.id)
-        .order('created_at', { ascending: false });
-      if (error) throw error;
-      allCars = (data || []).map(makeCar);
+      const [carResult, invResult] = await Promise.all([
+        sb.from('cars').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false }),
+        sb.from('invoices').select('plate, end_date').eq('user_id', currentUser.id).order('end_date', { ascending: false })
+      ]);
+      if (carResult.error) throw carResult.error;
+      const endDateMap = {};
+      if (invResult.data) {
+        invResult.data.forEach(inv => {
+          if (inv.plate && inv.end_date && !endDateMap[inv.plate]) {
+            endDateMap[inv.plate] = inv.end_date.split('T')[0];
+          }
+        });
+      }
+      allCars = (carResult.data || []).map(c => makeCar(c, endDateMap[c.plate] || ''));
       loadingDone();
       render();
     } catch (err) {
