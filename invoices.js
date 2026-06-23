@@ -1041,6 +1041,9 @@ const RENVA_INVOICES = (() => {
       const tempContainer = document.createElement('div');
       tempContainer.id = 'RENVA-print-temp';
       tempContainer.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;background:#fff;padding:0;margin:0;z-index:-9999;';
+      // Mobile CSS sets .ip-invoice { min-height: unset } — override on clone so html2pdf captures full A4
+      clone.style.minHeight = '1123px';
+      clone.style.overflow = 'hidden';
       tempContainer.appendChild(clone);
       document.body.appendChild(tempContainer);
 
