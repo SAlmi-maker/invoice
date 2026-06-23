@@ -941,6 +941,7 @@ const RENVA_INVOICES = (() => {
         el.style.overflow = 'hidden';
         el.style.height = '1123px';
         el.style.minHeight = '1123px';
+        el.style.padding = '20px 48px';
         el.style.width = '794px';
         el.style.boxSizing = 'border-box';
         if (lang === 'ar') el.setAttribute('dir', 'rtl');
@@ -1064,6 +1065,7 @@ const RENVA_INVOICES = (() => {
       // Force exact A4 dimensions (not min-height) to prevent blank second page
       clone.style.height = '1123px';
       clone.style.minHeight = '1123px';
+      clone.style.padding = '20px 48px';
       clone.style.overflow = 'hidden';
 
       const container = document.createElement('div');
