@@ -931,7 +931,7 @@ const RENVA_INVOICES = (() => {
       showToast('success', RENVA_I18N.t('inv.generatingPDF'));
       const tempContainer = document.createElement('div');
       tempContainer.id = 'RENVA-export-temp';
-      tempContainer.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;background:#fff;padding:0;margin:0;z-index:-9999;';
+      tempContainer.style.cssText = 'position:fixed;left:0;top:0;width:794px;background:#fff;padding:0;margin:0;z-index:-9999;';
       tempContainer.innerHTML = invoiceHTMLs.join('\n<div style="page-break-before:always;height:0;"></div>');
       const lang = getPDFLang();
       const accentHex = invoiceColorMode === 'bw' ? '#1e293b' : (invoiceColor || '#2563EB');
@@ -939,55 +939,57 @@ const RENVA_INVOICES = (() => {
       tempContainer.querySelectorAll('.ip-invoice').forEach(el => {
         el.style.setProperty('--ip-primary', accentHex);
         el.style.overflow = 'hidden';
+        el.style.height = '1123px';
         el.style.minHeight = '1123px';
         el.style.width = '794px';
         el.style.boxSizing = 'border-box';
         if (lang === 'ar') el.setAttribute('dir', 'rtl');
-        const logo = el.querySelector('#preview_logo');
-        if (logo && logo.src) {
-          imgPromises.push(logo.decode().catch(() => {}));
-        }
+        el.querySelectorAll('img').forEach(img => {
+          if (img.complete && img.naturalHeight !== 0) return;
+          imgPromises.push(new Promise(resolve => {
+            img.onload = resolve;
+            img.onerror = resolve;
+            if (img.complete) resolve();
+          }));
+        });
       });
       document.body.appendChild(tempContainer);
 
       const fontReady = document.fonts ? document.fonts.ready : Promise.resolve();
 
       Promise.all([Promise.all(imgPromises).catch(() => {}), fontReady]).then(() => {
-        // Two rAF frames for browser settle
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            const isAndroid = /android/i.test(navigator.userAgent);
-            const mobileScale = isAndroid ? 1.0 : 1.2;
-            html2pdf()
-              .set({
-                filename: `invoices-${new Date().getFullYear()}.pdf`,
-                margin: 0,
-                image: { type: 'jpeg', quality: 0.8 },
-                html2canvas: {
-                  scale: mobileScale,
-                  useCORS: true,
-                  logging: false,
-                  backgroundColor: '#ffffff',
-                  width: 794,
-                  height: tempContainer.scrollHeight,
-                  windowWidth: 794,
-                  windowHeight: tempContainer.scrollHeight
-                },
-                jsPDF: { format: 'a4', unit: 'mm' }
-              })
-              .from(tempContainer)
-              .save()
-              .then(() => {
-                if (tempContainer.parentNode) tempContainer.remove();
-                showToast('success', `Exported ${written} invoice(s)`);
-              })
-              .catch(err => {
-                console.error('html2pdf bulk error:', err);
-                if (tempContainer.parentNode) tempContainer.remove();
-                showToast('error', 'Export failed: ' + (err.message || 'unknown'));
-              });
-          });
-        });
+        setTimeout(() => {
+          const isAndroid = /android/i.test(navigator.userAgent);
+          const mobileScale = isAndroid ? 1.0 : 1.2;
+          const captureHeight = Math.min(tempContainer.scrollHeight || 1123, 1123);
+          html2pdf()
+            .set({
+              filename: `invoices-${new Date().getFullYear()}.pdf`,
+              margin: 0,
+              image: { type: 'jpeg', quality: 0.8 },
+              html2canvas: {
+                scale: mobileScale,
+                useCORS: true,
+                logging: false,
+                backgroundColor: '#ffffff',
+                width: 794,
+                height: captureHeight,
+                windowWidth: 794
+              },
+              jsPDF: { format: 'a4', unit: 'mm' }
+            })
+            .from(tempContainer)
+            .save()
+            .then(() => {
+              if (tempContainer.parentNode) tempContainer.remove();
+              showToast('success', `Exported ${written} invoice(s)`);
+            })
+            .catch(err => {
+              console.error('html2pdf bulk error:', err);
+              if (tempContainer.parentNode) tempContainer.remove();
+              showToast('error', 'Export failed: ' + (err.message || 'unknown'));
+            });
+        }, 100);
       });
       return;
     }
@@ -1059,101 +1061,104 @@ const RENVA_INVOICES = (() => {
       // Mobile: html2pdf on a hidden A4 container
       showToast('success', RENVA_I18N.t('inv.generatingPDF'));
 
-      // Override mobile CSS that sets min-height: unset
+      // Force exact A4 dimensions (not min-height) to prevent blank second page
+      clone.style.height = '1123px';
       clone.style.minHeight = '1123px';
       clone.style.overflow = 'hidden';
 
       const container = document.createElement('div');
       container.id = 'RENVA-print-temp';
-      container.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;background:#fff;padding:0;margin:0;z-index:-9999;';
+      container.style.cssText = 'position:fixed;left:0;top:0;width:794px;background:#fff;padding:0;margin:0;z-index:-9999;';
       container.appendChild(clone);
       document.body.appendChild(container);
 
       const filename = getPDFFileName(inv);
 
-      // Gather all image decode promises (logo + any other images)
+      // Gather all image decode promises
       const imgPromises = Array.from(container.querySelectorAll('img')).map(img => {
         if (img.complete && img.naturalHeight !== 0) return Promise.resolve();
-        return img.decode().catch(() => {});
+        return new Promise(resolve => {
+          img.onload = resolve;
+          img.onerror = resolve;
+          if (img.complete) resolve();
+        });
       });
 
       // Also wait for fonts
       const fontReady = document.fonts ? document.fonts.ready : Promise.resolve();
 
       Promise.all([Promise.all(imgPromises).catch(() => {}), fontReady]).then(() => {
-        // Two rAF frames to ensure the browser has rendered the off-screen element
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            if (typeof html2pdf !== 'function') {
+        setTimeout(() => {
+          if (typeof html2pdf !== 'function') {
+            if (container.parentNode) container.parentNode.removeChild(container);
+            showToast('error', RENVA_I18N.t('inv.pdfFailed'));
+            return;
+          }
+
+          // Mobile-optimized scale: 1.5 for phones, 1.2 for Android
+          const isAndroid = /android/i.test(navigator.userAgent);
+          const mobileScale = isAndroid ? 1.2 : 1.5;
+
+          // Cap capture height at 1123px to prevent blank second page
+          const captureHeight = Math.min(container.scrollHeight || 1123, 1123);
+
+          html2pdf()
+            .set({
+              filename,
+              margin: 0,
+              image: { type: 'jpeg', quality: 0.85 },
+              html2canvas: {
+                scale: mobileScale,
+                useCORS: true,
+                logging: false,
+                backgroundColor: '#ffffff',
+                width: 794,
+                height: captureHeight,
+                windowWidth: 794
+              },
+              jsPDF: { format: 'a4', unit: 'mm' }
+            })
+            .from(container)
+            .save()
+            .then(() => {
               if (container.parentNode) container.parentNode.removeChild(container);
-              showToast('error', RENVA_I18N.t('inv.pdfFailed'));
-              return;
-            }
-
-            // Mobile-optimized scale: 1.5 for phones, 1.2 for Android
-            const isAndroid = /android/i.test(navigator.userAgent);
-            const mobileScale = isAndroid ? 1.2 : 1.5;
-
-            html2pdf()
-              .set({
-                filename,
-                margin: 0,
-                image: { type: 'jpeg', quality: 0.85 },
-                html2canvas: {
-                  scale: mobileScale,
-                  useCORS: true,
-                  logging: false,
-                  backgroundColor: '#ffffff',
-                  width: 794,
-                  height: 1123,
-                  windowWidth: 794,
-                  windowHeight: 1123
-                },
-                jsPDF: { format: 'a4', unit: 'mm' }
-              })
-              .from(container)
-              .save()
-              .then(() => {
+            })
+            .catch(err => {
+              console.error('html2pdf error:', err);
+              // Retry with lowest quality / scale 1.0 as fallback
+              try {
+                html2pdf()
+                  .set({
+                    filename,
+                    margin: 0,
+                    image: { type: 'jpeg', quality: 0.7 },
+                    html2canvas: {
+                      scale: 1.0,
+                      useCORS: true,
+                      logging: false,
+                      backgroundColor: '#ffffff',
+                      width: 794,
+                      height: Math.min(container.scrollHeight || 1123, 1123),
+                      windowWidth: 794
+                    },
+                    jsPDF: { format: 'a4', unit: 'mm' }
+                  })
+                  .from(container)
+                  .save()
+                  .then(() => {
+                    if (container.parentNode) container.parentNode.removeChild(container);
+                  })
+                  .catch(err2 => {
+                    console.error('html2pdf retry error:', err2);
+                    if (container.parentNode) container.parentNode.removeChild(container);
+                    showToast('error', RENVA_I18N.t('inv.pdfFailed'));
+                  });
+              } catch (e) {
                 if (container.parentNode) container.parentNode.removeChild(container);
-              })
-              .catch(err => {
-                console.error('html2pdf error:', err);
-                // Retry with lowest quality / scale 1.0 as fallback
-                try {
-                  html2pdf()
-                    .set({
-                      filename,
-                      margin: 0,
-                      image: { type: 'jpeg', quality: 0.7 },
-                      html2canvas: {
-                        scale: 1.0,
-                        useCORS: true,
-                        logging: false,
-                        backgroundColor: '#ffffff',
-                        width: 794,
-                        height: 1123,
-                        windowWidth: 794,
-                        windowHeight: 1123
-                      },
-                      jsPDF: { format: 'a4', unit: 'mm' }
-                    })
-                    .from(container)
-                    .save()
-                    .then(() => {
-                      if (container.parentNode) container.parentNode.removeChild(container);
-                    })
-                    .catch(err2 => {
-                      console.error('html2pdf retry error:', err2);
-                      if (container.parentNode) container.parentNode.removeChild(container);
-                      showToast('error', RENVA_I18N.t('inv.pdfFailed'));
-                    });
-                } catch (e) {
-                  if (container.parentNode) container.parentNode.removeChild(container);
-                  showToast('error', RENVA_I18N.t('inv.pdfFailed'));
-                }
-              });
-          });
-        });
+                showToast('error', RENVA_I18N.t('inv.pdfFailed'));
+              }
+            });
+        }, 100);
       });
     } else {
       // Desktop: inject directly and use @media print CSS
