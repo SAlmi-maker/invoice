@@ -962,7 +962,7 @@ const RENVA_INVOICES = (() => {
         setTimeout(() => {
           const isAndroid = /android/i.test(navigator.userAgent);
           const mobileScale = isAndroid ? 1.0 : 1.2;
-          const captureHeight = Math.min(tempContainer.scrollHeight || 1123, 1123);
+          const captureHeight = unique.length > 1 ? tempContainer.scrollHeight : Math.min(tempContainer.scrollHeight || 1123, 1123);
           html2pdf()
             .set({
               filename: `invoices-${new Date().getFullYear()}.pdf`,
