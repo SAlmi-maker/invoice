@@ -262,7 +262,7 @@
       background: rgba(0,0,0,0.45); padding: 20px;
     }
     #contactModal .modal-panel {
-      background: var(--bg-card); border-radius: var(--radius-xl);
+      background: var(--bg-surface); border-radius: var(--radius-xl);
       width: 100%; max-width: 400px;
       box-shadow: 0 20px 60px rgba(0,0,0,0.2);
       animation: fadeIn 0.15s ease;
@@ -522,6 +522,7 @@
     <form id="contactForm">
       <div class="modal-body" style="display:flex;flex-direction:column;gap:16px;">
         <p style="font-size:0.85rem;color:var(--text-secondary);margin:0;" data-i18n="contact.subtitle">Leave your email and phone number and we will contact you soon.</p>
+        <div id="contactMsg" style="display:none;padding:10px 14px;border-radius:8px;font-size:0.82rem;"></div>
         <div>
           <label class="form-label" for="contactEmail" data-i18n="contact.email">Email</label>
           <input class="form-input" type="email" id="contactEmail" required placeholder="you@example.com" />
@@ -603,6 +604,8 @@
       const email = document.getElementById('contactEmail').value.trim();
       const phone = document.getElementById('contactPhone').value.trim();
       const btn = document.getElementById('contactSubmitBtn');
+      const msg = document.getElementById('contactMsg');
+      msg.style.display = 'none';
       btn.disabled = true;
       btn.textContent = 'Sending...';
       try {
@@ -612,12 +615,16 @@
           body: JSON.stringify({ email, phone })
         });
         if (!res.ok) throw new Error('Formspree error');
-        showToast('success', 'Thank you! We will contact you soon.');
+        msg.className = '';
+        msg.style.cssText = 'display:block;padding:10px 14px;border-radius:8px;font-size:0.82rem;background:var(--green-bg);color:var(--green);';
+        msg.textContent = 'Thank you! We will contact you soon.';
         contactForm.reset();
-        closeContactModal();
+        setTimeout(closeContactModal, 2000);
       } catch (err) {
         console.error('contact request error:', err);
-        showToast('error', 'Failed to send. Please try again.');
+        msg.className = '';
+        msg.style.cssText = 'display:block;padding:10px 14px;border-radius:8px;font-size:0.82rem;background:var(--red-bg);color:var(--red);';
+        msg.textContent = 'Failed to send. Please try again.';
       } finally {
         btn.disabled = false;
         btn.textContent = 'Send';
