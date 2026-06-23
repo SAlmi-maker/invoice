@@ -753,64 +753,6 @@ const RENVA_INVOICES = (() => {
     return (inv.invoice_number || `INV-${Date.now()}`) + '.pdf';
   }
 
-  function downloadPDF(inv) {
-    showToast('success', RENVA_I18N.t('inv.generatingPDF'));
-
-    const wrap = document.getElementById('invPreviewWrap');
-    const modal = document.getElementById('invoiceModal');
-    const wasOpen = modal?.classList.contains('open');
-
-    populatePreview(inv);
-
-    // Show preview at full scale for html2pdf capture
-    if (wrap) wrap.classList.add('open');
-    const invoiceEl = document.querySelector('.ip-invoice');
-    if (invoiceEl) {
-      invoiceEl.style.transform = 'none';
-      invoiceEl.style.overflow = 'hidden';
-      invoiceEl.style.minHeight = '1123px';
-      // Ensure RTL direction is applied for Arabic invoices
-      const lang = getPDFLang();
-      if (lang === 'ar') invoiceEl.setAttribute('dir', 'rtl');
-    }
-    void document.querySelector('.ip-invoice')?.offsetHeight;
-
-    if (!invoiceEl) {
-      if (wrap && !wasOpen) wrap.classList.remove('open');
-      showToast('error', 'Invoice preview not found');
-      return;
-    }
-
-    if (typeof html2pdf !== 'function') {
-      if (invoiceEl) { invoiceEl.style.transform = ''; invoiceEl.style.overflow = ''; invoiceEl.style.minHeight = ''; }
-      if (wrap && !wasOpen) wrap.classList.remove('open');
-      showToast('error', 'PDF library not loaded, using print...');
-      printInvoice(inv);
-      return;
-    }
-
-    const filename = getPDFFileName(inv);
-
-    setTimeout(() => {
-      html2pdf()
-        .set({ filename, margin: 0, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 3, useCORS: true, logging: false, backgroundColor: '#ffffff', width: 794, height: 1123 }, jsPDF: { format: 'a4', unit: 'mm' } })
-        .from(invoiceEl)
-        .save()
-        .then(() => {
-          if (invoiceEl) { invoiceEl.style.transform = ''; invoiceEl.style.overflow = ''; invoiceEl.style.minHeight = ''; }
-          if (wrap && !wasOpen) wrap.classList.remove('open');
-          if (modal && !wasOpen) { modal.classList.remove('open'); unlockScroll(); }
-        })
-        .catch(err => {
-          console.error('html2pdf error:', err);
-          showToast('error', 'PDF failed: ' + (err.message || 'unknown'));
-          if (invoiceEl) { invoiceEl.style.transform = ''; invoiceEl.style.overflow = ''; invoiceEl.style.minHeight = ''; }
-          if (wrap && !wasOpen) wrap.classList.remove('open');
-          if (modal && !wasOpen) { modal.classList.remove('open'); unlockScroll(); }
-        });
-    }, 150);
-  }
-
   // ── Export selection modal ────────────────────────────────
   function exportFiltered() {
     populateExportModal();
@@ -989,10 +931,11 @@ const RENVA_INVOICES = (() => {
       showToast('success', RENVA_I18N.t('inv.generatingPDF'));
       const tempContainer = document.createElement('div');
       tempContainer.id = 'RENVA-export-temp';
-      tempContainer.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;background:#fff;padding:0;margin:0;';
+      tempContainer.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;background:#fff;padding:0;margin:0;z-index:-9999;';
       tempContainer.innerHTML = invoiceHTMLs.join('\n<div style="page-break-before:always;height:0;"></div>');
       const lang = getPDFLang();
       const accentHex = invoiceColorMode === 'bw' ? '#1e293b' : (invoiceColor || '#2563EB');
+      const imgPromises = [];
       tempContainer.querySelectorAll('.ip-invoice').forEach(el => {
         el.style.setProperty('--ip-primary', accentHex);
         el.style.overflow = 'hidden';
@@ -1000,32 +943,38 @@ const RENVA_INVOICES = (() => {
         el.style.width = '794px';
         el.style.boxSizing = 'border-box';
         if (lang === 'ar') el.setAttribute('dir', 'rtl');
+        const logo = el.querySelector('#preview_logo');
+        if (logo && logo.src) {
+          imgPromises.push(logo.decode().catch(() => {}));
+        }
       });
       document.body.appendChild(tempContainer);
-      setTimeout(() => {
-        html2pdf()
-          .set({ filename: `invoices-${new Date().getFullYear()}.pdf`, margin: 0, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, logging: false, backgroundColor: '#ffffff' }, jsPDF: { format: 'a4', unit: 'mm' } })
-          .from(tempContainer)
-          .save()
-          .then(() => {
-            if (tempContainer.parentNode) tempContainer.remove();
-            showToast('success', `Exported ${written} invoice(s)`);
-          })
-          .catch(err => {
-            console.error('html2pdf bulk error:', err);
-            if (tempContainer.parentNode) tempContainer.remove();
-            showToast('error', 'Export failed: ' + (err.message || 'unknown'));
-          });
-      }, 150);
+
+      Promise.all(imgPromises).catch(() => {}).then(() => {
+        // Give the browser one frame to render before capture
+        requestAnimationFrame(() => {
+          html2pdf()
+            .set({ filename: `invoices-${new Date().getFullYear()}.pdf`, margin: 0, image: { type: 'jpeg', quality: 0.92 }, html2canvas: { scale: 2, useCORS: true, logging: false, backgroundColor: '#ffffff', width: 794, height: tempContainer.scrollHeight }, jsPDF: { format: 'a4', unit: 'mm' } })
+            .from(tempContainer)
+            .save()
+            .then(() => {
+              if (tempContainer.parentNode) tempContainer.remove();
+              showToast('success', `Exported ${written} invoice(s)`);
+            })
+            .catch(err => {
+              console.error('html2pdf bulk error:', err);
+              if (tempContainer.parentNode) tempContainer.remove();
+              showToast('error', 'Export failed: ' + (err.message || 'unknown'));
+            });
+        });
+      });
       return;
     }
 
     if (isMobile) {
-      showToast('error', 'PDF library not loaded, using print...');
+      showToast('error', RENVA_I18N.t('inv.pdfFailed'));
     }
 
-    // Inject invoices into the main page and call window.print()
-    // The @media print CSS in invoices.css hides all UI and shows #RENVA-print-container
     const printContainer = document.createElement('div');
     printContainer.id = 'RENVA-print-container';
     printContainer.innerHTML = invoiceHTMLs.join('\n');
@@ -1033,7 +982,6 @@ const RENVA_INVOICES = (() => {
 
     window.print();
 
-    // Clean up after print dialog is dismissed
     const cleanup = () => {
       const el = document.getElementById('RENVA-print-container');
       if (el) el.remove();
@@ -1066,10 +1014,8 @@ const RENVA_INVOICES = (() => {
 
     populatePreview(inv);
 
-    // Ensure the preview is rendered so table columns are computed
     void document.querySelector('.ip-invoice')?.offsetHeight;
 
-    // Close preview if it wasn't already open
     if (!wasOpen) {
       const wrap = document.getElementById('invPreviewWrap');
       if (wrap) wrap.classList.remove('open');
@@ -1083,37 +1029,61 @@ const RENVA_INVOICES = (() => {
     const clone = invoiceEl.cloneNode(true);
     const lang = getPDFLang();
     if (lang === 'ar') clone.setAttribute('dir', 'rtl');
+    const accentHex = invoiceColorMode === 'bw' ? '#1e293b' : (invoiceColor || '#2563EB');
+    clone.style.setProperty('--ip-primary', accentHex);
 
     if (window.innerWidth < 768) {
-      // Mobile: use an iframe so print preview always sees a standalone document
-      // This avoids the mobile Chrome bug where @media print + DOM injection shows a white page
-      const iframe = document.createElement('iframe');
-      iframe.id = 'RENVA-print-iframe';
-      iframe.style.cssText = 'position:fixed;top:-9999px;left:0;width:794px;height:1123px;border:0;';
-      document.body.appendChild(iframe);
-      const doc = iframe.contentDocument || iframe.contentWindow.document;
-      doc.open();
-      doc.write('<!DOCTYPE html><html><head><meta charset="UTF-8">');
-      document.querySelectorAll('link[rel="stylesheet"]').forEach(l => doc.write(`<link rel="stylesheet" href="${l.href}">`));
-      doc.write(`<style>
-        body{margin:0;padding:0;background:#fff;}
-        .ip-invoice{width:794px;min-height:1123px;margin:0;box-shadow:none;transform:none;}
-        .no-print{display:none!important;}
-        @page{size:A4 portrait;margin:0;}
-        *{-webkit-print-color-adjust:exact;print-color-adjust:exact;color-adjust:exact;}
-      </style></head><body>`);
-      doc.write(clone.outerHTML);
-      doc.write('</body></html>');
-      doc.close();
-      const printAndCleanup = () => {
-        iframe.contentWindow.focus();
-        iframe.contentWindow.print();
-        const clean = () => { if (iframe.parentNode) iframe.parentNode.removeChild(iframe); };
-        if ('onafterprint' in iframe.contentWindow) { iframe.contentWindow.onafterprint = clean; }
-        else { setTimeout(clean, 5000); }
-      };
-      iframe.onload = () => setTimeout(printAndCleanup, 300);
-      setTimeout(printAndCleanup, 3000);
+      // Mobile: html2pdf on a hidden A4 container
+      // iframe + print() is unreliable on mobile (blank pages, CSS race, layout glitches).
+      // html2pdf bundles html2canvas + jsPDF and handles all rendering internally.
+      showToast('success', RENVA_I18N.t('inv.generatingPDF'));
+
+      const tempContainer = document.createElement('div');
+      tempContainer.id = 'RENVA-print-temp';
+      tempContainer.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;background:#fff;padding:0;margin:0;z-index:-9999;';
+      tempContainer.appendChild(clone);
+      document.body.appendChild(tempContainer);
+
+      const filename = getPDFFileName(inv);
+
+      // Ensure logo image is decoded before capture
+      const logoImg = clone.querySelector('#preview_logo');
+      const imgReady = logoImg && companySettings.logo_base64
+        ? logoImg.decode().catch(() => {})
+        : Promise.resolve();
+
+      imgReady.then(() => {
+        if (typeof html2pdf === 'function') {
+          html2pdf()
+            .set({
+              filename,
+              margin: 0,
+              image: { type: 'jpeg', quality: 0.92 },
+              html2canvas: {
+                scale: 2,
+                useCORS: true,
+                logging: false,
+                backgroundColor: '#ffffff',
+                width: 794,
+                height: 1123
+              },
+              jsPDF: { format: 'a4', unit: 'mm' }
+            })
+            .from(tempContainer)
+            .save()
+            .then(() => {
+              if (tempContainer.parentNode) tempContainer.remove();
+            })
+            .catch(err => {
+              console.error('html2pdf error:', err);
+              if (tempContainer.parentNode) tempContainer.remove();
+              showToast('error', RENVA_I18N.t('inv.pdfFailed'));
+            });
+        } else {
+          showToast('error', RENVA_I18N.t('inv.pdfFailed'));
+          if (tempContainer.parentNode) tempContainer.remove();
+        }
+      });
     } else {
       // Desktop: inject directly and use @media print CSS
       const old = document.getElementById('RENVA-print-container');
