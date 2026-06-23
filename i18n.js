@@ -89,7 +89,7 @@ const RENVA_I18N = (() => {
       'page.title.settings':    'RENVA — Settings | Company Profile & Invoice Customization',
       'page.title.reports':     'RENVA — Reports | Revenue & Performance Analytics',
       'page.title.resetPassword':'RENVA — Reset Password',
-      'page.title.login':       'RENVA — Sign In | Car Rental Invoice Management Morocco',
+      'page.title.login':       'RENVA — Car Rental Invoice, Fleet, And Revenue Management',
 
       // Dashboard
       'dash.welcome':         'Welcome back',
@@ -697,7 +697,7 @@ const RENVA_I18N = (() => {
       'page.title.settings':    'RENVA — Paramètres | Profil Entreprise & Personnalisation des Factures',
       'page.title.reports':     'RENVA — Rapports | Analyses des Revenus & Performances',
       'page.title.resetPassword':'RENVA — Réinitialiser le Mot de Passe',
-      'page.title.login':       'RENVA — Connexion | Gestion de Factures de Location Maroc',
+      'page.title.login':       'RENVA — Gestion des Factures, Flotte et Revenus Location',
 
       'dash.welcome':         'Bon retour',
       'dash.overviewTitle':   'Aperçu des Revenus',
@@ -1301,7 +1301,7 @@ const RENVA_I18N = (() => {
       'page.title.settings':    'RENVA — الإعدادات | ملف الشركة وتخصيص الفواتير',
       'page.title.reports':     'RENVA — التقارير | تحليلات الإيرادات والأداء',
       'page.title.resetPassword':'RENVA — إعادة تعيين كلمة المرور',
-      'page.title.login':       'RENVA — تسجيل الدخول | إدارة فواتير الإيجار المغرب',
+      'page.title.login':       'RENVA — إدارة الفواتير والأساطيل والإيرادات لتأجير السيارات',
 
       'dash.welcome':         'مرحباً',
       'dash.overviewTitle':   'نظرة عامة على الإيرادات',
