@@ -716,10 +716,8 @@ const RENVA_INVOICES = (() => {
         ? (allInvoices.find(i => i.id === editingId)?.invoice_number || editingId.slice(-6).toUpperCase())
         : `INV-${new Date().getFullYear()}${String(new Date().getMonth()+1).padStart(2,'0')}-${String(allInvoices.length+1).padStart(4,'0')}`;
       const tempInv = { id: editingId || 'new', invoice_number: invNumber, days, total, ...data };
-      // On mobile: generate a real PDF file download (no print dialog)
-      // On desktop: use the existing print flow (already works well)
       if (window.innerWidth < 768) {
-        downloadPDF(tempInv);
+        generateDirectPDF(tempInv);
       } else {
         printInvoice(tempInv);
       }
@@ -752,10 +750,8 @@ const RENVA_INVOICES = (() => {
   function exportSingle(id) {
     const inv = allInvoices.find(i => i.id === id);
     if (!inv) return;
-    // On mobile: generate a real PDF file download (no print dialog)
-    // On desktop: use the existing print flow (already works well)
     if (window.innerWidth < 768) {
-      downloadPDF(inv);
+      generateDirectPDF(inv);
     } else {
       printInvoice(inv);
     }
@@ -763,6 +759,237 @@ const RENVA_INVOICES = (() => {
 
   function getPDFFileName(inv) {
     return (inv.invoice_number || `INV-${Date.now()}`) + '.pdf';
+  }
+
+  function generateDirectPDF(inv) {
+    showToast('success', RENVA_I18N.t('inv.generatingPDF'));
+
+    if (typeof window.jspdf === 'undefined') {
+      if (typeof html2pdf === 'function') { downloadPDF(inv); return; }
+      printInvoice(inv);
+      return;
+    }
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({ format: 'a4', unit: 'mm' });
+
+    // Register Amiri font for Arabic support
+    if (typeof RENVA_ARABIC_FONT !== 'undefined') {
+      doc.addFileToVFS('Amiri-Regular.ttf', RENVA_ARABIC_FONT);
+      doc.addFont('Amiri-Regular.ttf', 'Amiri', 'normal');
+    }
+
+    const lang = getPDFLang();
+    const isRTL = lang === 'ar';
+    const t = tl;
+    const currency = t('common.currency');
+    const fmt = (amt) => formatCurrency(amt, currency, lang);
+    const accent = getAccentColor();
+    const W = 210, M = 18;
+    let y = M;
+
+    // RTL mirror: x in RTL = W - x in LTR
+    const rtlX = (x) => isRTL ? W - x : x;
+    const rtlAlign = (align) => {
+      if (!isRTL) return align;
+      if (align === 'right') return 'left';
+      if (align === 'left') return undefined;
+      return undefined;
+    };
+
+    if (isRTL) doc.setR2L(true);
+
+    const ar = (text) => {
+      if (isRTL && text && typeof doc.processArabic === 'function') {
+        return doc.processArabic(text);
+      }
+      return text;
+    };
+
+    const setFont = () => {
+      if (isRTL && typeof RENVA_ARABIC_FONT !== 'undefined') {
+        doc.setFont('Amiri');
+      } else {
+        doc.setFont('helvetica');
+      }
+    };
+
+    // ── Header ──
+    let nameX = M;
+    if (companySettings.logo_base64) {
+      doc.addImage(companySettings.logo_base64, 'PNG', rtlX(M), 6, 24, 24);
+      nameX = M + 28;
+    }
+    setFont();
+    doc.setFontSize(16);
+    doc.setTextColor(15, 23, 42);
+    doc.text(ar(companySettings.company_name || 'RENVA'), rtlX(nameX), 14);
+    setFont();
+    doc.setFontSize(7.5);
+    doc.setTextColor(100, 116, 139);
+    (['address', 'email', 'phone', 'website'].map(k => companySettings[k]).filter(Boolean)).forEach((line, i) => {
+      doc.text(ar(line), rtlX(nameX), 20 + i * 4);
+    });
+    y = Math.max(30, 20 + 4 * 4);
+
+    // ── INVOICE title ──
+    setFont();
+    doc.setFontSize(26);
+    doc.setTextColor(accent.r, accent.g, accent.b);
+    doc.text(ar(t('pdf.invoice')), rtlX(M), y);
+
+    // ── Invoice number + dates (right side in LTR, mirrored in RTL) ──
+    const metaY = y - 6;
+    setFont();
+    doc.setFontSize(8.5);
+    doc.setTextColor(15, 23, 42);
+    doc.text(`#${inv.invoice_number || (inv.id || '').slice(-6).toUpperCase()}`, rtlX(W - M), metaY, { align: rtlAlign('right') });
+    setFont();
+    doc.setFontSize(7);
+    doc.setTextColor(100, 116, 139);
+    const issueStr = inv.start_date ? inv.start_date.split('T')[0] : new Date().toLocaleDateString(lang);
+    const dueStr = inv.end_date ? inv.end_date.split('T')[0] : new Date().toLocaleDateString(lang);
+    doc.text(`${ar(t('pdf.issue'))}: ${issueStr}`, rtlX(W - M), metaY + 4.5, { align: rtlAlign('right') });
+    doc.text(`${ar(t('pdf.due'))}: ${dueStr}`, rtlX(W - M), metaY + 9, { align: rtlAlign('right') });
+    y += 4;
+    doc.setDrawColor(accent.r, accent.g, accent.b);
+    doc.setLineWidth(0.6);
+    doc.line(rtlX(M), y, rtlX(W - M), y);
+    y += 10;
+
+    // ── Customer & Vehicle ──
+    setFont();
+    doc.setFontSize(6.5);
+    doc.setTextColor(148, 163, 184);
+    doc.text(ar(t('pdf.billTo')), rtlX(M), y);
+    doc.text(ar(t('inv.field.vehicle')), rtlX(W / 2 + 4), y);
+    y += 5;
+    setFont();
+    doc.setFontSize(9);
+    doc.setTextColor(15, 23, 42);
+    doc.text(ar(inv.client_name || '—'), rtlX(M), y);
+    doc.text(ar(`${inv.vehicle_brand || ''} ${inv.vehicle_model || ''}`.trim() || '—'), rtlX(W / 2 + 4), y);
+    y += 4.5;
+    setFont();
+    doc.setFontSize(7.5);
+    doc.setTextColor(100, 116, 139);
+    if (inv.cin) { doc.text(`${ar(t('pdf.cin'))}: ${inv.cin}`, rtlX(M), y); y += 4; }
+    if (inv.phone) { doc.text(`${ar(t('pdf.tel'))}: ${inv.phone}`, rtlX(M), y); y += 4; }
+    doc.text(ar(`${inv.vehicle_brand || ''} ${inv.vehicle_model || ''}`.trim() || '—'), rtlX(W / 2 + 4), y); y += 4;
+    if (inv.plate) { doc.text(`${ar(t('pdf.plate'))}: ${inv.plate}`, rtlX(W / 2 + 4), y); y += 4; }
+    y += 8;
+
+    // ── Rental period ──
+    setFont();
+    doc.setFontSize(7.5);
+    doc.setTextColor(100, 116, 139);
+    const daysN = inv.days ?? calcDays(inv.start_date, inv.end_date);
+    const ps2 = (v) => v ? v.split('T')[0] : '—';
+    doc.text(`${ar(t('pdf.rentalPeriod'))}: ${ps2(inv.start_date)} → ${ps2(inv.end_date)}  |  ${daysN} ${ar(t('inv.days'))}`, rtlX(M), y);
+    y += 6;
+
+    // ── Items table ──
+    const tW = W - M * 2;
+    const colW = [tW * 0.5, tW * 0.12, tW * 0.18, tW * 0.2];
+    const colX = [M, M + colW[0], M + colW[0] + colW[1], M + colW[0] + colW[1] + colW[2]];
+    const tableX = isRTL ? W - M : M;
+    doc.setFillColor(accent.r, accent.g, accent.b);
+    doc.rect(rtlX(M), y, tW, 8, 'F');
+    setFont();
+    doc.setFontSize(6.5);
+    doc.setTextColor(255, 255, 255);
+    doc.text(ar(t('pdf.description')), rtlX(colX[0] + 4), y + 5.5);
+    doc.text(ar(t('pdf.qty')), rtlX(colX[1] + 2), y + 5.5);
+    doc.text(ar(t('pdf.ratePerDay')), rtlX(colX[2] + 2), y + 5.5);
+    doc.text(ar(t('pdf.amount')), rtlX(colX[3] + 8), y + 5.5);
+    y += 8;
+
+    const dailyPrice = parseFloat(inv.daily_price || 0);
+    const rental = daysN * dailyPrice;
+    const extras = [
+      { label: t('inv.field.insurance'), val: parseFloat(inv.insurance || 0) },
+      { label: t('inv.field.fuel'), val: parseFloat(inv.fuel || 0) },
+      { label: t('inv.field.extraDriver'), val: parseFloat(inv.extra_driver || 0) },
+      { label: t('inv.field.other'), val: parseFloat(inv.other || 0) },
+    ].filter(e => e.val > 0);
+    const dash2 = '—';
+
+    const drawRow = (desc, qty, unit, totalAmt, idx) => {
+      if (idx % 2 === 0) {
+        doc.setFillColor(248, 250, 252);
+        doc.rect(rtlX(M), y, tW, 9, 'F');
+      }
+      setFont();
+      doc.setFontSize(8);
+      doc.setTextColor(15, 23, 42);
+      doc.text(ar(String(desc)), rtlX(colX[0] + 4), y + 6.5);
+      doc.text(String(qty), rtlX(colX[1] + 2), y + 6.5);
+      doc.text(fmt(unit), rtlX(colX[2] + 2), y + 6.5);
+      doc.text(fmt(totalAmt), rtlX(colX[3] + 8), y + 6.5, { align: rtlAlign('right') });
+      doc.setDrawColor(226, 232, 240);
+      doc.line(rtlX(M), y + 9, rtlX(W - M), y + 9);
+      y += 9;
+    };
+
+    drawRow(`${ar(t('inv.field.rentalSubtotal'))} (${inv.vehicle_brand || ''} ${inv.vehicle_model || ''})`, daysN, dailyPrice, rental, 0);
+    extras.forEach((e, i) => drawRow(ar(e.label), dash2, e.val, e.val, i + 1));
+    y += 4;
+
+    // ── Grand Total ──
+    doc.setDrawColor(accent.r, accent.g, accent.b);
+    doc.setLineWidth(0.5);
+    doc.line(rtlX(M), y, rtlX(W - M), y);
+    y += 3;
+    setFont();
+    doc.setFontSize(9);
+    doc.setTextColor(accent.r, accent.g, accent.b);
+    doc.text(ar(t('pdf.grandTotal')), rtlX(M), y + 4);
+    setFont();
+    doc.setFontSize(10);
+    doc.setTextColor(15, 23, 42);
+    doc.text(fmt(parseFloat(inv.total || 0)), rtlX(W - M), y + 4, { align: rtlAlign('right') });
+    y += 10;
+
+    // ── Status badge ──
+    const status = inv.status || 'draft';
+    const statusColors = { paid: [16, 185, 129], pending: [245, 158, 11], overdue: [239, 68, 68], draft: [107, 114, 128] };
+    const [sr, sg, sb] = statusColors[status] || statusColors.draft;
+    doc.setFillColor(sr, sg, sb);
+    doc.roundedRect(rtlX(M), y, 28, 8, 2, 2, 'F');
+    setFont();
+    doc.setFontSize(6.5);
+    doc.setTextColor(255, 255, 255);
+    doc.text(ar(t('dash.' + status).toUpperCase()), rtlX(M + 14), y + 5.5, { align: 'center' });
+    y += 14;
+
+    // ── Notes ──
+    if (inv.notes) {
+      setFont();
+      doc.setFontSize(6.5);
+      doc.setTextColor(148, 163, 184);
+      doc.text(ar(t('pdf.notes')), rtlX(M), y);
+      y += 4;
+      setFont();
+      doc.setFontSize(7);
+      doc.setTextColor(100, 116, 139);
+      doc.text(ar(String(inv.notes)), rtlX(M), y);
+      y += 8;
+    }
+
+    // ── Footer ──
+    if (companySettings.logo_base64) {
+      doc.addImage(companySettings.logo_base64, 'PNG', rtlX(W - M - 28), 240 - 28, 24, 24);
+    }
+    doc.setDrawColor(226, 232, 240);
+    doc.line(rtlX(M), 255, rtlX(W - M), 255);
+    setFont();
+    doc.setFontSize(6.5);
+    doc.setTextColor(148, 163, 184);
+    doc.text(ar(t('pdf.generatedBy')), W / 2, 282, { align: 'center' });
+    const footerLines = [companySettings.email || '', companySettings.website || ''].filter(Boolean);
+    footerLines.forEach((line, i) => doc.text(ar(line), W / 2, 286 + i * 4, { align: 'center' }));
+
+    doc.save(getPDFFileName(inv));
   }
 
   function downloadPDF(inv) {
@@ -803,50 +1030,23 @@ const RENVA_INVOICES = (() => {
 
     const filename = getPDFFileName(inv);
 
-    const isMobile = window.innerWidth < 768;
-
-    const cleanupPreview = () => {
-      if (invoiceEl) { invoiceEl.style.transform = ''; invoiceEl.style.overflow = ''; invoiceEl.style.minHeight = ''; }
-      if (wrap && !wasOpen) wrap.classList.remove('open');
-      if (modal && !wasOpen) { modal.classList.remove('open'); unlockScroll(); }
-    };
-
     setTimeout(() => {
-      const worker = html2pdf()
+      html2pdf()
         .set({ filename, margin: 0, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 3, useCORS: true, logging: false, backgroundColor: '#ffffff', width: 794, height: 1123 }, jsPDF: { format: 'a4', unit: 'mm' } })
-        .from(invoiceEl);
-
-      if (isMobile && navigator.share && typeof navigator.share === 'function') {
-        // Mobile: generate blob and share via Web Share API so it lands in Files/Downloads
-        worker.outputPdf('blob').then(async (blob) => {
-          cleanupPreview();
-          const file = new File([blob], filename, { type: 'application/pdf' });
-          try {
-            await navigator.share({ files: [file], title: filename });
-          } catch (shareErr) {
-            // User cancelled share or share not supported — fall back to anchor download
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            a.click();
-            setTimeout(() => URL.revokeObjectURL(url), 5000);
-          }
-        }).catch(err => {
-          console.error('html2pdf blob error:', err);
-          showToast('error', 'PDF failed: ' + (err.message || 'unknown'));
-          cleanupPreview();
-        });
-      } else {
-        // Desktop (or mobile without Share API): direct save
-        worker.save().then(() => {
-          cleanupPreview();
-        }).catch(err => {
+        .from(invoiceEl)
+        .save()
+        .then(() => {
+          if (invoiceEl) { invoiceEl.style.transform = ''; invoiceEl.style.overflow = ''; invoiceEl.style.minHeight = ''; }
+          if (wrap && !wasOpen) wrap.classList.remove('open');
+          if (modal && !wasOpen) { modal.classList.remove('open'); unlockScroll(); }
+        })
+        .catch(err => {
           console.error('html2pdf error:', err);
           showToast('error', 'PDF failed: ' + (err.message || 'unknown'));
-          cleanupPreview();
+          if (invoiceEl) { invoiceEl.style.transform = ''; invoiceEl.style.overflow = ''; invoiceEl.style.minHeight = ''; }
+          if (wrap && !wasOpen) wrap.classList.remove('open');
+          if (modal && !wasOpen) { modal.classList.remove('open'); unlockScroll(); }
         });
-      }
     }, 150);
   }
 
@@ -1041,47 +1241,20 @@ const RENVA_INVOICES = (() => {
         if (lang === 'ar') el.setAttribute('dir', 'rtl');
       });
       document.body.appendChild(tempContainer);
-      const bulkFilename = `invoices-${new Date().getFullYear()}.pdf`;
       setTimeout(() => {
-        const bulkWorker = html2pdf()
-          .set({ filename: bulkFilename, margin: 0, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, logging: false, backgroundColor: '#ffffff' }, jsPDF: { format: 'a4', unit: 'mm' } })
-          .from(tempContainer);
-
-        if (navigator.share && typeof navigator.share === 'function') {
-          // Mobile: share the blob so it lands in Files/Downloads
-          bulkWorker.outputPdf('blob').then(async (blob) => {
+        html2pdf()
+          .set({ filename: `invoices-${new Date().getFullYear()}.pdf`, margin: 0, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, logging: false, backgroundColor: '#ffffff' }, jsPDF: { format: 'a4', unit: 'mm' } })
+          .from(tempContainer)
+          .save()
+          .then(() => {
             if (tempContainer.parentNode) tempContainer.remove();
-            const file = new File([blob], bulkFilename, { type: 'application/pdf' });
-            try {
-              await navigator.share({ files: [file], title: bulkFilename });
-              showToast('success', `Exported ${written} invoice(s)`);
-            } catch (shareErr) {
-              // Fallback to anchor download if share cancelled/unsupported
-              const url = URL.createObjectURL(blob);
-              const a = document.createElement('a');
-              a.href = url;
-              a.download = bulkFilename;
-              a.click();
-              setTimeout(() => URL.revokeObjectURL(url), 5000);
-              showToast('success', `Exported ${written} invoice(s)`);
-            }
-          }).catch(err => {
+            showToast('success', `Exported ${written} invoice(s)`);
+          })
+          .catch(err => {
             console.error('html2pdf bulk error:', err);
             if (tempContainer.parentNode) tempContainer.remove();
             showToast('error', 'Export failed: ' + (err.message || 'unknown'));
           });
-        } else {
-          bulkWorker.save()
-            .then(() => {
-              if (tempContainer.parentNode) tempContainer.remove();
-              showToast('success', `Exported ${written} invoice(s)`);
-            })
-            .catch(err => {
-              console.error('html2pdf bulk error:', err);
-              if (tempContainer.parentNode) tempContainer.remove();
-              showToast('error', 'Export failed: ' + (err.message || 'unknown'));
-            });
-        }
       }, 150);
       return;
     }
