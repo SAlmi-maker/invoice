@@ -233,6 +233,64 @@
       font-size: 0.78rem;
       color: var(--text-tertiary);
     }
+    .login-footer-btn-wrap {
+      margin-top: 10px;
+    }
+    .login-footer-btn {
+      background: none;
+      border: none;
+      color: var(--primary);
+      font-size: 0.78rem;
+      cursor: pointer;
+      text-decoration: underline;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: background 0.15s;
+    }
+    .login-footer-btn:hover {
+      background: rgba(37,99,235,0.08);
+    }
+    .login-footer-btn:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+    }
+
+    /* Contact Modal */
+    #contactModal {
+      position: fixed; inset: 0; z-index: 9999;
+      display: none; align-items: center; justify-content: center;
+      background: rgba(0,0,0,0.45); padding: 20px;
+    }
+    #contactModal .modal-panel {
+      background: var(--bg-card); border-radius: var(--radius-xl);
+      width: 100%; max-width: 400px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      animation: fadeIn 0.15s ease;
+    }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+    #contactModal .modal-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 24px 0;
+    }
+    #contactModal .modal-title {
+      font-size: 1.1rem; font-weight: 700; color: var(--text-primary);
+    }
+    #contactModal .modal-close {
+      width: 32px; height: 32px; border-radius: var(--radius-full);
+      border: 1.5px solid transparent; background: var(--bg-subtle);
+      font-size: 1.3rem; line-height: 1; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-tertiary); transition: all 0.15s;
+    }
+    #contactModal .modal-close:hover {
+      background: var(--red-bg); color: var(--red); border-color: var(--red);
+    }
+    #contactModal .modal-body { padding: 16px 24px; }
+    #contactModal .modal-footer {
+      display: flex; align-items: center; justify-content: flex-end;
+      gap: 8px; padding: 0 24px 20px;
+    }
+    #contactModal .modal-footer-left { flex: 1; }
 
     .terms-checkbox {
       display: flex;
@@ -444,10 +502,40 @@
         </form>
       </div>
 
-      <div class="login-footer" data-i18n="login.footer">
-        &copy; RENVA. Car Rental Invoice Management.
+      <div class="login-footer">
+        <div data-i18n="login.footer">&copy; RENVA. Car Rental Invoice Management.</div>
+        <div class="login-footer-btn-wrap">
+          <button class="login-footer-btn" id="contactRequestBtn" data-i18n="login.contactRequest">Want to create an account?</button>
+        </div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- ── Contact Request Modal ── -->
+<div class="modal-backdrop" id="contactModal" role="dialog" aria-modal="true" style="display:none;">
+  <div class="modal-panel" style="max-width:400px;">
+    <div class="modal-header">
+      <h2 class="modal-title" data-i18n="contact.title">Request an Account</h2>
+      <button class="modal-close" id="contactModalClose" aria-label="Close">&times;</button>
+    </div>
+    <form id="contactForm">
+      <div class="modal-body" style="display:flex;flex-direction:column;gap:16px;">
+        <p style="font-size:0.85rem;color:var(--text-secondary);margin:0;" data-i18n="contact.subtitle">Leave your email and phone number and we will contact you soon.</p>
+        <div>
+          <label class="form-label" for="contactEmail" data-i18n="contact.email">Email</label>
+          <input class="form-input" type="email" id="contactEmail" required placeholder="you@example.com" />
+        </div>
+        <div>
+          <label class="form-label" for="contactPhone" data-i18n="contact.phone">Phone Number</label>
+          <input class="form-input" type="tel" id="contactPhone" required placeholder="+212XXXXXXXXX" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <div class="modal-footer-left"></div>
+        <button type="submit" class="btn btn-primary" id="contactSubmitBtn" data-i18n="contact.submit">Send</button>
+      </div>
+    </form>
   </div>
 </div>
 
@@ -487,6 +575,53 @@
       document.getElementById('loginPanel').classList.remove('hidden');
       document.getElementById('resetMessage').className = 'form-message';
       document.getElementById('resetMessage').textContent = '';
+    });
+
+    // ── Contact Request Modal ──
+    const contactModal = document.getElementById('contactModal');
+    const contactBtn = document.getElementById('contactRequestBtn');
+    const contactClose = document.getElementById('contactModalClose');
+    const contactForm = document.getElementById('contactForm');
+
+    function openContactModal() {
+      contactModal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+    function closeContactModal() {
+      contactModal.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+
+    contactBtn?.addEventListener('click', openContactModal);
+    contactClose?.addEventListener('click', closeContactModal);
+    contactModal?.addEventListener('click', e => {
+      if (e.target === contactModal) closeContactModal();
+    });
+
+    contactForm?.addEventListener('submit', async e => {
+      e.preventDefault();
+      const email = document.getElementById('contactEmail').value.trim();
+      const phone = document.getElementById('contactPhone').value.trim();
+      const btn = document.getElementById('contactSubmitBtn');
+      btn.disabled = true;
+      btn.textContent = 'Sending...';
+      try {
+        const res = await fetch('https://formspree.io/f/xaqgnzog', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, phone })
+        });
+        if (!res.ok) throw new Error('Formspree error');
+        showToast('success', 'Thank you! We will contact you soon.');
+        contactForm.reset();
+        closeContactModal();
+      } catch (err) {
+        console.error('contact request error:', err);
+        showToast('error', 'Failed to send. Please try again.');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Send';
+      }
     });
   });
 </script>

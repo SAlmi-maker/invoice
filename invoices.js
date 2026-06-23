@@ -938,11 +938,11 @@ const RENVA_INVOICES = (() => {
       const imgPromises = [];
       tempContainer.querySelectorAll('.ip-invoice').forEach(el => {
         el.style.setProperty('--ip-primary', accentHex);
-        el.style.overflow = 'hidden';
-        el.style.height = '1123px';
+        el.style.overflow = 'visible';
+        el.style.height = '';
         el.style.minHeight = '1123px';
-        el.style.padding = '0 48px';
         el.style.width = '794px';
+        el.style.transform = 'none';
         el.style.boxSizing = 'border-box';
         if (lang === 'ar') el.setAttribute('dir', 'rtl');
         el.querySelectorAll('img').forEach(img => {
@@ -1062,11 +1062,10 @@ const RENVA_INVOICES = (() => {
       // Mobile: html2pdf on a hidden A4 container
       showToast('success', RENVA_I18N.t('inv.generatingPDF'));
 
-      // Force exact A4 dimensions (not min-height) to prevent blank second page
-      clone.style.height = '1123px';
+      // Ensure minimum A4 height for capture
       clone.style.minHeight = '1123px';
-      clone.style.padding = '0 48px';
-      clone.style.overflow = 'hidden';
+      // Remove any transform that might affect rendering
+      clone.style.transform = 'none';
 
       const container = document.createElement('div');
       container.id = 'RENVA-print-temp';

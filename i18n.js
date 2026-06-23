@@ -66,6 +66,12 @@ const RENVA_I18N = (() => {
 
       // Login page
       'login.footer':         '\u00a9 RENVA. Car Rental Invoice Management.',
+      'login.contactRequest': 'Want to create an account?',
+      'contact.title':        'Request an Account',
+      'contact.subtitle':     'Leave your email and phone number and we will contact you soon.',
+      'contact.email':        'Email',
+      'contact.phone':        'Phone Number',
+      'contact.submit':       'Send',
 
       // Redirect
       'redirect.clickHere':   'Click here if not redirected.',
@@ -675,6 +681,12 @@ const RENVA_I18N = (() => {
 
       // Login page
       'login.footer':         '\u00a9 RENVA. Gestion de Factures de Location.',
+      'login.contactRequest': 'Vous voulez créer un compte ?',
+      'contact.title':        'Demander un compte',
+      'contact.subtitle':     'Laissez votre email et votre num\u00e9ro de t\u00e9l\u00e9phone et nous vous contacterons bient\u00f4t.',
+      'contact.email':        'Email',
+      'contact.phone':        'Num\u00e9ro de t\u00e9l\u00e9phone',
+      'contact.submit':       'Envoyer',
 
       // Redirect
       'redirect.clickHere':   'Cliquez ici si vous n\'êtes pas redirigé.',
@@ -1279,6 +1291,12 @@ const RENVA_I18N = (() => {
 
       // Login page
       'login.footer':         '\u00a9 RENVA. إدارة فواتير تأجير المركبات.',
+      'login.contactRequest': 'هل تريد إنشاء حساب؟',
+      'contact.title':        'طلب حساب',
+      'contact.subtitle':     'اترك بريدك الإلكتروني ورقم هاتفك وسنقوم بالاتصال بك قريباً.',
+      'contact.email':        'البريد الإلكتروني',
+      'contact.phone':        'رقم الهاتف',
+      'contact.submit':       'إرسال',
 
       // Redirect
       'redirect.clickHere':   'انقر هنا إذا لم تتم إعادة التوجيه.',
