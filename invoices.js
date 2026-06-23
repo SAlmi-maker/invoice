@@ -716,11 +716,10 @@ const RENVA_INVOICES = (() => {
         ? (allInvoices.find(i => i.id === editingId)?.invoice_number || editingId.slice(-6).toUpperCase())
         : `INV-${new Date().getFullYear()}${String(new Date().getMonth()+1).padStart(2,'0')}-${String(allInvoices.length+1).padStart(4,'0')}`;
       const tempInv = { id: editingId || 'new', invoice_number: invNumber, days, total, ...data };
-      if (window.innerWidth < 768) {
-        downloadPDF(tempInv);
-      } else {
-        printInvoice(tempInv);
-      }
+      // Use the same browser-print based export on every device (desktop AND mobile).
+      // html2pdf/html2canvas was previously used on mobile but is unreliable there
+      // (canvas size limits, off-screen rendering quirks, memory pressure on phones).
+      printInvoice(tempInv);
 
       const now = new Date().toISOString();
       if (editingId) {
@@ -750,73 +749,12 @@ const RENVA_INVOICES = (() => {
   function exportSingle(id) {
     const inv = allInvoices.find(i => i.id === id);
     if (!inv) return;
-    if (window.innerWidth < 768) {
-      downloadPDF(inv);
-    } else {
-      printInvoice(inv);
-    }
+    // Same export path for desktop and mobile (see note in saveAndExport).
+    printInvoice(inv);
   }
 
   function getPDFFileName(inv) {
     return (inv.invoice_number || `INV-${Date.now()}`) + '.pdf';
-  }
-
-  function downloadPDF(inv) {
-    showToast('success', RENVA_I18N.t('inv.generatingPDF'));
-
-    const wrap = document.getElementById('invPreviewWrap');
-    const modal = document.getElementById('invoiceModal');
-    const wasOpen = modal?.classList.contains('open');
-
-    populatePreview(inv);
-
-    // Show preview at full scale for html2pdf capture
-    if (wrap) wrap.classList.add('open');
-    const invoiceEl = document.querySelector('.ip-invoice');
-    if (invoiceEl) {
-      invoiceEl.style.transform = 'none';
-      invoiceEl.style.overflow = 'hidden';
-      invoiceEl.style.minHeight = '1123px';
-      // Ensure RTL direction is applied for Arabic invoices
-      const lang = getPDFLang();
-      if (lang === 'ar') invoiceEl.setAttribute('dir', 'rtl');
-    }
-    void document.querySelector('.ip-invoice')?.offsetHeight;
-
-    if (!invoiceEl) {
-      if (wrap && !wasOpen) wrap.classList.remove('open');
-      showToast('error', 'Invoice preview not found');
-      return;
-    }
-
-    if (typeof html2pdf !== 'function') {
-      if (invoiceEl) { invoiceEl.style.transform = ''; invoiceEl.style.overflow = ''; invoiceEl.style.minHeight = ''; }
-      if (wrap && !wasOpen) wrap.classList.remove('open');
-      showToast('error', 'PDF library not loaded, using print...');
-      printInvoice(inv);
-      return;
-    }
-
-    const filename = getPDFFileName(inv);
-
-    setTimeout(() => {
-      html2pdf()
-        .set({ filename, margin: 0, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 3, useCORS: true, logging: false, backgroundColor: '#ffffff', width: 794, height: 1123 }, jsPDF: { format: 'a4', unit: 'mm' } })
-        .from(invoiceEl)
-        .save()
-        .then(() => {
-          if (invoiceEl) { invoiceEl.style.transform = ''; invoiceEl.style.overflow = ''; invoiceEl.style.minHeight = ''; }
-          if (wrap && !wasOpen) wrap.classList.remove('open');
-          if (modal && !wasOpen) { modal.classList.remove('open'); unlockScroll(); }
-        })
-        .catch(err => {
-          console.error('html2pdf error:', err);
-          showToast('error', 'PDF failed: ' + (err.message || 'unknown'));
-          if (invoiceEl) { invoiceEl.style.transform = ''; invoiceEl.style.overflow = ''; invoiceEl.style.minHeight = ''; }
-          if (wrap && !wasOpen) wrap.classList.remove('open');
-          if (modal && !wasOpen) { modal.classList.remove('open'); unlockScroll(); }
-        });
-    }, 150);
   }
 
   // ── Export selection modal ────────────────────────────────
@@ -991,47 +929,11 @@ const RENVA_INVOICES = (() => {
       }
     });
 
-    const isMobile = window.innerWidth < 768;
-
-    if (isMobile && typeof html2pdf === 'function') {
-      showToast('success', RENVA_I18N.t('inv.generatingPDF'));
-      const tempContainer = document.createElement('div');
-      tempContainer.id = 'RENVA-export-temp';
-      tempContainer.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;background:#fff;padding:0;margin:0;';
-      tempContainer.innerHTML = invoiceHTMLs.join('\n<div style="page-break-before:always;height:0;"></div>');
-      const lang = getPDFLang();
-      const accentHex = invoiceColorMode === 'bw' ? '#1e293b' : (invoiceColor || '#2563EB');
-      tempContainer.querySelectorAll('.ip-invoice').forEach(el => {
-        el.style.setProperty('--ip-primary', accentHex);
-        el.style.overflow = 'hidden';
-        el.style.minHeight = '1123px';
-        el.style.width = '794px';
-        el.style.boxSizing = 'border-box';
-        if (lang === 'ar') el.setAttribute('dir', 'rtl');
-      });
-      document.body.appendChild(tempContainer);
-      setTimeout(() => {
-        html2pdf()
-          .set({ filename: `invoices-${new Date().getFullYear()}.pdf`, margin: 0, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true, logging: false, backgroundColor: '#ffffff' }, jsPDF: { format: 'a4', unit: 'mm' } })
-          .from(tempContainer)
-          .save()
-          .then(() => {
-            if (tempContainer.parentNode) tempContainer.remove();
-            showToast('success', `Exported ${written} invoice(s)`);
-          })
-          .catch(err => {
-            console.error('html2pdf bulk error:', err);
-            if (tempContainer.parentNode) tempContainer.remove();
-            showToast('error', 'Export failed: ' + (err.message || 'unknown'));
-          });
-      }, 150);
-      return;
-    }
-
-    if (isMobile) {
-      showToast('error', 'PDF library not loaded, using print...');
-    }
-
+    // Use the same print()-based export on every device. The previous mobile-only
+    // html2pdf/html2canvas path stacked every selected invoice into one tall offscreen
+    // container and rendered it as a single canvas — on phones this routinely exceeded
+    // the browser's max canvas size (~16M px on iOS/Android), causing silent failures,
+    // blank pages, or crashes once more than a handful of invoices were selected.
     // Inject invoices into the main page and call window.print()
     // The @media print CSS in invoices.css hides all UI and shows #RENVA-print-container
     const printContainer = document.createElement('div');
