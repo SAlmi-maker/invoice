@@ -158,7 +158,7 @@ const RENVA_DASHBOARD = (() => {
     setStatCard('statToday',      formatCurrency(todayRevenue, currency), null, null);
     setStatCard('statMonth',      formatCurrency(thisMonthRevenue, currency), lastMonthRevenue, thisMonthRevenue, RENVA_I18N.t('dash.vsLastMonth'));
     setStatCard('statYear',       formatCurrency(thisYearRevenue, currency), lastYearRevenue, thisYearRevenue, RENVA_I18N.t('dash.vsLastYear'));
-    setStatCard('statInvoices',   totalInvoices, null, null, `${thisMonthInvoices} ${RENVA_I18N.t('dash.invoicesThisMonth')}`);
+    setStatCard('statInvoices',   thisMonthInvoices, null, null, null);
   }
 
   function getInvoiceDate(inv) {

@@ -932,11 +932,11 @@ const RENVA_INVOICES = (() => {
       const tempContainer = document.createElement('div');
       tempContainer.id = 'RENVA-export-temp';
       tempContainer.style.cssText = 'position:fixed;left:0;top:0;width:794px;background:#fff;padding:0;margin:0;z-index:-9999;';
-      tempContainer.innerHTML = invoiceHTMLs.join('\n<div style="page-break-before:always;height:0;"></div>');
+      tempContainer.innerHTML = invoiceHTMLs.join('');
       const lang = getPDFLang();
       const accentHex = invoiceColorMode === 'bw' ? '#1e293b' : (invoiceColor || '#2563EB');
       const imgPromises = [];
-      tempContainer.querySelectorAll('.ip-invoice').forEach(el => {
+      tempContainer.querySelectorAll('.ip-invoice').forEach((el, i) => {
         el.style.setProperty('--ip-primary', accentHex);
         el.style.overflow = 'visible';
         el.style.height = '';
@@ -944,6 +944,8 @@ const RENVA_INVOICES = (() => {
         el.style.width = '794px';
         el.style.transform = 'none';
         el.style.boxSizing = 'border-box';
+        // html2pdf respects CSS page-break-before with mode:'css'
+        if (i > 0) el.style.pageBreakBefore = 'always';
         if (lang === 'ar') el.setAttribute('dir', 'rtl');
         el.querySelectorAll('img').forEach(img => {
           if (img.complete && img.naturalHeight !== 0) return;
@@ -968,6 +970,7 @@ const RENVA_INVOICES = (() => {
               filename: `invoices-${new Date().getFullYear()}.pdf`,
               margin: 0,
               image: { type: 'jpeg', quality: 0.8 },
+              pagebreak: { mode: 'css' },
               html2canvas: {
                 scale: mobileScale,
                 useCORS: true,
