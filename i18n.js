@@ -72,6 +72,9 @@ const RENVA_I18N = (() => {
       'contact.email':        'Email',
       'contact.phone':        'Phone Number',
       'contact.submit':       'Send',
+      'contact.sending':      'Sending...',
+      'contact.thankYou':    'Thank you! We will contact you soon.',
+      'contact.failed':      'Failed to send. Please try again.',
 
       // Redirect
       'redirect.clickHere':   'Click here if not redirected.',
@@ -205,6 +208,12 @@ const RENVA_I18N = (() => {
       'inv.generatingPDF':  'Generating PDF...',
       'inv.pdfFailed':      'PDF generation failed. Please try again.',
       'inv.deleted':        'Invoice deleted successfully.',
+      'inv.exportSelectMonth': 'Select at least one month',
+      'inv.exportNoMatch':  'No invoices found for the selected period',
+      'inv.exportTemplateMissing': 'Invoice template not found',
+      'inv.exportSuccess':  'Exported {n} invoice(s)',
+      'inv.exportFailed':   'Export failed',
+      'inv.exportingCount': 'Exporting {n} invoice(s) as PDF',
       'inv.isRequired':        'is required',
       'inv.dailyPriceRequired':'Please enter a daily price greater than 0.',
       'inv.dateRangeError':    'End date must be after start date.',
@@ -308,6 +317,7 @@ const RENVA_I18N = (() => {
       'reports.invoiceNumber':   'Invoice #',
       'reports.date':            'Date',
       'reports.percent':      '%',
+      'reports.sheetjsError': 'SheetJS not loaded. Please refresh the page.',
 
       // Template / Color settings
       'template.colorMode':   'Invoice Settings',
@@ -687,6 +697,9 @@ const RENVA_I18N = (() => {
       'contact.email':        'Email',
       'contact.phone':        'Num\u00e9ro de t\u00e9l\u00e9phone',
       'contact.submit':       'Envoyer',
+      'contact.sending':      'Envoi en cours...',
+      'contact.thankYou':    'Merci ! Nous vous contacterons bientôt.',
+      'contact.failed':      "Échec de l'envoi. Veuillez réessayer.",
 
       // Redirect
       'redirect.clickHere':   'Cliquez ici si vous n\'êtes pas redirigé.',
@@ -817,6 +830,12 @@ const RENVA_I18N = (() => {
       'inv.generatingPDF':  'Génération du PDF...',
       'inv.pdfFailed':      'Échec de la génération du PDF. Veuillez réessayer.',
       'inv.deleted':        'Facture supprimée avec succès.',
+      'inv.exportSelectMonth': 'Sélectionnez au moins un mois',
+      'inv.exportNoMatch':  'Aucune facture trouvée pour la période sélectionnée',
+      'inv.exportTemplateMissing': 'Modèle de facture introuvable',
+      'inv.exportSuccess':  '{n} facture(s) exportée(s)',
+      'inv.exportFailed':   'Échec de l\'exportation',
+      'inv.exportingCount': 'Exportation de {n} facture(s) en PDF',
       'inv.isRequired':        'est requis',
       'inv.dailyPriceRequired':'Veuillez entrer un prix journalier supérieur à 0.',
       'inv.dateRangeError':    'La date de fin doit être postérieure à la date de début.',
@@ -919,6 +938,7 @@ const RENVA_I18N = (() => {
       'reports.invoiceNumber':   'N° Facture',
       'reports.date':            'Date',
       'reports.percent':      '%',
+      'reports.sheetjsError': 'SheetJS non chargé. Veuillez rafraîchir la page.',
 
       // Template / Color settings
       'template.colorMode':   'Paramètres Facture',
@@ -1297,6 +1317,9 @@ const RENVA_I18N = (() => {
       'contact.email':        'البريد الإلكتروني',
       'contact.phone':        'رقم الهاتف',
       'contact.submit':       'إرسال',
+      'contact.sending':      'جارٍ الإرسال...',
+      'contact.thankYou':    'شكرًا لك! سنتواصل معك قريبًا.',
+      'contact.failed':      'فشل الإرسال. يرجى المحاولة مرة أخرى.',
 
       // Redirect
       'redirect.clickHere':   'انقر هنا إذا لم تتم إعادة التوجيه.',
@@ -1427,6 +1450,12 @@ const RENVA_I18N = (() => {
       'inv.generatingPDF':  'جارٍ إنشاء PDF...',
       'inv.pdfFailed':      'فشل إنشاء PDF. يرجى المحاولة مرة أخرى.',
       'inv.deleted':        'تم حذف الفاتورة بنجاح.',
+      'inv.exportSelectMonth': 'اختر شهرًا واحدًا على الأقل',
+      'inv.exportNoMatch':  'لم يتم العثور على فواتير للفترة المحددة',
+      'inv.exportTemplateMissing': 'قالب الفاتورة غير موجود',
+      'inv.exportSuccess':  'تم تصدير {n} فاتورة (فواتير)',
+      'inv.exportFailed':   'فشل التصدير',
+      'inv.exportingCount': 'جارٍ تصدير {n} فاتورة (فواتير) كـ PDF',
       'inv.isRequired':        'مطلوب',
       'inv.dailyPriceRequired':'يرجى إدخال سعر يومي أكبر من 0.',
       'inv.dateRangeError':    'يجب أن يكون تاريخ النهاية بعد تاريخ البداية.',
@@ -1529,6 +1558,7 @@ const RENVA_I18N = (() => {
       'reports.invoiceNumber':   'رقم الفاتورة',
       'reports.date':            'التاريخ',
       'reports.percent':      '%',
+      'reports.sheetjsError': 'SheetJS غير محمل. يرجى تحديث الصفحة.',
 
       // Template / Color settings
       'template.colorMode':   'إعدادات الفاتورة',

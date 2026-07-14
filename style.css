@@ -463,3 +463,7 @@ p  { color: var(--text-secondary); }
   .btn-secondary:hover { background: var(--bg-subtle); }
   .btn-ghost:hover { background: transparent; }
 }
+
+/* ── Auth gate: hide content until auth state resolves ───── */
+body:not(.auth-checked) .sidebar,
+body:not(.auth-checked) .main-content { visibility: hidden; }

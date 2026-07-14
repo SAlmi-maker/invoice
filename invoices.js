@@ -401,7 +401,7 @@ const RENVA_INVOICES = (() => {
     recalculate();
     document.getElementById('modalTitle').setAttribute('data-i18n', 'inv.newInvoice');
     document.getElementById('modalTitle').textContent = RENVA_I18N.t('inv.newInvoice');
-    document.getElementById('invoiceModal').classList.add('open');
+    document.getElementById('invoiceModal')?.classList.add('open');
     lockScroll();
     document.getElementById('invPreviewWrap')?.classList.add('open');
     setTimeout(() => { document.getElementById('inv_clientName')?.focus(); renderHTMLPreview(); }, 100);
@@ -418,7 +418,8 @@ const RENVA_INVOICES = (() => {
     recalculate();
     document.getElementById('modalTitle').setAttribute('data-i18n', 'inv.newInvoice');
     document.getElementById('modalTitle').textContent = RENVA_I18N.t('inv.newInvoice');
-    document.getElementById('invoiceModal').classList.add('open');
+    const modal = document.getElementById('invoiceModal');
+    if (modal) modal.classList.add('open');
     lockScroll();
     document.getElementById('invPreviewWrap')?.classList.add('open');
     setTimeout(() => { document.getElementById('inv_clientName')?.focus(); renderHTMLPreview(); }, 100);
@@ -431,7 +432,8 @@ const RENVA_INVOICES = (() => {
     populateForm(inv);
     recalculate();
     document.getElementById('modalTitle').textContent = `${RENVA_I18N.t('common.edit')} #${inv.invoice_number || id.slice(-6).toUpperCase()}`;
-    document.getElementById('invoiceModal').classList.add('open');
+    const modal = document.getElementById('invoiceModal');
+    if (modal) modal.classList.add('open');
     lockScroll();
     document.getElementById('invPreviewWrap')?.classList.add('open');
     setTimeout(() => renderHTMLPreview(), 100);
@@ -453,8 +455,11 @@ const RENVA_INVOICES = (() => {
   }
 
   function closeModal() {
-    document.getElementById('invoiceModal').classList.remove('open');
-    document.getElementById('invoiceModal').classList.remove('preview-only');
+    const modal = document.getElementById('invoiceModal');
+    if (modal) {
+      modal.classList.remove('open');
+      modal.classList.remove('preview-only');
+    }
     const modalPanel = document.querySelector('#invoiceModal .modal-panel');
     if (modalPanel) modalPanel.style.display = '';
     document.getElementById('invPreviewWrap')?.classList.remove('open');
@@ -465,12 +470,14 @@ const RENVA_INVOICES = (() => {
   // ── Delete modal ──────────────────────────────────────────
   function openDelete(id) {
     deleteTargetId = id;
-    document.getElementById('deleteModal').classList.add('open');
+    const modal = document.getElementById('deleteModal');
+    if (modal) modal.classList.add('open');
     lockScroll();
   }
 
   function closeDeleteModal() {
-    document.getElementById('deleteModal').classList.remove('open');
+    const modal = document.getElementById('deleteModal');
+    if (modal) modal.classList.remove('open');
     unlockScroll();
     deleteTargetId = null;
   }
@@ -773,7 +780,7 @@ const RENVA_INVOICES = (() => {
 
     const checked = document.querySelectorAll('#exportMonthGrid input[type="checkbox"]:checked');
     const yearEl  = document.getElementById('exportYear');
-    if (!checked.length) { showToast('error', 'Select at least one month'); return; }
+    if (!checked.length) { showToast('error', RENVA_I18N.t('inv.exportSelectMonth')); return; }
 
     const months = Array.from(checked).map(cb => parseInt(cb.value));
     const year   = parseInt(yearEl?.value || new Date().getFullYear());
@@ -802,13 +809,13 @@ const RENVA_INVOICES = (() => {
       if (!seen.has(inv.id)) { seen.add(inv.id); unique.push(inv); }
     });
 
-    if (!unique.length) { showToast('error', 'No invoices found for the selected period'); return; }
+    if (!unique.length) { showToast('error', RENVA_I18N.t('inv.exportNoMatch')); return; }
 
     closeExportModal();
 
     // Grab the template outer HTML once
     const templateEl = document.querySelector('.ip-invoice');
-    if (!templateEl) { showToast('error', 'Invoice template not found'); return; }
+    if (!templateEl) { showToast('error', RENVA_I18N.t('inv.exportTemplateMissing')); return; }
 
     // Build from a fresh clone of the template to avoid stale DOM state
     const baseHTML = templateEl.cloneNode(true).outerHTML;
@@ -986,12 +993,12 @@ const RENVA_INVOICES = (() => {
             .save()
             .then(() => {
               if (tempContainer.parentNode) tempContainer.remove();
-              showToast('success', `Exported ${written} invoice(s)`);
+              showToast('success', RENVA_I18N.t('inv.exportSuccess').replace('{n}', written));
             })
             .catch(err => {
               console.error('html2pdf bulk error:', err);
               if (tempContainer.parentNode) tempContainer.remove();
-              showToast('error', 'Export failed: ' + (err.message || 'unknown'));
+              showToast('error', RENVA_I18N.t('inv.exportFailed') + ': ' + (err.message || 'unknown'));
             });
         }, 100);
       });
@@ -1019,7 +1026,7 @@ const RENVA_INVOICES = (() => {
       setTimeout(cleanup, 3000);
     }
 
-    showToast('success', `Exporting ${written} invoice(s) as PDF`);
+    showToast('success', RENVA_I18N.t('inv.exportingCount').replace('{n}', written));
   }
 
   // ── Print / PDF via browser ─────────────────────────────
@@ -1269,12 +1276,14 @@ const RENVA_INVOICES = (() => {
     }
 
     const notesWrap = document.getElementById('preview_notesWrap');
-    if (inv.notes) {
-      s('preview_notesLabel', t('pdf.notes'));
-      s('preview_notes', inv.notes);
-      notesWrap.style.display = 'block';
-    } else {
-      notesWrap.style.display = 'none';
+    if (notesWrap) {
+      if (inv.notes) {
+        s('preview_notesLabel', t('pdf.notes'));
+        s('preview_notes', inv.notes);
+        notesWrap.style.display = 'block';
+      } else {
+        notesWrap.style.display = 'none';
+      }
     }
   }
 

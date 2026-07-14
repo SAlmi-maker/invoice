@@ -385,7 +385,7 @@ const RENVA_REPORTS = (() => {
   // ── XLSX Export ───────────────────────────────────────────
   function exportXlsx() {
     if (!window.XLSX) {
-      showToast('error', 'SheetJS not loaded. Please refresh the page.');
+      showToast('error', RENVA_I18N.t('reports.sheetjsError'));
       return;
     }
 

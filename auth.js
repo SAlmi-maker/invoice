@@ -26,6 +26,7 @@ const RENVA_AUTH = (() => {
         window.location.href = HOME_PAGE;
       }
 
+      document.body.classList.add('auth-checked');
       document.dispatchEvent(new CustomEvent('RENVA:authReady', { detail: { user } }));
     });
   }

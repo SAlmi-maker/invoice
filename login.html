@@ -17,7 +17,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css?v=2" />
   <style>
     body { min-height: 100vh; display: flex; }
 
@@ -607,7 +607,7 @@
       const msg = document.getElementById('contactMsg');
       msg.style.display = 'none';
       btn.disabled = true;
-      btn.textContent = 'Sending...';
+      btn.textContent = RENVA_I18N.t('contact.sending');
       try {
         const res = await fetch('https://formspree.io/f/xaqgnzog', {
           method: 'POST',
@@ -617,17 +617,17 @@
         if (!res.ok) throw new Error('Formspree error');
         msg.className = '';
         msg.style.cssText = 'display:block;padding:10px 14px;border-radius:8px;font-size:0.82rem;background:var(--green-bg);color:var(--green);';
-        msg.textContent = 'Thank you! We will contact you soon.';
+        msg.textContent = RENVA_I18N.t('contact.thankYou');
         contactForm.reset();
         setTimeout(closeContactModal, 2000);
       } catch (err) {
         console.error('contact request error:', err);
         msg.className = '';
         msg.style.cssText = 'display:block;padding:10px 14px;border-radius:8px;font-size:0.82rem;background:var(--red-bg);color:var(--red);';
-        msg.textContent = 'Failed to send. Please try again.';
+        msg.textContent = RENVA_I18N.t('contact.failed');
       } finally {
         btn.disabled = false;
-        btn.textContent = 'Send';
+        btn.textContent = RENVA_I18N.t('contact.submit');
       }
     });
   });
